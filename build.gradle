@@ -20,14 +20,18 @@ ospackage {
     release = '1'
     arch = "all"
     os = LINUX
-
+    packager = "openHAB &lt;admin@openhab.org&gt;"
+    distribution = "development"
+    vendor = "openhab.org"
+    url = "www.openhab.org"
+    
     //installUtils file('scripts/rpm/utils.sh')
     preInstall file(resourcesDir + 'deb/control-runtime/preinst')
     postInstall file(resourcesDir + 'deb/control-runtime/postinst')
     preUninstall file(resourcesDir + 'deb/control-runtime/prerm')
     postUninstall file(resourcesDir + 'deb/control-runtime/postrm')
 
-    requires('qux')
+    requires('adduser')
 
     user = ohuser
     permissionGroup = ohgroup
@@ -44,8 +48,16 @@ buildDeb {
     link('/etc/init.d/foo', '/opt/foo/bin/foo.upstart')
 }
 
+onlineDistroDeb(type:distroDeb){
+    def inputFile = buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz'
+
+}
+
 //task onlineDistroDeb(type: Deb, dependsOn: 'downloadOnlineDistro'){
-task onlineDistroDeb(type: Deb){
+task distroDeb(type: Deb) << {
+    packageName = 'openhab2-online'
+    //conflicts = ["openhab2-offline"]
+
     /**
     * Suck up all the empty directories that we need to install into the path.
     */
@@ -93,17 +105,19 @@ task onlineDistroDeb(type: Deb){
         exclude 'start_debug.bat'
     }
     from(tar){
-        //TODO rename
         fileType CONFIG | NOREPLACE
         into '/etc/openhab2'
         include 'conf/**'
-        exclude 'conf/services/addons.cfg'
+        eachFile { details ->
+            def pkgPath = details.path - 'conf'
+            details.path = pkgPath 
+        }
     }
     from(tar){
-        //TODO rename
         fileType CONFIG | NOREPLACE
-        rename { String fileName ->
-            fileName.replace('userdata', '')
+        eachFile { details ->
+            def pkgPath = details.path - 'userdata'
+            details.path = pkgPath 
         }
         into '/var/lib/openhab2'
         include 'userdata/**'
@@ -111,11 +125,6 @@ task onlineDistroDeb(type: Deb){
     from(debResourcesDir + 'bin/oh2_dir_layout'){
         fileMode 0775
         into '/usr/share/openhab2/runtime/karaf/bin'
-    }
-    from(debResourcesDir + 'conf/services/addons.cfg'){
-        fileType CONFIG | NOREPLACE
-        fileMode 0644
-        into '/etc/openhab2/services'
     }
 }
 
