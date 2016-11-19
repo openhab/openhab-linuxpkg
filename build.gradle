@@ -48,13 +48,13 @@ buildDeb {
     link('/etc/init.d/foo', '/opt/foo/bin/foo.upstart')
 }
 
-onlineDistroDeb(type:distroDeb){
-    def inputFile = buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz'
+// onlineDistroDeb(type:distroDeb){
+//     def inputFile = buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz'
 
-}
+// }
 
 //task onlineDistroDeb(type: Deb, dependsOn: 'downloadOnlineDistro'){
-task distroDeb(type: Deb) << {
+task distroDeb(type: Deb) {
     packageName = 'openhab2-online'
     //conflicts = ["openhab2-offline"]
 
