@@ -33,25 +33,29 @@ ospackage {
 }
 
 def distributions = [
-                        ["dist": "openhab2-offline-b4",
+                        [ "dist": "openhab2-offline-b4",
+                         "packageName": "openhab2-offline",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz',
                          "conflicts": ["openhab2-online"],
                          "version": "2.0.0.b4"
                         ],
                         ["dist": "openhab2-online-b4",
+                         "packageName": "openhab2-online",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz',
                          "conflicts": ["openhab2-offline"],
                          "version": "2.0.0.b4"
                         ],
-                        ["dist": "openhab-offline-snapshot",
+                        ["dist": "openhab2-offline-snapshot",
+                         "packageName": "openhab2-offline",
                          "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/openhab-offline-2.0.0-SNAPSHOT.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-SNAPSHOT.tar.gz',
                          "conflicts": ["openhab2-online"],
                          "version": "2.0.0.SNAPSHOT"
                         ],
-                        ["dist": "openhab-online-snapshot",
+                        ["dist": "openhab2-online-snapshot",
+                         "packageName": "openhab2-online",
                          "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-online/target/openhab-online-2.0.0-SNAPSHOT.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-SNAPSHOT.tar.gz',
                          "conflicts": ["openhab2-offline"],
@@ -59,12 +63,11 @@ def distributions = [
                         ]
                     ]
 
-def generate_distro_tasks = { gPackageName, gInputFile, gVersion, gConflicts ->
-    task "distro-${gPackageName}"(type: Deb, dependsOn: "download-${gPackageName}") {
-        packageName = gPackageName
+def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gConflicts ->
+    task "distro-${dist}"(type: Deb, dependsOn: "download-${dist}") {
         //conflicts = gConflicts
+        packageName = gPackageName
         version = gVersion
-
         /**
         * Suck up all the empty directories that we need to install into the path.
         */
@@ -135,7 +138,7 @@ def generate_distro_tasks = { gPackageName, gInputFile, gVersion, gConflicts ->
     }
 }
 
-distributions.each { dist -> generate_distro_tasks(dist.dist, dist.path, dist.version, dist.conflicts)}
+distributions.each { dist -> generate_distro_tasks(dist.dist, dist.packageName, dist.path, dist.version, dist.conflicts)}
 
 task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")} << {})
 
