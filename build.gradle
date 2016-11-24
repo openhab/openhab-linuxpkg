@@ -8,15 +8,10 @@ repositories {
     jcenter()
 }
 
-def openhabVersion = "2.0.0.b4"
 def resourcesDir = "distributions/distribution-resources/src/main/resources/"
 def debResourcesDir = resourcesDir + "deb/"
-def ohuser = 'openhab'
-def ohgroup = 'openhab'
 
 ospackage {
-    packageName = 'foo'
-    version = openhabVersion
     release = '1'
     arch = "all"
     os = LINUX
@@ -33,19 +28,42 @@ ospackage {
 
     requires('adduser')
 
-    user = ohuser
-    permissionGroup = ohgroup
+    user = 'openhab'
+    permissionGroup = 'openhab'
 }
 
 def distributions = [
-                        ["dist": "openhab2-offline", "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz'],
-                        ["dist": "openhab2-online", "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz']
+                        ["dist": "openhab2-offline-b4",
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz',
+                         "conflicts": ["openhab2-online"],
+                         "version": "2.0.0.b4"
+                        ],
+                        ["dist": "openhab2-online-b4",
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz',
+                         "conflicts": ["openhab2-offline"],
+                         "version": "2.0.0.b4"
+                        ],
+                        ["dist": "openhab-offline-snapshot",
+                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/openhab-offline-2.0.0-SNAPSHOT.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-SNAPSHOT.tar.gz',
+                         "conflicts": ["openhab2-online"],
+                         "version": "2.0.0.SNAPSHOT"
+                        ],
+                        ["dist": "openhab-online-snapshot",
+                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-online/target/openhab-online-2.0.0-SNAPSHOT.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-SNAPSHOT.tar.gz',
+                         "conflicts": ["openhab2-offline"],
+                         "version": "2.0.0.SNAPSHOT"
+                        ]
                     ]
 
-def generate_distro_tasks = { gPackageName, gInputFile ->
-    task "distro-${gPackageName}"(type: Deb) {
+def generate_distro_tasks = { gPackageName, gInputFile, gVersion, gConflicts ->
+    task "distro-${gPackageName}"(type: Deb, dependsOn: "download-${gPackageName}") {
         packageName = gPackageName
-        //conflicts = ["openhab2-offline"]
+        //conflicts = gConflicts
+        version = gVersion
 
         /**
         * Suck up all the empty directories that we need to install into the path.
@@ -61,11 +79,11 @@ def generate_distro_tasks = { gPackageName, gInputFile ->
         }
 
         FileTree tar = tarTree(gInputFile)
-        suckUpEmptyDirectories('/var/log/openhab2', ohuser, ohgroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', ohuser, ohgroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', ohuser, ohgroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', ohuser, ohgroup, 0755)
-        suckUpEmptyDirectories('/usr/share/openhab2/bin', ohuser, ohgroup, 0755)
+        suckUpEmptyDirectories('/var/log/openhab2', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/usr/share/openhab2/bin', user, permissionGroup, 0755)
         from(debResourcesDir + 'etc/default/openhab2'){
             user 'root'
             permissionGroup 'root'
@@ -117,18 +135,18 @@ def generate_distro_tasks = { gPackageName, gInputFile ->
     }
 }
 
-distributions.each { dist -> generate_distro_tasks(dist.dist, dist.path)}
+distributions.each { dist -> generate_distro_tasks(dist.dist, dist.path, dist.version, dist.conflicts)}
 
-task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")} << {
+task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")} << {})
 
-})
-
-task downloadOfflineDistro(type: Download) { 
-    src 'https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz'
-    dest new File(buildDir, 'openhab-offline-2.0.0.b4.tar.gz')
+def generate_download_tasks = { dist, url, path -> 
+    task "download-${dist}"(type: Download) { 
+        onlyIfNewer true
+        src url
+        dest new File(path)
+    }
 }
 
-task downloadOnlineDistro(type: Download) { 
-    src 'https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz'
-    dest new File(buildDir, 'openhab-online-2.0.0.b4.tar.gz')
-}
+distributions.each { dist -> generate_download_tasks(dist.dist, dist.url, dist.path)}
+
+task downloadDistros(dependsOn: tasks.findAll {t -> t.name.startsWith("download-")} << {})
