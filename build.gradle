@@ -37,100 +37,95 @@ ospackage {
     permissionGroup = ohgroup
 }
 
-buildRpm {
-    requires('bar', '2.2', GREATER | EQUAL)
-    requires('baz', '1.0.1', LESS)
-    link('/etc/init.d/foo', '/opt/foo/bin/foo.init')
-}
+def distributions = [
+                        ["dist": "openhab2-offline", "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz'],
+                        ["dist": "openhab2-online", "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz']
+                    ]
 
-buildDeb {
-    requires('bat', '1.0.1')
-    link('/etc/init.d/foo', '/opt/foo/bin/foo.upstart')
-}
+def generate_distro_tasks = { gPackageName, gInputFile ->
+    task "distro-${gPackageName}"(type: Deb) {
+        packageName = gPackageName
+        //conflicts = ["openhab2-offline"]
 
-// onlineDistroDeb(type:distroDeb){
-//     def inputFile = buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz'
+        /**
+        * Suck up all the empty directories that we need to install into the path.
+        */
+        Closure suckUpEmptyDirectories = { path, u, g, mode ->
+            into(path) {
+            from "${debResourcesDir}dirs${path}"
+            user u
+            permissionGroup g
+            dirMode mode
+            fileMode mode
+            }
+        }
 
-// }
-
-//task onlineDistroDeb(type: Deb, dependsOn: 'downloadOnlineDistro'){
-task distroDeb(type: Deb) {
-    packageName = 'openhab2-online'
-    //conflicts = ["openhab2-offline"]
-
-    /**
-    * Suck up all the empty directories that we need to install into the path.
-    */
-    Closure suckUpEmptyDirectories = { path, u, g, mode ->
-        into(path) {
-        from "${debResourcesDir}dirs${path}"
-        user u
-        permissionGroup g
-        dirMode mode
-        fileMode mode
+        FileTree tar = tarTree(gInputFile)
+        suckUpEmptyDirectories('/var/log/openhab2', ohuser, ohgroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', ohuser, ohgroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', ohuser, ohgroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', ohuser, ohgroup, 0755)
+        suckUpEmptyDirectories('/usr/share/openhab2/bin', ohuser, ohgroup, 0755)
+        from(debResourcesDir + 'etc/default/openhab2'){
+            user 'root'
+            permissionGroup 'root'
+            fileMode 0644
+            into '/etc/default/openhab2'
+        }
+        from(debResourcesDir + 'bin/setpermissions.sh'){
+            user 'root'
+            permissionGroup 'root'
+            fileMode 0775
+            into '/usr/share/openhab2/bin'
+        }
+        from(debResourcesDir + 'systemd/openhab2.service'){
+            fileMode 0644
+            user 'root'
+            permissionGroup 'root'
+            into '/usr/lib/systemd/system'
+        }
+        from(tar){
+            into '/usr/share/openhab2'
+            exclude 'conf/**'
+            exclude 'userdata/**'
+            exclude 'runtime/karaf/bin/oh2_dir_layout'
+            exclude 'start.bat'
+            exclude 'start_debug.bat'
+        }
+        from(tar){
+            fileType CONFIG | NOREPLACE
+            into '/etc/openhab2'
+            include 'conf/**'
+            eachFile { details ->
+                def pkgPath = details.path - 'conf'
+                details.path = pkgPath 
+            }
+        }
+        from(tar){
+            fileType CONFIG | NOREPLACE
+            eachFile { details ->
+                def pkgPath = details.path - 'userdata'
+                details.path = pkgPath 
+            }
+            into '/var/lib/openhab2'
+            include 'userdata/**'
+        }
+        from(debResourcesDir + 'bin/oh2_dir_layout'){
+            fileMode 0775
+            into '/usr/share/openhab2/runtime/karaf/bin'
         }
     }
-
-    def inputFile = buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz'
-    FileTree tar = tarTree(inputFile)
-    suckUpEmptyDirectories('/var/log/openhab2', ohuser, ohgroup, 0755)
-    suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', ohuser, ohgroup, 0755)
-    suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', ohuser, ohgroup, 0755)
-    suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', ohuser, ohgroup, 0755)
-    suckUpEmptyDirectories('/usr/share/openhab2/bin', ohuser, ohgroup, 0755)
-    from(debResourcesDir + 'etc/default/openhab2'){
-        user 'root'
-        permissionGroup 'root'
-        fileMode 0644
-        into '/etc/default/openhab2'
-    }
-    from(debResourcesDir + 'bin/setpermissions.sh'){
-        user 'root'
-        permissionGroup 'root'
-        fileMode 0775
-        into '/usr/share/openhab2/bin'
-    }
-    from(debResourcesDir + 'systemd/openhab2.service'){
-        fileMode 0644
-        user 'root'
-        permissionGroup 'root'
-        into '/usr/lib/systemd/system'
-    }
-    from(tar){
-        into '/usr/share/openhab2'
-        exclude 'conf/**'
-        exclude 'userdata/**'
-        exclude 'runtime/karaf/bin/oh2_dir_layout'
-        exclude 'start.bat'
-        exclude 'start_debug.bat'
-    }
-    from(tar){
-        fileType CONFIG | NOREPLACE
-        into '/etc/openhab2'
-        include 'conf/**'
-        eachFile { details ->
-            def pkgPath = details.path - 'conf'
-            details.path = pkgPath 
-        }
-    }
-    from(tar){
-        fileType CONFIG | NOREPLACE
-        eachFile { details ->
-            def pkgPath = details.path - 'userdata'
-            details.path = pkgPath 
-        }
-        into '/var/lib/openhab2'
-        include 'userdata/**'
-    }
-    from(debResourcesDir + 'bin/oh2_dir_layout'){
-        fileMode 0775
-        into '/usr/share/openhab2/runtime/karaf/bin'
-    }
 }
+
+distributions.each { dist -> generate_distro_tasks(dist.dist, dist.path)}
+
+task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")} << {
+
+})
 
 task downloadOfflineDistro(type: Download) { 
     src 'https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz'
-    dest buildDir
+    dest new File(buildDir, 'openhab-offline-2.0.0.b4.tar.gz')
 }
 
 task downloadOnlineDistro(type: Download) { 
