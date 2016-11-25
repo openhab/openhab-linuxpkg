@@ -8,7 +8,7 @@ repositories {
     jcenter()
 }
 
-def resourcesDir = "distributions/distribution-resources/src/main/resources/"
+def resourcesDir = "resources/"
 def debResourcesDir = resourcesDir + "deb/"
 
 ospackage {
