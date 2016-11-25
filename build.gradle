@@ -32,6 +32,7 @@ ospackage {
     permissionGroup = 'openhab'
 }
 
+def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
                         [ "dist": "openhab2-offline-b4",
                          "packageName": "openhab2-offline",
@@ -52,14 +53,14 @@ def distributions = [
                          "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/openhab-offline-2.0.0-SNAPSHOT.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-SNAPSHOT.tar.gz',
                          "conflicts": ["openhab2-online"],
-                         "version": "2.0.0.SNAPSHOT"
+                         "version": "2.0.0." + timestamp
                         ],
                         ["dist": "openhab2-online-snapshot",
                          "packageName": "openhab2-online",
                          "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-online/target/openhab-online-2.0.0-SNAPSHOT.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-SNAPSHOT.tar.gz',
                          "conflicts": ["openhab2-offline"],
-                         "version": "2.0.0.SNAPSHOT"
+                         "version": "2.0.0." + timestamp
                         ]
                     ]
 
