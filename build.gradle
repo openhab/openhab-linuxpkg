@@ -138,7 +138,7 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
         }
         from(debResourcesDir + 'bin/oh2_dir_layout'){
             fileMode 0775
-            into '/usr/share/openhab2/runtime/karaf/bin'
+            into '/usr/share/openhab2/runtime/bin'
         }
     }
 }
