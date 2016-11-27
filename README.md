@@ -1,6 +1,9 @@
 # openhab-linuxpkg
 Repo for Linux deb packages
 
+## Warning
+  The downloads will make up to 400 megs of traffic
+
 ## Tasks
  * build all packages
 
@@ -11,7 +14,7 @@ Repo for Linux deb packages
  * build beta 4
 
  ```
- ./gradlew buildBeta4
+ ./gradlew buildBeta5
  ```
 
  * build snapshots
@@ -20,6 +23,23 @@ Repo for Linux deb packages
  ./gradlew buildSnapshot
  ```
 
+ * build offline snapshot
+
+ ```
+ ./gradlew distro-openhab2-offline-snapshot
+ ```
+
+ * build online snapshot
+
+ ```
+ ./gradlew distro-openhab2-online-snapshot
+ ```
+
+ * build openhab2 offline beta 5
+
+```
+ ./gradlew distro-openhab2-offline-b5
+```
  * download all packages
 
  ```
@@ -29,23 +49,23 @@ Repo for Linux deb packages
   * download offline snapshot
 
   ```
-  ./gradlew ./gradlew download-openhab2-offline-snapshot
+  ./gradlew download-openhab2-offline-snapshot
   ```
 
   * download online snapshot
 
   ```
-  ./gradlew ./gradlew download-openhab2-online-snapshot
+  ./gradlew download-openhab2-online-snapshot
   ```
 
-  * download offline beta 4
+  * download offline beta 5
 
   ```
-    ./gradlew ./gradlew download-openhab2-offline-b4
+    ./gradlew download-openhab2-offline-b5
   ```
 
-    * download online beta 4
+    * download online beta 5
 
   ```
-    ./gradlew ./gradlew download-openhab2-online-b4
+    ./gradlew download-openhab2-online-b5
   ```
