@@ -1,8 +1,23 @@
 # openhab-linuxpkg
 Repo for Linux deb packages
 
+This project is work in progress and not yet production ready.
+
 ## Warning
-  The downloads will make up to 400 megs of traffic
+  The downloads will make up to 400 megs of traffic!
+
+## Description
+
+As long as openHAB 2.0.0b5 is not released only the snapshot build will work.
+
+By executing
+
+ ```
+ ./gradlew buildSnapshot
+ ```
+
+you will find two packages in build/distributions named **openhab2-offline_2.0.0.2016yyyyMMddHHmmss-1_all.deb** and
+**openhab2-online_2.0.0.2016yyyyMMddHHmmss-1_all.deb**.
 
 ## Tasks
  * build all packages
