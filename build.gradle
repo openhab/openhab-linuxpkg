@@ -119,7 +119,6 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
             exclude 'start_debug.bat'
         }
         from(tar){
-            fileType CONFIG | NOREPLACE
             into '/etc/openhab2'
             include 'conf/**'
             eachFile { details ->
@@ -129,7 +128,6 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
             }
         }
         from(tar){
-            fileType CONFIG | NOREPLACE
             into '/var/lib/openhab2'
             include 'userdata/**'
             eachFile { details ->
