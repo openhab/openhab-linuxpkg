@@ -114,27 +114,27 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
             into '/usr/share/openhab2'
             exclude 'conf/**'
             exclude 'userdata/**'
-            exclude 'runtime/karaf/bin/oh2_dir_layout'
+            exclude 'runtime/bin/oh2_dir_layout'
             exclude 'start.bat'
             exclude 'start_debug.bat'
         }
         from(tar){
-            fileType CONFIG | NOREPLACE
             into '/etc/openhab2'
             include 'conf/**'
             eachFile { details ->
                 def pkgPath = details.path - 'conf'
-                details.path = pkgPath 
+                details.path = pkgPath
+                configurationFile(details.path)
             }
         }
         from(tar){
-            fileType CONFIG | NOREPLACE
-            eachFile { details ->
-                def pkgPath = details.path - 'userdata'
-                details.path = pkgPath 
-            }
             into '/var/lib/openhab2'
             include 'userdata/**'
+            eachFile { details ->
+                def pkgPath = details.path - 'userdata'
+                details.path = pkgPath
+                configurationFile(details.path)
+            }
         }
         from(debResourcesDir + 'bin/oh2_dir_layout'){
             fileMode 0775
