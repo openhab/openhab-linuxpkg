@@ -10,7 +10,7 @@ This project is work in progress and not yet production ready.
 
 ## Description
 
-As long as openHAB 2.0.0b5 is not released only the snapshot build will work.
+As long as openHAB 2.0.0b5 is not released only the beta4 and snapshot build will work.
 
 By executing
 
