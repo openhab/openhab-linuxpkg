@@ -24,6 +24,8 @@ ospackage {
     postInstall file(resourcesDir + 'deb/control-runtime/postinst')
     preUninstall file(resourcesDir + 'deb/control-runtime/prerm')
     postUninstall file(resourcesDir + 'deb/control-runtime/postrm')
+    
+    configurationFile('/etc/default/openhab2')
 
     requires('adduser')
 
