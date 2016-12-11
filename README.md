@@ -10,7 +10,7 @@ This project is work in progress and not yet production ready.
 
 ## Description
 
-As long as openHAB 2.0.0b5 is not released only the snapshot build will work.
+As long as openHAB 2.0.0b5 is not released only the beta4 and snapshot build will work.
 
 By executing
 
@@ -32,7 +32,7 @@ you will find two packages in build/distributions named **openhab2-offline_2.0.0
 * build beta 4
 
  ```bash
- ./gradlew buildBeta5
+ ./gradlew buildBeta4
  ```
 
 * build snapshots
@@ -53,10 +53,10 @@ you will find two packages in build/distributions named **openhab2-offline_2.0.0
  ./gradlew distro-openhab2-online-snapshot
  ```
 
-* build openhab2 offline beta 5
+* build openhab2 offline beta 4
 
 ```bash
- ./gradlew distro-openhab2-offline-b5
+ ./gradlew distro-openhab2-offline-b4
 ```
 
 * download all packages
@@ -77,14 +77,14 @@ you will find two packages in build/distributions named **openhab2-offline_2.0.0
 ./gradlew download-openhab2-online-snapshot
 ```
 
-* download offline beta 5
+* download offline beta 4
 
 ```bash
-./gradlew download-openhab2-offline-b5
+./gradlew download-openhab2-offline-b4
 ```
 
-* download online beta 5
+* download online beta 4
 
 ```bash
-./gradlew download-openhab2-online-b5
+./gradlew download-openhab2-online-b4
 ```

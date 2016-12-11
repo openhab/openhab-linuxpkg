@@ -35,20 +35,20 @@ ospackage {
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
-                        [ "dist": "openhab2-offline-b5",
+                        [ "dist": "openhab2-offline-b4",
                          "packageName": "openhab2-offline",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz',
                          "conflicts": ["openhab2-online"],
-                         "version": "2.0.0.b5",
+                         "version": "2.0.0.b4",
                          "release": '1'
                         ],
-                        ["dist": "openhab2-online-b5",
+                        ["dist": "openhab2-online-b4",
                          "packageName": "openhab2-online",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz',
                          "conflicts": ["openhab2-offline"],
-                         "version": "2.0.0.b5",
+                         "version": "2.0.0.b4",
                          "release": '1'
                         ],
                         ["dist": "openhab2-offline-snapshot",
