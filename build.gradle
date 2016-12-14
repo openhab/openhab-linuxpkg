@@ -11,13 +11,24 @@ repositories {
 def resourcesDir = "resources/"
 def debResourcesDir = resourcesDir + "deb/"
 
+def BINTRAY_ORG     = project.hasProperty('bintrayOrg') ? project.property('bintrayOrg') : System.env.BINTRAY_ORGANISATION
+def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
+def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
+def BINTRAY_GPG     = project.hasProperty('bintrayGpg') ? project.property('bintrayGpg') : System.env.BINTRAY_API_GPG
+def BINTRAY_REPO    = "apt-repo2"
+def BINTRAY_PACKAGE = "openhab2"
+def BINTRAY_ARCH    = "all,armhf,armel,mips,arm64"
+
+def OSPACKAGE_ARCH  = "all"
+
 ospackage {
-    arch = "all"
+    arch = "${OSPACKAGE_ARCH}"
     os = LINUX
-    packager = "openHAB &lt;admin@openhab.org&gt;"
-    distribution = "development"
-    vendor = "openhab.org"
+    packager = "https://github.com/openhab/openhab-linuxpkg"
+    maintainer = "https://community.openhab.org"
+    vendor = "openHAB Foundation"
     url = "www.openhab.org"
+    packageDescription = 'Linux installation package for openHAB2.'
     
     //installUtils file('scripts/rpm/utils.sh')
     preInstall file(resourcesDir + 'deb/control-runtime/preinst')
@@ -31,50 +42,59 @@ ospackage {
 
     user = 'openhab'
     permissionGroup = 'openhab'
+
+    customField 'Section', 'misc'
 }
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
-                        [ "dist": "openhab2-offline-b5",
+                        ["dist": "openhab2-offline-b5",
+                         "debDist": "testing",
                          "packageName": "openhab2-offline",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz',
-                         "conflicts": ["openhab2-online"],
-                         "version": "2.0.0.b5",
+                         "conflicts": "openhab2-online",
+                         "version": "2.0.0~b5",
                          "release": '1'
                         ],
                         ["dist": "openhab2-online-b5",
+                         "debDist": "testing",
                          "packageName": "openhab2-online",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz',
-                         "conflicts": ["openhab2-offline"],
-                         "version": "2.0.0.b5",
+                         "conflicts": "openhab2-offline",
+                         "version": "2.0.0~b5",
                          "release": '1'
                         ],
                         ["dist": "openhab2-offline-snapshot",
+                         "debDist": "unstable",
                          "packageName": "openhab2-offline",
                          "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/openhab-offline-2.0.0-SNAPSHOT.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-SNAPSHOT.tar.gz',
-                         "conflicts": ["openhab2-online"],
-                         "version": "2.0.0." + timestamp,
+                         "conflicts": "openhab2-online",
+                         "version": "2.0.0~" + timestamp,
                          "release": '1'
                         ],
                         ["dist": "openhab2-online-snapshot",
+                         "debDist": "unstable",
                          "packageName": "openhab2-online",
                          "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-online/target/openhab-online-2.0.0-SNAPSHOT.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-SNAPSHOT.tar.gz',
-                         "conflicts": ["openhab2-offline"],
-                         "version": "2.0.0." + timestamp,
+                         "conflicts": "openhab2-offline",
+                         "version": "2.0.0~" + timestamp,
                          "release": '1'
                         ]
                     ]
 
-def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease, gConflicts ->
+def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease, gConflicts, gDebDist ->
     task "distro-${dist}"(type: Deb, dependsOn: "download-${dist}") {
-        //conflicts = gConflicts
         release = gRelease
         packageName = gPackageName
         version = gVersion
+        distribution = gDebDist
+
+        conflicts(gConflicts)
+
         /**
         * Suck up all the empty directories that we need to install into the path.
         */
@@ -149,10 +169,24 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
             into '/usr/share/openhab2/runtime/bin'
         }
     }
+
+    task "upload-${dist}"(type:Exec, dependsOn: "distro-${dist}") {
+            
+        def fileName = "${gPackageName}_${gVersion}-${gRelease}_${OSPACKAGE_ARCH}.deb"
+        def curlURL = "https://api.bintray.com/content/${BINTRAY_ORG}/${BINTRAY_REPO}/${BINTRAY_PACKAGE}/${gVersion}/pool/main/${gVersion}/${fileName};deb_distribution=${gDebDist};deb_component=main;deb_architecture=${BINTRAY_ARCH};publish=1"
+
+        executable "curl"
+        args "-X", "PUT", "-H", "X-GPG-PASSPHRASE: ${BINTRAY_GPG}", "-T", "build/distributions/${fileName}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "${curlURL}"
+    }
 }
 
 distributions.each { dist -> generate_distro_tasks(dist.dist, dist.packageName, dist.path, 
-                        dist.version, dist.release, dist.conflicts)}
+                        dist.version, dist.release, dist.conflicts, dist.debDist)}
+
+task calculateMetadata(type:Exec) {
+     executable "curl"
+     args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${BINTRAY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/${BINTRAY_ORG}/${BINTRAY_REPO}"
+}
 
 task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")})
 

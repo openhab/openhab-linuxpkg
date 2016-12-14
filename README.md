@@ -18,73 +18,28 @@ By executing
  ./gradlew buildSnapshot
  ```
 
-you will find two packages in build/distributions named **openhab2-offline_2.0.0.2016yyyyMMddHHmmss-1_all.deb** and
-**openhab2-online_2.0.0.2016yyyyMMddHHmmss-1_all.deb**.
+you will find two packages in build/distributions named **openhab2-offline_2.0.0.yyyyMMddHHmmss-1_all.deb** and
+**openhab2-online_2.0.0.yyyyMMddHHmmss-1_all.deb**.
 
 ## Tasks
 
-* build all packages
+There are a series of gradle tasks that can executed by following the syntax: `./gradlew [TASK NAME]`
 
-```bash
-./gradlew packageDistros
-```
+| Task Name                          | Description                                               |
+|:-----------------------------------|:----------------------------------------------------------|
+| `buildBeta5`                       | Builds and uploads Beta5 (online and offline)             |
+| `buildSnapshot`                    | Builds and uploads the latest online and offline snapshot |
+| `upload-openhab2-[PACKAGE NAME]`   | Builds and uploads a specified package                    |
+| `packageDistros`                   | Runs all `distro-*` tasks                                 |
+| `distro-openhab2-[PACKAGE NAME]`   | Builds a specific package without uploading it            |
+| `downloadDistros`                  | Downloads the latest compressed packages                  |
+| `download-openhab2-[PACKAGE NAME]` | Downloads the latest version of the specified package     |
+| `calculateMetadata`                | Instructs bintray to calculate the metadata information   |
 
-* build beta 4
 
- ```bash
- ./gradlew buildBeta5
- ```
+The variations of `[PACKAGE NAME]` are:
 
-* build snapshots
-
- ```bash
- ./gradlew buildSnapshot
- ```
-
-* build offline snapshot
-
- ```bash
- ./gradlew distro-openhab2-offline-snapshot
- ```
-
-* build online snapshot
-
- ```bash
- ./gradlew distro-openhab2-online-snapshot
- ```
-
-* build openhab2 offline beta 5
-
-```bash
- ./gradlew distro-openhab2-offline-b5
-```
-
-* download all packages
-
- ```bash
- ./gradlew downloadDistros
- ```
-
-* download offline snapshot
-
-```bash
-./gradlew download-openhab2-offline-snapshot
-```
-
-* download online snapshot
-
-```bash
-./gradlew download-openhab2-online-snapshot
-```
-
-* download offline beta 5
-
-```bash
-./gradlew download-openhab2-offline-b5
-```
-
-* download online beta 5
-
-```bash
-./gradlew download-openhab2-online-b5
-```
+- online-snapshot
+- offline-snapshot
+- online-b5 (not yet ready)
+- offline-b5 (not yet ready)
