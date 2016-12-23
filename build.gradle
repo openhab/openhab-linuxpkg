@@ -37,13 +37,14 @@ ospackage {
     postUninstall file(resourcesDir + 'deb/control-runtime/postrm')
     
     configurationFile('/etc/default/openhab2')
+    configurationFile('/usr/lib/systemd/system/openhab2.service')
 
     requires('adduser')
 
     user = 'openhab'
     permissionGroup = 'openhab'
 
-    customField 'Section', 'misc'
+//    customField 'Section', 'misc'
 }
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
@@ -51,8 +52,8 @@ def distributions = [
                         ["dist": "openhab2-offline-b5",
                          "debDist": "testing",
                          "packageName": "openhab2-offline",
-                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz",
-                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz',
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b5%2Fopenhab-offline-2.0.0.b5.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b5.tar.gz',
                          "conflicts": "openhab2-online",
                          "version": "2.0.0~b5",
                          "release": '1'
@@ -60,8 +61,8 @@ def distributions = [
                         ["dist": "openhab2-online-b5",
                          "debDist": "testing",
                          "packageName": "openhab2-online",
-                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz",
-                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz',
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b5%2Fopenhab-online-2.0.0.b5.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b5.tar.gz',
                          "conflicts": "openhab2-offline",
                          "version": "2.0.0~b5",
                          "release": '1'
@@ -158,12 +159,34 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
         from(tar){
             into '/var/lib/openhab2'
             include 'userdata/**'
+            exclude 'userdata/etc/startup.properties'
+            exclude 'userdata/etc/config.properties'
+            exclude 'userdata/etc/distribution.info'
+            exclude 'userdata/etc/jre.properties'
+            exclude 'userdata/etc/org.apache.karaf.*'
+            exclude 'userdata/etc/profile.cfg'
+            exclude 'userdata/etc/branding.properties'
             eachFile { details ->
                 def pkgPath = details.path - 'userdata'
                 details.path = pkgPath
                 configurationFile(details.path)
             }
         }
+        from(tar){
+            into '/var/lib/openhab2'
+            include 'userdata/etc/startup.properties'
+            include 'userdata/etc/config.properties'
+            include 'userdata/etc/distribution.info'
+            include 'userdata/etc/jre.properties'
+            include 'userdata/etc/org.apache.karaf.*'
+            include 'userdata/etc/profile.cfg'
+            include 'userdata/etc/branding.properties'
+            eachFile { details ->
+                def pkgPath = details.path - 'userdata'
+                details.path = pkgPath
+            }
+        }
+
         from(debResourcesDir + 'bin/oh2_dir_layout'){
             fileMode 0775
             into '/usr/share/openhab2/runtime/bin'
@@ -192,7 +215,7 @@ task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")
 
 task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith("-snapshot")})
 
-task buildBeta4(dependsOn: tasks.findAll { t -> t.name.endsWith("-b4")})
+task buildBeta5(dependsOn: tasks.findAll { t -> t.name.endsWith("-b5")})
 
 def generate_download_tasks = { dist, url, path -> 
     task "download-${dist}"(type: Download) { 
