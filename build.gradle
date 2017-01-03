@@ -1,4 +1,5 @@
 import de.undercouch.gradle.tasks.download.Download
+import groovy.json.JsonSlurper
 
 plugins {
     id "de.undercouch.download" version "3.1.2"
@@ -12,12 +13,15 @@ def resourcesDir = "resources/"
 def debResourcesDir = resourcesDir + "deb/"
 
 def BINTRAY_ORG     = project.hasProperty('bintrayOrg') ? project.property('bintrayOrg') : System.env.BINTRAY_ORGANISATION
+BINTRAY_ORG     = BINTRAY_ORG ?: "openhab"
+def BINTRAY_REPO    = project.hasProperty('bintrayRepo') ? project.property('bintrayRepo') : System.env.BINTRAY_REPO
+BINTRAY_REPO    = BINTRAY_REPO ?: "apt-repo2"
+def BINTRAY_PACKAGE = project.hasProperty('bintrayPackage') ? project.property('bintrayPackage') : System.env.BINTRAY_PACKAGE
+BINTRAY_PACKAGE = BINTRAY_PACKAGE ?: "openhab2"
+def BINTRAY_ARCH    = "all,armhf,armel,mips,arm64"
 def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
 def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
 def BINTRAY_GPG     = project.hasProperty('bintrayGpg') ? project.property('bintrayGpg') : System.env.BINTRAY_API_GPG
-def BINTRAY_REPO    = "apt-repo2"
-def BINTRAY_PACKAGE = "openhab2"
-def BINTRAY_ARCH    = "all,armhf,armel,mips,arm64"
 
 def OSPACKAGE_ARCH  = "all"
 
@@ -198,6 +202,16 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
 
         executable "curl"
         args "-X", "PUT", "-H", "X-GPG-PASSPHRASE: ${BINTRAY_GPG}", "-T", "build/distributions/${fileName}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "${curlURL}"
+        standardOutput = new ByteArrayOutputStream()
+        doLast {
+            println standardOutput.toString()
+            def jsonSlurper = new JsonSlurper()
+            def object = jsonSlurper.parseText(standardOutput.toString())
+            def success =  object.message != null ? object.message == 'success' : false
+            if (! success){
+                throw new GradleException("upload failed: " + object.message)
+            }
+        }
     }
 }
 
