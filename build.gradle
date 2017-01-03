@@ -58,7 +58,7 @@ def distributions = [
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b4%2Fopenhab-offline-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b4.tar.gz',
                          "conflicts": "openhab2-online",
-                         "version": "2.0.0b5",
+                         "version": "2.0.0~b5",
                          "release": '1'
                         ],
                         ["dist": "openhab2-online-b5",
@@ -67,7 +67,7 @@ def distributions = [
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b4%2Fopenhab-online-2.0.0.b4.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b4.tar.gz',
                          "conflicts": "openhab2-offline",
-                         "version": "2.0.0b5",
+                         "version": "2.0.0~b5",
                          "release": '1'
                         ],
                         ["dist": "openhab2-offline-snapshot",
@@ -206,7 +206,7 @@ task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")
 
 task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith("-snapshot")})
 
-task buildBeta5(dependsOn: tasks.findAll { t -> t.name.endsWith("-b5")})
+task buildBeta4(dependsOn: tasks.findAll { t -> t.name.endsWith("-b4")})
 
 def generate_download_tasks = { dist, url, path -> 
     task "download-${dist}"(type: Download) { 
