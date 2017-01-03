@@ -43,8 +43,6 @@ ospackage {
 
     user = 'openhab'
     permissionGroup = 'openhab'
-
-//    customField 'Section', 'misc'
 }
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
