@@ -4,8 +4,8 @@ UD_TMP=/var/lib/openhab2/tmp
 
 set -e
 if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
-    echo "docker installation \"${OH_DOCKER_INSTALLATION}\""
-    exit 0
+	echo "docker installation \"${OH_DOCKER_INSTALLATION}\""
+	exit 0
 fi
 
 [ -f /etc/default/openhab2 ] && . /etc/default/openhab2
@@ -13,14 +13,21 @@ fi
 startOpenHAB() {
 	if [ -x /bin/systemctl ] ; then
 		/bin/systemctl daemon-reload
-		/bin/systemctl start openhab2.service
+		if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
+			/bin/systemctl restart openhab2.service
+		fi
 	elif [ -x "/etc/init.d/openhab2" ]; then
 		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-			invoke-rc.d openhab2 start || true
+			if invoke-rc.d openhab2 status > /dev/null 2>&1; then
+				invoke-rc.d openhab2 start
+			fi
 		else
-			/etc/init.d/openhab2 start || true
+			if /etc/init.d/openhab2 status > /dev/null 2>&1; then
+				/etc/init.d/openhab2 start
+			fi
 		fi
 	fi
+	return 0
 }
 
 case "$1" in
