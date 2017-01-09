@@ -1,8 +1,4 @@
-# openhab-linuxpkg
-
-Repo for Linux deb packages
-
-This project is work in progress and not yet production ready.
+# Project for building and releasing openHAB 2 Linux deb packages
 
 ## Warning
 
@@ -10,7 +6,13 @@ This project is work in progress and not yet production ready.
 
 ## Description
 
-As long as openHAB 2.0.0b5 is not released only the snapshot build will work.
+### Beta / Testing build and release
+
+```bash
+./gradlew buildBeta5
+```
+
+### Snapshot / Unstable builds
 
 By executing
 
@@ -18,8 +20,8 @@ By executing
  ./gradlew buildSnapshot
  ```
 
-you will find two packages in build/distributions named **openhab2-offline_2.0.0.yyyyMMddHHmmss-1_all.deb** and
-**openhab2-online_2.0.0.yyyyMMddHHmmss-1_all.deb**.
+will create two packages in build/distributions named **openhab2-offline_2.0.0.yyyyMMddHHmmss-1_all.deb** and
+**openhab2-online_2.0.0.yyyyMMddHHmmss-1_all.deb** and upload these packages to Bintray.
 
 ## Tasks
 
@@ -41,5 +43,5 @@ The variations of `[PACKAGE NAME]` are:
 
 - online-snapshot
 - offline-snapshot
-- online-b5 (not yet ready)
-- offline-b5 (not yet ready)
+- online-b5
+- offline-b5
