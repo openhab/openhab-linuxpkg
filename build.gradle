@@ -32,18 +32,9 @@ ospackage {
     maintainer = "https://community.openhab.org"
     vendor = "openHAB Foundation"
     url = "www.openhab.org"
-    packageDescription = 'Linux installation package for openHAB2.'
-    
-    //installUtils file('scripts/rpm/utils.sh')
-    preInstall file(resourcesDir + 'deb/control-runtime/preinst')
-    postInstall file(resourcesDir + 'deb/control-runtime/postinst')
-    preUninstall file(resourcesDir + 'deb/control-runtime/prerm')
-    postUninstall file(resourcesDir + 'deb/control-runtime/postrm')
-    
-    configurationFile('/etc/default/openhab2')
-    configurationFile('/usr/lib/systemd/system/openhab2.service')
 
-    requires('adduser')
+    conflicts('openhab2-online')
+    conflicts('openhab2-offline')
 
     user = 'openhab'
     permissionGroup = 'openhab'
@@ -52,51 +43,59 @@ ospackage {
 def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
                         ["dist": "openhab2-offline-b5",
+                         "description": "Linux installation package for the offline Beta-5 version of openHAB 2.",
                          "debDist": "testing",
                          "packageName": "openhab2-offline",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-offline%2F2.0.0.b5%2Fopenhab-offline-2.0.0.b5.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-2.0.0.b5.tar.gz',
-                         "conflicts": "openhab2-online",
                          "version": "2.0.0~b5",
                          "release": '1'
                         ],
                         ["dist": "openhab2-online-b5",
+                         "description": "Linux installation package for the online Beta-5 version of openHAB 2.",
                          "debDist": "testing",
                          "packageName": "openhab2-online",
                          "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-online%2F2.0.0.b5%2Fopenhab-online-2.0.0.b5.tar.gz",
                          "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-2.0.0.b5.tar.gz',
-                         "conflicts": "openhab2-offline",
                          "version": "2.0.0~b5",
                          "release": '1'
                         ],
-                        ["dist": "openhab2-offline-snapshot",
+                        ["dist": "openhab2-snapshot",
+                         "description": "Linux installation package for openHAB 2.",
                          "debDist": "unstable",
-                         "packageName": "openhab2-offline",
-                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-offline/target/openhab-offline-2.0.0-SNAPSHOT.tar.gz",
-                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-offline-SNAPSHOT.tar.gz',
-                         "conflicts": "openhab2-online",
+                         "packageName": "openhab2",
+                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-2.0.0-SNAPSHOT.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-2.0.0-SNAPSHOT.tar.gz',
                          "version": "2.0.0~" + timestamp,
                          "release": '1'
                         ],
-                        ["dist": "openhab2-online-snapshot",
+                        ["dist": "openhab2-addons-snapshot",
+                         "description": "Linux installation package for openHAB 2 addons.",
                          "debDist": "unstable",
-                         "packageName": "openhab2-online",
-                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-online/target/openhab-online-2.0.0-SNAPSHOT.tar.gz",
-                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-online-SNAPSHOT.tar.gz',
-                         "conflicts": "openhab2-offline",
+                         "packageName": "openhab2-addons",
+                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-2.0.0-SNAPSHOT.kar",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-2.0.0-SNAPSHOT.kar',
+                         "version": "2.0.0~" + timestamp,
+                         "release": '1'
+                        ],
+                        ["dist": "openhab2-addons-legacy-snapshot",
+                         "description": "Linux installation package for legacy openHAB 2 addons.",
+                         "debDist": "unstable",
+                         "packageName": "openhab2-addons-legacy",
+                         "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-2.0.0-SNAPSHOT.kar",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-legacy-2.0.0-SNAPSHOT.kar',
                          "version": "2.0.0~" + timestamp,
                          "release": '1'
                         ]
                     ]
 
-def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease, gConflicts, gDebDist ->
+def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVersion, gRelease, gDebDist ->
     task "distro-${dist}"(type: Deb, dependsOn: "download-${dist}") {
         release = gRelease
         packageName = gPackageName
         version = gVersion
         distribution = gDebDist
-
-        conflicts(gConflicts)
+        packageDescription = gDescription
 
         /**
         * Suck up all the empty directories that we need to install into the path.
@@ -111,87 +110,104 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
             }
         }
 
-        FileTree tar = tarTree(gInputFile)
-        suckUpEmptyDirectories('/var/log/openhab2', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/usr/share/openhab2/bin', user, permissionGroup, 0755)
-        from(debResourcesDir + 'etc/default/openhab2'){
-            user 'root'
-            permissionGroup 'root'
-            fileMode 0644
-            into '/etc/default'
-        }
-        from(debResourcesDir + 'bin/setpermissions.sh'){
-            user 'root'
-            permissionGroup 'root'
-            fileMode 0775
-            into '/usr/share/openhab2/bin'
-        }
-        from(debResourcesDir + 'systemd/openhab2.service'){
-            fileMode 0644
-            user 'root'
-            permissionGroup 'root'
-            into '/usr/lib/systemd/system'
-        }
-        from(debResourcesDir + 'etc/init.d/openhab2'){
-            fileMode 0775
-            user 'root'
-            permissionGroup 'root'
-            into '/etc/init.d/'
-        }
-        from(tar){
-            into '/usr/share/openhab2'
-            exclude 'conf/**'
-            exclude 'userdata/**'
-            exclude 'runtime/bin/oh2_dir_layout'
-            exclude 'start.bat'
-            exclude 'start_debug.bat'
-        }
-        from(tar){
-            into '/etc/openhab2'
-            include 'conf/**'
-            eachFile { details ->
-                def pkgPath = details.path - 'conf'
-                details.path = pkgPath
-                configurationFile(details.path)
+	if (dist.contains("addons")){
+            requires('openhab2')
+            from(gInputFile) {
+                into 'usr/share/openhab2/addons'
             }
-        }
-        from(tar){
-            into '/var/lib/openhab2'
-            include 'userdata/**'
-            exclude 'userdata/etc/startup.properties'
-            exclude 'userdata/etc/config.properties'
-            exclude 'userdata/etc/distribution.info'
-            exclude 'userdata/etc/jre.properties'
-            exclude 'userdata/etc/org.apache.karaf.*'
-            exclude 'userdata/etc/profile.cfg'
-            exclude 'userdata/etc/branding.properties'
-            eachFile { details ->
-                def pkgPath = details.path - 'userdata'
-                details.path = pkgPath
-                configurationFile(details.path)
-            }
-        }
-        from(tar){
-            into '/var/lib/openhab2'
-            include 'userdata/etc/startup.properties'
-            include 'userdata/etc/config.properties'
-            include 'userdata/etc/distribution.info'
-            include 'userdata/etc/jre.properties'
-            include 'userdata/etc/org.apache.karaf.*'
-            include 'userdata/etc/profile.cfg'
-            include 'userdata/etc/branding.properties'
-            eachFile { details ->
-                def pkgPath = details.path - 'userdata'
-                details.path = pkgPath
-            }
-        }
+        } else {
+            preInstall file(resourcesDir + 'deb/control-runtime/preinst')
+            postInstall file(resourcesDir + 'deb/control-runtime/postinst')
+            preUninstall file(resourcesDir + 'deb/control-runtime/prerm')
+            postUninstall file(resourcesDir + 'deb/control-runtime/postrm')
 
-        from(debResourcesDir + 'bin/oh2_dir_layout'){
-            fileMode 0775
-            into '/usr/share/openhab2/runtime/bin'
+            configurationFile('/etc/default/openhab2')
+            configurationFile('/usr/lib/systemd/system/openhab2.service')
+
+            requires('adduser')
+
+            FileTree tar = tarTree(gInputFile)
+            suckUpEmptyDirectories('/var/log/openhab2', user, permissionGroup, 0755)
+            suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', user, permissionGroup, 0755)
+            suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', user, permissionGroup, 0755)
+            suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', user, permissionGroup, 0755)
+            suckUpEmptyDirectories('/usr/share/openhab2/bin', user, permissionGroup, 0755)
+            from(debResourcesDir + 'etc/default/openhab2'){
+                user 'root'
+                permissionGroup 'root'
+                fileMode 0644
+                into '/etc/default'
+            }
+            from(debResourcesDir + 'bin/setpermissions.sh'){
+                user 'root'
+                permissionGroup 'root'
+                fileMode 0775
+                into '/usr/share/openhab2/bin'
+            }
+            from(debResourcesDir + 'systemd/openhab2.service'){
+                fileMode 0644
+                user 'root'
+                permissionGroup 'root'
+                into '/usr/lib/systemd/system'
+            }
+            from(debResourcesDir + 'etc/init.d/openhab2'){
+                fileMode 0775
+                user 'root'
+                permissionGroup 'root'
+                into '/etc/init.d/'
+            }
+            from(tar){
+                into '/usr/share/openhab2'
+                exclude 'conf/**'
+                exclude 'userdata/**'
+                exclude 'runtime/bin/oh2_dir_layout'
+                exclude 'start.bat'
+                exclude 'start_debug.bat'
+            }
+            from(tar){
+                into '/etc/openhab2'
+                include 'conf/**'
+                eachFile { details ->
+                    def pkgPath = details.path - 'conf'
+                    details.path = pkgPath
+                    configurationFile(details.path)
+                }
+            }
+            from(tar){
+                into '/var/lib/openhab2'
+                include 'userdata/**'
+                exclude 'userdata/etc/startup.properties'
+                exclude 'userdata/etc/config.properties'
+                exclude 'userdata/etc/distribution.info'
+                exclude 'userdata/etc/jre.properties'
+                exclude 'userdata/etc/org.apache.karaf.*'
+                exclude 'userdata/etc/profile.cfg'
+                exclude 'userdata/etc/branding.properties'
+                eachFile { details ->
+                    def pkgPath = details.path - 'userdata'
+                    details.path = pkgPath
+                    configurationFile(details.path)
+                }
+            }
+            from(tar){
+                into '/var/lib/openhab2'
+                include 'userdata/etc/startup.properties'
+                include 'userdata/etc/config.properties'
+                include 'userdata/etc/distribution.info'
+                include 'userdata/etc/jre.properties'
+                include 'userdata/etc/org.apache.karaf.*'
+                include 'userdata/etc/profile.cfg'
+                include 'userdata/etc/branding.properties'
+                eachFile { details ->
+                    def pkgPath = details.path - 'userdata'
+                    details.path = pkgPath
+                }
+            }
+
+            from(debResourcesDir + 'bin/oh2_dir_layout'){
+                fileMode 0775
+                into '/usr/share/openhab2/runtime/bin'
+            }
         }
     }
 
@@ -215,8 +231,8 @@ def generate_distro_tasks = { dist, gPackageName, gInputFile, gVersion, gRelease
     }
 }
 
-distributions.each { dist -> generate_distro_tasks(dist.dist, dist.packageName, dist.path, 
-                        dist.version, dist.release, dist.conflicts, dist.debDist)}
+distributions.each { dist -> generate_distro_tasks(dist.dist, dist.description, dist.packageName,
+                          dist.path, dist.version, dist.release, dist.debDist)}
 
 task calculateMetadata(type:Exec) {
      executable "curl"
