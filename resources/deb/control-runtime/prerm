@@ -22,7 +22,6 @@ stopOpenHAB() {
 }
 
 flagRestart() {
-	startOpenHAB() {
 	if [ -x /bin/systemctl ] ; then
 		if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
 			touch ${RESTART_FLAG_FILE}
