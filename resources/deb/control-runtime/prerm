@@ -13,7 +13,7 @@ stopOpenHAB() {
 		else
 			/etc/init.d/openhab2 stop > /dev/null 2>&1 || true
 		fi
-		# waiting for the openhab2 process stop (max 10 seconds), otherwise the removal of the user will fail.
+		# waiting for the openhab2 process stop, otherwise the removal of the user will fail.
 		# workaround /etc/init.d/openhab2 stop the service needs some time to stop
 		sleep 5
 	fi

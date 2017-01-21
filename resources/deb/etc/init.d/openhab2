@@ -90,7 +90,7 @@ case "$1" in
             then
                 timeout=0
                 # The correct process is only available once the wrapper scripts have finished.
-                until [ $timeout -eq 5 ] || [ ! -z "$pid"  ];
+                until [ $timeout -eq 5 ] || [ x"$pid" != x ];
                 do
                     sleep 1
                     pid=$(findpid)
@@ -114,7 +114,7 @@ case "$1" in
             timeout=0
             if pid=`cat /var/run/openhab2.pid 2> /dev/null`; then
                 while kill -0 $pid 2> /dev/null ; do
-                    if [ $timeout -eq 120 ]; then
+                    if [ $timeout -eq 60 ]; then
                         # finally kill the process if timeout is reached
                         echo "killing the process with pid $pid"
                         kill -9 $pid

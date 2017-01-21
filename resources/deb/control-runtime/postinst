@@ -23,24 +23,36 @@ startOpenHAB() {
 	fi
 }
 
+# Check to see if openHAB is currently running
+findpid() {
+	OH_USER=openhab
+	if [ x"${USER_AND_GROUP}" != x ]; then
+		OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
+	fi
+	ps aux -u "$OH_USER" --sort=start_time 2>/dev/null | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
+}
+
 waitForStopFinished(){
-	echo "waitForStopFinished called"
+	# this is a workaround for upgrading from deb installations prior to 2.0.0
 	timeout=0
-	if pid=`cat /var/run/openhab2.pid 2> /dev/null`; then
-		echo "checking process"
-		while kill -0 $pid 2> /dev/null ; do
-			if [ $timeout -eq 120 ]; then
+	pid=`findpid`
+	if [  x"$pid" != x ]; then
+		echo -n "Waiting for the openHAB service to stop "
+		while kill -0 $pid 2>/dev/null ; do
+			if [ $timeout -eq 20 ]; then
 				# finally kill the process if timeout is reached
-				echo "killing the process with pid $pid"
+				echo "killing the openHAB service with pid $pid"
 				kill -9 $pid
 				break
 			else
-				echo "Waiting for the process to stop"
+				echo -n "."
 				timeout=$((timeout+1))
 				sleep 1
 			fi
 		done
+		echo "" # an extra newline
 	fi
+	return 0
 }
 
 case "$1" in
