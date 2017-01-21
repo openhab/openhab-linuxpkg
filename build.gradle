@@ -60,7 +60,7 @@ def distributions = [
                          "version": "2.0.0~b5",
                          "release": '1'
                         ],
-                        ["dist": "openhab2-release",
+                        ["dist": "openhab2-2.0.0",
                          "description": "Linux installation package for openHAB 2.",
                          "debDist": "stable",
                          "packageName": "openhab2",
@@ -69,7 +69,7 @@ def distributions = [
                          "version": "2.0.0",
                          "release": '1'
                         ],
-                        ["dist": "openhab2-addons-release",
+                        ["dist": "openhab2-addons-2.0.0",
                          "description": "Linux installation package for openHAB 2 addons.",
                          "debDist": "stable",
                          "packageName": "openhab2-addons",
@@ -78,7 +78,7 @@ def distributions = [
                          "version": "2.0.0",
                          "release": '1'
                         ],
-                        ["dist": "openhab2-addons-legacy-release",
+                        ["dist": "openhab2-addons-legacy-2.0.0",
                          "description": "Linux installation package for legacy openHAB 2 addons.",
                          "debDist": "stable",
                          "packageName": "openhab2-addons-legacy",
@@ -303,7 +303,7 @@ task buildBeta5(dependsOn: tasks.findAll { t -> t.name.endsWith("-b5")})
 
 task buildRC1(dependsOn: tasks.findAll { t -> t.name.endsWith("-rc1")})
 
-task buildRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-release")})
+task buildLatestRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-2.0.0")})
 
 def generate_download_tasks = { dist, url, path -> 
     task "download-${dist}"(type: Download) { 
