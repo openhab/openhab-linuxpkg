@@ -1,26 +1,35 @@
 #!/bin/sh
 
 UD_TMP=/var/lib/openhab2/tmp
+RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
 
 set -e
 if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
-    echo "docker installation \"${OH_DOCKER_INSTALLATION}\""
-    exit 0
+	echo "docker installation \"${OH_DOCKER_INSTALLATION}\""
+	exit 0
 fi
 
 [ -f /etc/default/openhab2 ] && . /etc/default/openhab2
 
 startOpenHAB() {
 	if [ -x /bin/systemctl ] ; then
-		/bin/systemctl daemon-reload
 		/bin/systemctl start openhab2.service
 	elif [ -x "/etc/init.d/openhab2" ]; then
 		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-			invoke-rc.d openhab2 start || true
+			invoke-rc.d openhab2 start
 		else
-			/etc/init.d/openhab2 start || true
+			/etc/init.d/openhab2 start
 		fi
 	fi
+	return 0
+}
+
+restartIfFlagFileExists(){
+	if [ -f ${RESTART_FLAG_FILE} ]; then
+		rm -f ${RESTART_FLAG_FILE}
+		startOpenHAB
+	fi
+	return 0
 }
 
 case "$1" in
@@ -49,7 +58,10 @@ case "$1" in
 			fi
 			mkdir -p $UD_TMP
 			chown -R "$OH_USER:$OH_GROUP" $UD_TMP
-			startOpenHAB
+			if [ -x /bin/systemctl ] ; then
+				/bin/systemctl daemon-reload 2>/dev/null 2>&1
+			fi
+			restartIfFlagFileExists
 		fi
 		;;
 esac

@@ -4,6 +4,8 @@ set -e
 
 [ -f /etc/default/openhab2 ] && . /etc/default/openhab2
 
+RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
+
 stopOpenHAB() {
 	if [ -x /bin/systemctl ] ; then
 		/bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
@@ -19,14 +21,34 @@ stopOpenHAB() {
 	fi
 }
 
+flagRestart() {
+	if [ -x /bin/systemctl ] ; then
+		if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
+			touch ${RESTART_FLAG_FILE}
+		fi
+	elif [ -x "/etc/init.d/openhab2" ]; then
+		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+			if invoke-rc.d openhab2 status > /dev/null 2>&1; then
+				touch ${RESTART_FLAG_FILE}
+			fi
+		else
+			if /etc/init.d/openhab2 status > /dev/null 2>&1; then
+				touch ${RESTART_FLAG_FILE}
+			fi
+		fi
+	fi
+	return 0
+}
+
 case "$1" in
 	upgrade)
+		flagRestart
 		stopOpenHAB
         exit 0
 		;;
 	remove|deconfigure)
 		stopOpenHAB
-        exit 0
+		exit 0
 		;;
 	failed-upgrade)
 		;;
