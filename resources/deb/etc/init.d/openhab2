@@ -110,6 +110,22 @@ case "$1" in
         log_daemon_msg "Stopping $DESC" "$NAME"
         if /usr/share/openhab2/runtime/bin/stop
         then
+            # workaround stop returns before the openhab process has really stopped
+            timeout=0
+            if pid=`cat /var/run/openhab2.pid 2> /dev/null`; then
+                while kill -0 $pid 2> /dev/null ; do
+                    if [ $timeout -eq 120 ]; then
+                        # finally kill the process if timeout is reached
+                        echo "killing the process with pid $pid"
+                        kill -9 $pid
+                        break
+                    else
+                        echo "Waiting for the process to stop"
+                        timeout=$((timeout+1))
+                        sleep 1
+                    fi
+                done
+            fi
             rm -f $PIDFILE
             log_end_msg 0
         else
