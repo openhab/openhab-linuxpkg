@@ -60,6 +60,33 @@ def distributions = [
                          "version": "2.0.0~b5",
                          "release": '1'
                         ],
+                        ["dist": "openhab2-2.0.0",
+                         "description": "Linux installation package for openHAB 2.",
+                         "debDist": "stable",
+                         "packageName": "openhab2",
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F2.0.0%2Fopenhab-2.0.0.tar.gz",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-2.0.0.tar.gz',
+                         "version": "2.0.0",
+                         "release": '1'
+                        ],
+                        ["dist": "openhab2-addons-2.0.0",
+                         "description": "Linux installation package for openHAB 2 addons.",
+                         "debDist": "stable",
+                         "packageName": "openhab2-addons",
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F2.0.0%2Fopenhab-addons-2.0.0.kar",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-2.0.0.kar',
+                         "version": "2.0.0",
+                         "release": '1'
+                        ],
+                        ["dist": "openhab2-addons-legacy-2.0.0",
+                         "description": "Linux installation package for legacy openHAB 2 addons.",
+                         "debDist": "stable",
+                         "packageName": "openhab2-addons-legacy",
+                         "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F2.0.0%2Fopenhab-addons-legacy-2.0.0.kar",
+                         "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-legacy-2.0.0.kar',
+                         "version": "2.0.0",
+                         "release": '1'
+                        ],
                         ["dist": "openhab2-rc1",
                          "description": "Linux installation package for openHAB 2.",
                          "debDist": "testing",
@@ -210,6 +237,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
                 exclude 'userdata/etc/org.apache.karaf.*'
                 exclude 'userdata/etc/profile.cfg'
                 exclude 'userdata/etc/branding.properties'
+                exclude 'userdata/etc/branding-ssh.properties'
                 eachFile { details ->
                     def pkgPath = details.path - 'userdata'
                     details.path = pkgPath
@@ -225,6 +253,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
                 include 'userdata/etc/org.apache.karaf.*'
                 include 'userdata/etc/profile.cfg'
                 include 'userdata/etc/branding.properties'
+                include 'userdata/etc/branding-ssh.properties'
                 eachFile { details ->
                     def pkgPath = details.path - 'userdata'
                     details.path = pkgPath
@@ -273,6 +302,8 @@ task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith("-snapshot")}
 task buildBeta5(dependsOn: tasks.findAll { t -> t.name.endsWith("-b5")})
 
 task buildRC1(dependsOn: tasks.findAll { t -> t.name.endsWith("-rc1")})
+
+task buildLatestRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-2.0.0")})
 
 def generate_download_tasks = { dist, url, path -> 
     task "download-${dist}"(type: Download) { 
