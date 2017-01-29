@@ -73,81 +73,95 @@ fi
 
 # Check to see if openHAB is currently running
 findpid() {
-    ps aux --sort=start_time | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
+  ps aux --sort=start_time | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
 }
 
 EXISTINGPID=$(findpid)
 
+# Kill/Wait pid
+killwaitpid() {
+  kpid=$1
+  while kill -0 $kpid 2> /dev/null ; do
+    if [ $timeout -eq 60 ]; then
+      # finally kill the process if timeout is reached
+      echo "killing the process with pid $kpid"
+      kill -9 $kpid
+      break
+    else
+      echo "Waiting for the process to stop"
+      timeout=$((timeout+1))
+      sleep 1
+    fi
+  done
+}
+
+# Stop subroutine
+dostop() {
+  log_daemon_msg "Stopping $DESC" "$NAME"
+  if /usr/share/openhab2/runtime/bin/stop
+  then
+    # workaround stop returns before the openhab process has really stopped
+    timeout=0
+    if stpid=`cat /var/run/openhab2.pid 2> /dev/null`; then
+      killwaitpid $stpid
+    fi
+    rm -f $PIDFILE
+    # In case the pid in the pidfile was wrong, also kill/stop existing process
+    killwaitpid $EXISTINGPID
+    log_end_msg 0
+      return 0 
+  else
+    log_end_msg 1
+    return 1
+  fi
+}
+
+# Start subroutine
+dostart() {
+  log_daemon_msg "Starting $DESC" "$NAME"
+  # OpenHAB may be shutting down if a process still exists but there's no PID file.
+  if [ -z "$EXISTINGPID" ] || [ ! -f $PIDFILE ];
+  then
+    if start-stop-daemon --start --quiet --pidfile $PIDFILE -c "${USER_AND_GROUP}" \
+       --umask 002 --background --chdir ${OPENHAB_DIR} \
+       --oknodo --exec /usr/share/openhab2/runtime/bin/start
+    then
+      timeout=0
+      # The correct process is only available once the wrapper scripts have finished.
+      until [ $timeout -eq 20 ] || [ x"$spid" != x ];
+      do
+        sleep 1
+        spid=$(findpid)
+        timeout=$((timeout+1))
+      done
+      echo "$spid" > $PIDFILE
+      log_end_msg 0
+      return 0
+    else
+      log_end_msg 1
+      return 1
+    fi
+  else
+    echo -n "Error: OpenHAB is already running with PID: $EXISTINGPID!"
+    log_end_msg 1
+    return 1
+  fi
+}
+
 case "$1" in
   start)
-        log_daemon_msg "Starting $DESC" "$NAME"
-        # OpenHAB may be shutting down if a process still exists but there's no PID file.
-        if [ -z "$EXISTINGPID" ] || [ ! -f $PIDFILE ];
-        then
-            if start-stop-daemon --start --quiet --pidfile $PIDFILE -c "${USER_AND_GROUP}" \
-                    --umask 002 --background --chdir ${OPENHAB_DIR} \
-                    --oknodo --exec /usr/share/openhab2/runtime/bin/start
-            then
-                timeout=0
-                # The correct process is only available once the wrapper scripts have finished.
-                until [ $timeout -eq 5 ] || [ x"$pid" != x ];
-                do
-                    sleep 1
-                    pid=$(findpid)
-                    timeout=$((timeout+1))
-                done
-                echo "$pid" > $PIDFILE
-                log_end_msg 0
-            else
-                log_end_msg 1
-            fi
-        else
-            echo -n "Error: OpenHAB is already running with PID: $EXISTINGPID!"
-            log_end_msg 1
-        fi
+        dostart
         ;;
   stop)
-        log_daemon_msg "Stopping $DESC" "$NAME"
-        if /usr/share/openhab2/runtime/bin/stop
-        then
-            # workaround stop returns before the openhab process has really stopped
-            timeout=0
-            if pid=`cat /var/run/openhab2.pid 2> /dev/null`; then
-                while kill -0 $pid 2> /dev/null ; do
-                    if [ $timeout -eq 60 ]; then
-                        # finally kill the process if timeout is reached
-                        echo "killing the process with pid $pid"
-                        kill -9 $pid
-                        break
-                    else
-                        echo "Waiting for the process to stop"
-                        timeout=$((timeout+1))
-                        sleep 1
-                    fi
-                done
-            fi
-            rm -f $PIDFILE
-            log_end_msg 0
-        else
-            log_end_msg 1
-        fi
+        dostop
         ;;
   status)
         /usr/share/openhab2/runtime/bin/status
         ;;
   restart|force-reload)
         log_daemon_msg "Restarting $DESC" "$NAME"
-        if /usr/share/openhab2/runtime/bin/stop
-        then
-            if /usr/share/openhab2/runtime/bin/start
-            then
-                log_end_msg 0
-            else
-                log_end_msg 1
-            fi
-        else
-            log_end_msg 1
-        fi
+        dostop
+        dostart
         ;;
   *)
         echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
