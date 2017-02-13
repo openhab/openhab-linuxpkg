@@ -12,18 +12,23 @@ repositories {
 def resourcesDir = "resources/"
 def debResourcesDir = resourcesDir + "deb/"
 
-def BINTRAY_ORG     = project.hasProperty('bintrayOrg') ? project.property('bintrayOrg') : System.env.BINTRAY_ORGANISATION
-BINTRAY_ORG     = BINTRAY_ORG ?: "openhab"
-def BINTRAY_REPO    = project.hasProperty('bintrayRepo') ? project.property('bintrayRepo') : System.env.BINTRAY_REPO
-BINTRAY_REPO    = BINTRAY_REPO ?: "apt-repo2"
-def BINTRAY_PACKAGE = project.hasProperty('bintrayPackage') ? project.property('bintrayPackage') : System.env.BINTRAY_PACKAGE
-BINTRAY_PACKAGE = BINTRAY_PACKAGE ?: "openhab2"
-def BINTRAY_ARCH    = "all,armhf,armel,mips,arm64"
-def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
-def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
-def BINTRAY_GPG     = project.hasProperty('bintrayGpg') ? project.property('bintrayGpg') : System.env.BINTRAY_API_GPG
+def ARTIFACTORY_ORG     = project.hasProperty('artifactoryOrg') ? project.property('artifactoryOrg') : System.env.ARTIFACTORY_ORGANISATION
+ARTIFACTORY_ORG     = ARTIFACTORY_ORG ?: "openhab"
+def ARTIFACTORY_REPO    = project.hasProperty('artifactoryRepo') ? project.property('artifactoryRepo') : System.env.ARTIFACTORY_REPO
+ARTIFACTORY_REPO    = ARTIFACTORY_REPO ?: "openhab-linuxpkg"
 
-def OSPACKAGE_ARCH  = "all"
+def ARTIFACTORY_KEY     = project.hasProperty('artifactoryKey') ? project.property('artifactoryKey') : System.env.ARTIFACTORY_API_KEY
+def ARTIFACTORY_GPG     = project.hasProperty('artifactoryGpg') ? project.property('artifactoryGpg') : System.env.ARTIFACTORY_API_GPG
+
+def OSPACKAGE_ARCH = "all"
+
+def architectures = [
+    'all',
+    'armhf',
+    'armel',
+    'mips',
+    'arm64'
+]
 
 ospackage {
     arch = "${OSPACKAGE_ARCH}"
@@ -238,6 +243,8 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
                 exclude 'userdata/etc/profile.cfg'
                 exclude 'userdata/etc/branding.properties'
                 exclude 'userdata/etc/branding-ssh.properties'
+                exclude 'userdata/etc/custom.properties'
+                exclude 'userdata/etc/version.properties'
                 eachFile { details ->
                     def pkgPath = details.path - 'userdata'
                     details.path = pkgPath
@@ -254,6 +261,8 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
                 include 'userdata/etc/profile.cfg'
                 include 'userdata/etc/branding.properties'
                 include 'userdata/etc/branding-ssh.properties'
+                include 'userdata/etc/custom.properties'
+                include 'userdata/etc/version.properties'
                 eachFile { details ->
                     def pkgPath = details.path - 'userdata'
                     details.path = pkgPath
@@ -268,18 +277,21 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
     }
 
     task "upload-${dist}"(type:Exec, dependsOn: "distro-${dist}") {
-            
+
+        def debArchs = ""
+        architectures.each {arch -> debArchs = debArchs + "deb.architecture=${arch};"}
+
         def fileName = "${gPackageName}_${gVersion}-${gRelease}_${OSPACKAGE_ARCH}.deb"
-        def curlURL = "https://api.bintray.com/content/${BINTRAY_ORG}/${BINTRAY_REPO}/${BINTRAY_PACKAGE}/${gVersion}/pool/main/${gVersion}/${fileName};deb_distribution=${gDebDist};deb_component=main;deb_architecture=${BINTRAY_ARCH};publish=1"
+        def curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}/pool/main/${gVersion}/${fileName};deb.distribution=${gDebDist};deb.component=main;${debArchs};artifactory.licenses=Eclipse-1.0"
 
         executable "curl"
-        args "-X", "PUT", "-H", "X-GPG-PASSPHRASE: ${BINTRAY_GPG}", "-T", "build/distributions/${fileName}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "${curlURL}"
+        args "-X", "PUT", "${curlURL}", "-H", "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-T", "build/distributions/${fileName}"
         standardOutput = new ByteArrayOutputStream()
         doLast {
             println standardOutput.toString()
             def jsonSlurper = new JsonSlurper()
             def object = jsonSlurper.parseText(standardOutput.toString())
-            def success =  object.message != null ? object.message == 'success' : false
+            def success =  object.uri != null ? object.uri == "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}/pool/main/${gVersion}/${fileName}" : false
             if (! success){
                 throw new GradleException("upload failed: " + object.message)
             }
@@ -289,11 +301,6 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 
 distributions.each { dist -> generate_distro_tasks(dist.dist, dist.description, dist.packageName,
                           dist.path, dist.version, dist.release, dist.debDist)}
-
-task calculateMetadata(type:Exec) {
-     executable "curl"
-     args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${BINTRAY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/${BINTRAY_ORG}/${BINTRAY_REPO}"
-}
 
 task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")})
 
