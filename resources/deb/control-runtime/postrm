@@ -24,13 +24,13 @@ case "$1" in
         removeCache
         exit 0
 		;;
-	purge)
+	purge|0)
 		removeOpenHABInit
 		if getent passwd $OH_USER > /dev/null 2>&1; then
-			deluser --system --quiet $OH_USER || true
+			userdel --force $OH_USER || true
 		fi
 		if getent group $OH_GROUP > /dev/null 2>&1; then
-			delgroup --system --quiet $OH_GROUP || true
+			groupdel $OH_GROUP || true
 		fi
 		rm -rf /var/log/openhab2
 		rm -rf /var/lib/openhab2
@@ -38,10 +38,11 @@ case "$1" in
 		rm -rf /etc/openhab2
 		exit 0
 		;;
-    upgrade)
-        removeCache
-        exit 0
-        ;;
+
+	upgrade|1)
+		removeCache
+		exit 0
+		;;
 	abort-install|abort-upgrade|disappear|failed-upgrade)
 		;;
 	*)

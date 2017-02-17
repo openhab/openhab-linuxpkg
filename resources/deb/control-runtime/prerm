@@ -24,7 +24,7 @@ case "$1" in
 		stopOpenHAB
         exit 0
 		;;
-	remove|deconfigure)
+	remove|deconfigure|0)
 		stopOpenHAB
         exit 0
 		;;
