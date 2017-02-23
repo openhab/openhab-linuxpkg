@@ -325,7 +325,6 @@ distributions.each { dist -> generate_download_tasks(dist.dist, dist.url, dist.p
 task downloadDistros(dependsOn: tasks.findAll {t -> t.name.startsWith("download-")} << {})
 
 task removeOlderVersions(type:Exec) {
-
     def tenDayEpoch = System.currentTimeMillis() - 864000000;
 
     executable 'curl'
@@ -336,30 +335,26 @@ task removeOlderVersions(type:Exec) {
     doLast {
         def jsonSluper = new JsonSlurper()
         def jsonText = jsonSluper.parseText(standardOutput.toString())
-        
-        if (jsonText.errors) {
 
+        if (jsonText.errors) {
             def errortext=jsonText.errors.message.toString()
-            
+
             if (errortext == '[No results found.]') {
                 println 'Cleanup found no versions older than 10 days!'
             } else {
                 throw new GradleException('Cleanup failed: ' + errortext)
             }
         } else {
-        
             def matches = jsonText.results
             def foldersToDelete = []
 
             matches.each { object ->
-            
                 def matchedURL = object.uri
-                
+
                 if (matchedURL.contains('.deb') || matchedURL.contains('.rpm')) {
-                
                     def matchedFolder = matchedURL.substring(0,matchedURL.lastIndexOf('/'))
                     def matchedLocation = matchedFolder - 'api/storage/'
-                    
+
                     if (! foldersToDelete.contains(matchedLocation)) {
                         foldersToDelete.add(matchedLocation)
                     }
