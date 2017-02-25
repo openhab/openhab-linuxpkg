@@ -53,10 +53,14 @@ case "$1" in
 		exit 0
 		;;
 
-	upgrade|1)
+	upgrade)
 		removeCache
 		exit 0
 		;;
+	1)
+		exit 0
+		;;
+
 	abort-install|abort-upgrade|disappear|failed-upgrade)
 		;;
 	*)

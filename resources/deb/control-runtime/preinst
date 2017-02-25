@@ -29,7 +29,7 @@ case "$1" in
 			--gecos "openhab2 runtime user" --home /var/lib/openhab2 "$OH_USER"
 		fi
 		;;
-	1)
+	1|2)
 		if [ -x /bin/systemctl ] ; then
 			/bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
 		elif [ -x "/etc/init.d/openhab2" ]; then

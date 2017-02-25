@@ -154,7 +154,6 @@ def distributions = [
                     ]
 
 def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVersion, gRelease, gDebDist ->
-    
     packageTypes.each { pType -> 
         def packageType = Deb
         if (pType == 'Rpm') { packageType = Rpm }
@@ -186,6 +185,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
             if (dist.contains('addons')){
                 requires('openhab2')
                 from(gInputFile) {
+                    if (pType == 'Rpm') {addParentDirs=false}
                     into 'usr/share/openhab2/addons'
                 }
             } else {
