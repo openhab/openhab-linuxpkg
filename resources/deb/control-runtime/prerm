@@ -22,11 +22,11 @@ stopOpenHAB() {
 case "$1" in
 	upgrade)
 		stopOpenHAB
-        exit 0
+		exit 0
 		;;
 	remove|deconfigure|0)
 		stopOpenHAB
-        exit 0
+		exit 0
 		;;
 	failed-upgrade)
 		;;

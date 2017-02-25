@@ -21,8 +21,8 @@ removeCache(){
 case "$1" in
 	remove)
 		removeOpenHABInit
-        removeCache
-        exit 0
+		removeCache
+		exit 0
 		;;
 	purge)
 		removeOpenHABInit
@@ -38,7 +38,7 @@ case "$1" in
 		rm -rf /etc/openhab2
 		exit 0
 		;;
-	0)
+	0) # RPM has no purge, assume remove does this
 		removeOpenHABInit
 		if getent passwd $OH_USER > /dev/null 2>&1; then
 			userdel --force $OH_USER || true
@@ -57,7 +57,7 @@ case "$1" in
 		removeCache
 		exit 0
 		;;
-	1)
+	1) # RPM upgrade calls postrm after postinst so do nothing here
 		exit 0
 		;;
 
