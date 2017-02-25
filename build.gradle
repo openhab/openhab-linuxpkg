@@ -1,4 +1,3 @@
-
 import de.undercouch.gradle.tasks.download.Download
 import groovy.json.JsonSlurper
 
@@ -354,3 +353,49 @@ distributions.each { dist -> generate_download_tasks(dist.dist, dist.url, dist.p
 
 task downloadDistros(dependsOn: tasks.findAll {t -> t.name.startsWith("download-")} << {})
 
+task removeOlderVersions(type:Exec) {
+    def tenDayEpoch = System.currentTimeMillis() - 864000000;
+
+    executable 'curl'
+    args '-X', 'GET', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/search/usage?createdBefore=${tenDayEpoch}&repos=${ARTIFACTORY_REPO},{ARTIFACTORY_REPO}-rpm"
+    standardOutput = new ByteArrayOutputStream()
+    errorOutput = new ByteArrayOutputStream()
+
+    doLast {
+        def jsonSluper = new JsonSlurper()
+        def jsonText = jsonSluper.parseText(standardOutput.toString())
+
+        if (jsonText.errors) {
+            def errortext=jsonText.errors.message.toString()
+
+            if (errortext == '[No results found.]') {
+                println 'Cleanup found no versions older than 10 days!'
+            } else {
+                throw new GradleException('Cleanup failed: ' + errortext)
+            }
+        } else {
+            def matches = jsonText.results
+            def foldersToDelete = []
+
+            matches.each { object ->
+                def matchedURL = object.uri
+
+                if (matchedURL.contains('.deb') || matchedURL.contains('.rpm')) {
+                    def matchedFolder = matchedURL.substring(0,matchedURL.lastIndexOf('/'))
+                    def matchedLocation = matchedFolder - 'api/storage/'
+
+                    if (! foldersToDelete.contains(matchedLocation)) {
+                        foldersToDelete.add(matchedLocation)
+                    }
+                }
+            }
+
+            foldersToDelete.each { folderURL ->
+                exec {
+                    println folderURL + ' is older than 10 days. Set for deletion...'
+                    commandLine 'curl', '-X', 'DELETE', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "${folderURL}"
+                }
+            }
+        }
+    }
+}
