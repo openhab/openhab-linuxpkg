@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+# Executed before the installation of the new package
+#
+# On .deb based systems:
+#    $1=install        : On installation
+#    $1=upgrade        : On upgrade
+#
+# On .rpm based systems:
+#    $1=1              : On installation
+#    $1=2              : On upgrade
 
 set -e
 

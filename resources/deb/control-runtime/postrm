@@ -1,4 +1,13 @@
 #!/bin/sh
+#
+# On .deb based systems:
+# Executed after removal of the package
+#    $1=remove         : On standard remove, keeps conffiles
+#    $1=purge          : On purge, get rid of everything
+#
+# On .rpm based systems:
+# Executed after all scripts have taken place
+#    $1=0              : On remove, get rid of everything
 
 set -e
 
@@ -38,7 +47,7 @@ case "$1" in
 		rm -rf /etc/openhab2
 		exit 0
 		;;
-	0) # RPM has no purge, assume remove does this
+	0) # Indicates removal on RPM. There is no purge, so assume remove get rid of all
 		removeOpenHABInit
 		if getent passwd $OH_USER > /dev/null 2>&1; then
 			userdel --force $OH_USER || true
@@ -57,7 +66,7 @@ case "$1" in
 		removeCache
 		exit 0
 		;;
-	1) # RPM upgrade calls postrm after postinst so do nothing here
+	1) # Indicates RPM upgrade. postrm is called after postinst so do nothing here
 		exit 0
 		;;
 

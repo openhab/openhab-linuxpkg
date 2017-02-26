@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+# Executed after the installation of the new package
+#
+# On .deb based systems:
+#    $1=configure      : On installation or upgrade
+#    $2=*              : On upgrade, unset otherwise
+#
+# On .rpm based systems:
+#    $1=1              : On installation
+#    $1=2              : On upgrade
 
 UD_TMP=/var/lib/openhab2/tmp
 
