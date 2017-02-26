@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+# Executed after the installation of the new package
+#
+# On .deb based systems:
+#    $1=configure      : On installation or upgrade
+#    $2=*              : On upgrade, unset otherwise
+#
+# On .rpm based systems:
+#    $1=1              : On installation
+#    $1=2              : On upgrade
 
 UD_TMP=/var/lib/openhab2/tmp
 
@@ -56,8 +66,8 @@ waitForStopFinished(){
 }
 
 case "$1" in
-	configure)
-		if [ -z $2 ] ; then
+	configure|1|2)
+		if [ -z $2 ] && [ $1 -ne 2 ] ; then
 			# this is a fresh installation
 			if [ -x /bin/systemctl ] ; then
 				echo "### NOT starting on installation, please execute the following statements to configure openHAB to start automatically using systemd"

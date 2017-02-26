@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+# On .deb based systems:
+# Executed on old package before all other scripts
+#    $1=upgrade        : On upgrade
+#    $2=remove         : On any uninstall
+#
+# On .rpm based systems:
+# Executed on old package (after the installation of the new package on upgrade...)
+#    $1=0              : On removal
+#    $1=1              : On upgrade
 
 set -e
 
@@ -22,11 +32,11 @@ stopOpenHAB() {
 case "$1" in
 	upgrade)
 		stopOpenHAB
-        exit 0
+		exit 0
 		;;
-	remove|deconfigure)
+	remove|deconfigure|0) # 0 Indicates removal on an RPM system
 		stopOpenHAB
-        exit 0
+		exit 0
 		;;
 	failed-upgrade)
 		;;
