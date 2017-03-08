@@ -354,10 +354,12 @@ distributions.each { dist -> generate_download_tasks(dist.dist, dist.url, dist.p
 task downloadDistros(dependsOn: tasks.findAll {t -> t.name.startsWith("download-")} << {})
 
 task removeOlderVersions(type:Exec) {
-    def tenDayEpoch = System.currentTimeMillis() - 864000000;
+
+    def expiryDays = 7
+    def expiryEpoch = System.currentTimeMillis() - (86400000 * expiryDays)
 
     executable 'curl'
-    args '-X', 'GET', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/search/usage?createdBefore=${tenDayEpoch}&repos=${ARTIFACTORY_REPO},{ARTIFACTORY_REPO}-rpm"
+    args '-X', 'GET', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/search/usage?notUsedSince=${expiryEpoch}&repos=${ARTIFACTORY_REPO},${ARTIFACTORY_REPO}-rpm"
     standardOutput = new ByteArrayOutputStream()
     errorOutput = new ByteArrayOutputStream()
 
@@ -369,7 +371,7 @@ task removeOlderVersions(type:Exec) {
             def errortext=jsonText.errors.message.toString()
 
             if (errortext == '[No results found.]') {
-                println 'Cleanup found no versions older than 10 days!'
+                println "Cleanup found no versions older than ${expiryDays} days!"
             } else {
                 throw new GradleException('Cleanup failed: ' + errortext)
             }
@@ -392,7 +394,7 @@ task removeOlderVersions(type:Exec) {
 
             foldersToDelete.each { folderURL ->
                 exec {
-                    println folderURL + ' is older than 10 days. Set for deletion...'
+                    println folderURL + " is older than ${expiryDays} days. Set for deletion..."
                     commandLine 'curl', '-X', 'DELETE', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "${folderURL}"
                 }
             }
