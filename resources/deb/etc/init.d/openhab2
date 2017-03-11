@@ -38,12 +38,20 @@ log_end_msg () {
     return $val
 }
 
+log_success_msg () {
+    echo " OK!"
+}
+
+log_failure_msg () {
+    echo " failed!"
+}
+
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present
 # and status_of_proc is working.
 
 if  [ -r /lib/lsb/init-functions ]; then
     . /lib/lsb/init-functions
-else
+elif [ -r /etc/init.d/functions ]; then
     . /etc/init.d/functions
 fi
 
@@ -133,7 +141,7 @@ dostop() {
     # In case the pid in the pidfile was wrong, also kill/stop existing process
     killwaitpid $EXISTINGPID
     log_end_msg 0
-      return 0 
+      return 0
   else
     log_end_msg 1
     return 1
@@ -162,14 +170,6 @@ dostart() {
       log_end_msg 0
       return 0
     else
-      if start_daemon -p $PIFILE /usr/share/openhab2/runtime/bin/start
-      then
-          log_end_msg 0
-          return 0
-      else
-          log_end_msg 1
-          return 1
-      fi
       log_end_msg 1
       return 1
     fi

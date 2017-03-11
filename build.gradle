@@ -198,6 +198,8 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 
                 if (pType == 'Deb') {
                     requires('adduser')
+                } else {
+                    requires('systemd')
                 }
 
                 FileTree tar = tarTree(gInputFile)
@@ -226,11 +228,13 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
                     permissionGroup 'root'
                     into '/usr/lib/systemd/system'
                 }
-                from(debResourcesDir + 'etc/init.d/openhab2'){
-                    fileMode 0775
-                    user 'root'
-                    permissionGroup 'root'
-                    into '/etc/init.d/'
+                if (pType == 'Deb') {
+                    from(debResourcesDir + 'etc/init.d/openhab2'){
+                        fileMode 0775
+                        user 'root'
+                        permissionGroup 'root'
+                        into '/etc/init.d/'
+                    }
                 }
                 from(tar){
                     into '/usr/share/openhab2'
