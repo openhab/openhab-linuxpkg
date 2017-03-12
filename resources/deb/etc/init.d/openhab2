@@ -24,12 +24,41 @@ SCRIPTNAME=/etc/init.d/$NAME
 SETOWNER=yes
 
 # Define LSB log_* functions.
+log_daemon_msg () {
+    echo $@
+}
+
+log_end_msg () {
+    val=$1
+    if [ $val -eq 0 ]; then
+        log_success_msg ""
+    else
+        log_failure_msg ""
+    fi
+    return $val
+}
+
+log_success_msg () {
+    echo " OK!"
+}
+
+log_failure_msg () {
+    echo " failed!"
+}
+
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present
 # and status_of_proc is working.
-. /lib/lsb/init-functions
+
+if  [ -r /lib/lsb/init-functions ]; then
+    . /lib/lsb/init-functions
+elif [ -r /etc/init.d/functions ]; then
+    . /etc/init.d/functions
+fi
 
 # Read configuration variable file if it is present
-[ -r /etc/default/openhab2 ] && . /etc/default/openhab2
+if [ -r /etc/default/openhab2 ]; then
+    . /etc/default/openhab2
+fi
 
 OPENHAB_CONF_DIR="/etc/openhab2"
 OPENHAB_DIR="/usr/share/openhab2"
@@ -69,7 +98,9 @@ if ! getent group "${GROUP}" > /dev/null 2>&1; then
 fi
 
 # Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
+if [ -r /lib/init/vars.sh ]; then
+    . /lib/init/vars.sh
+fi
 
 # Check to see if openHAB is currently running
 findpid() {
@@ -81,6 +112,7 @@ EXISTINGPID=$(findpid)
 # Kill/Wait pid
 killwaitpid() {
   kpid=$1
+  echo -n "Waiting for openHAB to stop"
   while kill -0 $kpid 2> /dev/null ; do
     if [ $timeout -eq 60 ]; then
       # finally kill the process if timeout is reached
@@ -88,7 +120,7 @@ killwaitpid() {
       kill -9 $kpid
       break
     else
-      echo "Waiting for the process to stop"
+      echo -n "."
       timeout=$((timeout+1))
       sleep 1
     fi
@@ -109,7 +141,7 @@ dostop() {
     # In case the pid in the pidfile was wrong, also kill/stop existing process
     killwaitpid $EXISTINGPID
     log_end_msg 0
-      return 0 
+      return 0
   else
     log_end_msg 1
     return 1
