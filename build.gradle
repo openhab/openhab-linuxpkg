@@ -12,13 +12,17 @@ repositories {
 def resourcesDir = "resources/"
 def debResourcesDir = resourcesDir + "deb/"
 
-def ARTIFACTORY_ORG     = project.hasProperty('artifactoryOrg') ? project.property('artifactoryOrg') : System.env.ARTIFACTORY_ORGANISATION
-ARTIFACTORY_ORG     = ARTIFACTORY_ORG ?: "openhab"
-def ARTIFACTORY_REPO    = project.hasProperty('artifactoryRepo') ? project.property('artifactoryRepo') : System.env.ARTIFACTORY_REPO
-ARTIFACTORY_REPO    = ARTIFACTORY_REPO ?: "openhab-linuxpkg"
+def ARTIFACTORY_ORG = project.hasProperty('artifactoryOrg') ? project.property('artifactoryOrg') : System.env.ARTIFACTORY_ORGANISATION
+def ARTIFACTORY_REPO = project.hasProperty('artifactoryRepo') ? project.property('artifactoryRepo') : System.env.ARTIFACTORY_REPO
+def ARTIFACTORY_KEY = project.hasProperty('artifactoryKey') ? project.property('artifactoryKey') : System.env.ARTIFACTORY_API_KEY
 
-def ARTIFACTORY_KEY     = project.hasProperty('artifactoryKey') ? project.property('artifactoryKey') : System.env.ARTIFACTORY_API_KEY
-def ARTIFACTORY_GPG     = project.hasProperty('artifactoryGpg') ? project.property('artifactoryGpg') : System.env.ARTIFACTORY_API_GPG
+def ARTIFACTORY_GPG = project.hasProperty('artifactoryGpg') ? project.property('artifactoryGpg') : System.env.ARTIFACTORY_API_GPG
+def ARTIFACTORY_GPG_KEY = project.hasProperty('artifactoryGpgKey') ? project.property('artifactoryGpgKey') : System.env.ARTIFACTORY_GPG_KEY
+def ARTIFACTORY_GPG_KEY_ID = project.hasProperty('artifactoryGpgKeyId') ? project.property('artifactoryGpgKeyId') : System.env.ARTIFACTORY_GPG_KEY_ID
+
+ARTIFACTORY_ORG = ARTIFACTORY_ORG ?: "openhab"
+ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: "openhab-linuxpkg"
+ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: "A224060A" 
 
 def OSPACKAGE_ARCH = "all"
 
@@ -47,6 +51,10 @@ ospackage {
 
     user = 'openhab'
     permissionGroup = 'openhab'
+
+    signingKeyId = "${ARTIFACTORY_GPG_KEY_ID}"
+    signingKeyPassphrase = "${ARTIFACTORY_GPG}"
+    signingKeyRingFile = new File("${ARTIFACTORY_GPG_KEY}")
 }
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
