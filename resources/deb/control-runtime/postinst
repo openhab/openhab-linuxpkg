@@ -67,7 +67,7 @@ waitForStopFinished(){
 
 case "$1" in
 	configure|1|2)
-		if [ -z $2 ] && [ $1 -ne 2 ] ; then
+		if [ -z $2 ] && [ $1 != 2 ] ; then
 			# this is a fresh installation
 			if [ -x /bin/systemctl ] ; then
 				echo "### NOT starting on installation, please execute the following statements to configure openHAB to start automatically using systemd"
