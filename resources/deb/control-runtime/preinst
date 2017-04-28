@@ -3,12 +3,12 @@
 # Executed before the installation of the new package
 #
 # On .deb based systems:
-#    $1=install        : On installation
-#    $1=upgrade        : On upgrade
+#   $1=install              : On installation
+#   $1=upgrade              : On upgrade
 #
 # On .rpm based systems:
-#    $1=1              : On installation
-#    $1=2              : On upgrade
+#   $1=1                    : On installation
+#   $1=2                    : On upgrade
 
 set -e
 
@@ -16,55 +16,57 @@ UD_CACHE=/var/lib/openhab2/cache
 UD_TMP=/var/lib/openhab2/tmp
 
 removeCache(){
-    [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
-    [ -d ${UD_TMP} ] && rm -rf ${UD_TMP}
-	true
+  [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
+  [ -d ${UD_TMP} ] && rm -rf ${UD_TMP}
+  true
 }
 
 case "$1" in
-	install) # APT Install or Upgrade
-        	removeCache
-		OH_USER=openhab
-		OH_GROUP=openhab
-		if [ x"${USER_AND_GROUP}" != x ]; then
-			OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-			OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
-		fi
-		if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
-			addgroup --system "$OH_GROUP" --quiet
-		fi
-		if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
-			adduser --quiet --system --ingroup "$OH_GROUP" --no-create-home \
-			--disabled-password --shell /bin/false \
-			--gecos "openhab2 runtime user" --home /var/lib/openhab2 "$OH_USER"
-		fi
-		;;
-	1|2) # RPM Install (1) or Upgrade (2)
-		if [ -x /bin/systemctl ] ; then
-			/bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
-		elif [ -x "/etc/init.d/openhab2" ]; then
-			if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-				invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
-			else
-				/etc/init.d/openhab2 stop > /dev/null 2>&1 || true
-			fi
-			sleep 5
-		fi
-		removeCache
-		OH_USER=openhab
-		OH_GROUP=openhab
-		if [ x"${USER_AND_GROUP}" != x ]; then
-			OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-			OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
-		fi
-		if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
-			groupadd --system "$OH_GROUP"
-		fi
-		if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
-			useradd --system -g "$OH_GROUP"  \
-			--shell /bin/false \
-			--home /var/lib/openhab2 "$OH_USER"
-		fi
-		;;
+  install) 
+    # APT Install or Upgrade
+    removeCache
+    OH_USER=openhab
+    OH_GROUP=openhab
+    if [ x"${USER_AND_GROUP}" != x ]; then
+      OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
+      OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+    fi
+    if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
+      addgroup --system "$OH_GROUP" --quiet
+    fi
+    if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
+      adduser --quiet --system --ingroup "$OH_GROUP" --no-create-home \
+      --disabled-password --shell /bin/false \
+      --gecos "openhab2 runtime user" --home /var/lib/openhab2 "$OH_USER"
+    fi
+    ;;
+  1|2)
+    # RPM Install (1) or Upgrade (2)
+    if [ -x /bin/systemctl ] ; then
+      /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
+    elif [ -x "/etc/init.d/openhab2" ]; then
+      if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+        invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
+      else
+        /etc/init.d/openhab2 stop > /dev/null 2>&1 || true
+      fi
+      sleep 5
+    fi
+    removeCache
+    OH_USER=openhab
+    OH_GROUP=openhab
+    if [ x"${USER_AND_GROUP}" != x ]; then
+      OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
+      OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+    fi
+    if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
+      groupadd --system "$OH_GROUP"
+    fi
+    if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
+      useradd --system -g "$OH_GROUP"  \
+      --shell /bin/false \
+      --home /var/lib/openhab2 "$OH_USER"
+    fi
+    ;;
 esac
 exit 0

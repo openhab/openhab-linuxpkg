@@ -3,12 +3,12 @@
 # Executed after the installation of the new package
 #
 # On .deb based systems:
-#    $1=configure      : On installation or upgrade
-#    $2=*              : On upgrade, unset otherwise
+#   $1=configure            : On installation or upgrade
+#   $2=*                    : On upgrade, unset otherwise
 #
 # On .rpm based systems:
-#    $1=1              : On installation
-#    $1=2              : On upgrade
+#   $1=1                    : On installation
+#   $1=2                    : On upgrade
 
 UD_TMP=/var/lib/openhab2/tmp
 
@@ -21,80 +21,80 @@ fi
 [ -f /etc/default/openhab2 ] && . /etc/default/openhab2
 
 startOpenHAB() {
-	if [ -x /bin/systemctl ] ; then
-		/bin/systemctl daemon-reload
-		/bin/systemctl start openhab2.service
-	elif [ -x "/etc/init.d/openhab2" ]; then
-		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-			invoke-rc.d openhab2 start || true
-		else
-			/etc/init.d/openhab2 start || true
-		fi
-	fi
+  if [ -x /bin/systemctl ] ; then
+    /bin/systemctl daemon-reload
+    /bin/systemctl start openhab2.service
+  elif [ -x "/etc/init.d/openhab2" ]; then
+    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+      invoke-rc.d openhab2 start || true
+    else
+      /etc/init.d/openhab2 start || true
+    fi
+  fi
 }
 
 # Check to see if openHAB is currently running
 findpid() {
-	OH_USER=openhab
-	if [ x"${USER_AND_GROUP}" != x ]; then
-		OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-	fi
-	ps aux -u "$OH_USER" --sort=start_time 2>/dev/null | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
+  OH_USER=openhab
+  if [ x"${USER_AND_GROUP}" != x ]; then
+    OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
+  fi
+  ps aux -u "$OH_USER" --sort=start_time 2>/dev/null | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
 }
 
 waitForStopFinished(){
-	# this is a workaround for upgrading from deb installations prior to 2.0.0
-	timeout=0
-	pid=`findpid`
-	if [  x"$pid" != x ]; then
-		echo -n "Waiting for the openHAB service to stop "
-		while kill -0 $pid 2>/dev/null ; do
-			if [ $timeout -eq 20 ]; then
-				# finally kill the process if timeout is reached
-				echo "killing the openHAB service with pid $pid"
-				kill -9 $pid
-				break
-			else
-				echo -n "."
-				timeout=$((timeout+1))
-				sleep 1
-			fi
-		done
-		echo "" # an extra newline
-	fi
-	return 0
+  # this is a workaround for upgrading from deb installations prior to 2.0.0
+  timeout=0
+  pid=`findpid`
+  if [  x"$pid" != x ]; then
+    echo -n "Waiting for the openHAB service to stop "
+    while kill -0 $pid 2>/dev/null ; do
+      if [ $timeout -eq 20 ]; then
+        # finally kill the process if timeout is reached
+        echo "killing the openHAB service with pid $pid"
+        kill -9 $pid
+        break
+      else
+        echo -n "."
+        timeout=$((timeout+1))
+        sleep 1
+      fi
+    done
+    echo "" # an extra newline
+  fi
+  return 0
 }
 
 case "$1" in
-	configure|1|2)
-		if [ -z $2 ] && [ $1 != 2 ] ; then
-			# this is a fresh installation
-			if [ -x /bin/systemctl ] ; then
-				echo "### NOT starting on installation, please execute the following statements to configure openHAB to start automatically using systemd"
-				echo " sudo /bin/systemctl daemon-reload"
-				echo " sudo /bin/systemctl enable openhab2.service"
-				echo "### You can start openhab2 by executing"
-				echo " sudo /bin/systemctl start openhab2.service"
-			elif [ -x /usr/sbin/update-rc.d ] ; then
-				echo "### NOT starting openhab2 by default on bootup, please execute"
-				echo " sudo update-rc.d openhab2 defaults"
-				echo "### In order to start openhab2, execute"
-				echo " sudo /etc/init.d/openhab2 start"
-			fi
-		else
-			# this is an upgrade
-			OH_USER=openhab
-			OH_GROUP=openhab
-			if [ x"${USER_AND_GROUP}" != x ]; then
-				OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-				OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
-			fi
-			mkdir -p $UD_TMP
-			chown -R "$OH_USER:$OH_GROUP" $UD_TMP
-			waitForStopFinished
-			startOpenHAB
-		fi
-		;;
+  configure|1|2)
+    if [ -z $2 ] && [ $1 != 2 ] ; then
+      # this is a fresh installation
+      if [ -x /bin/systemctl ] ; then
+        echo "### NOT starting on installation, please execute the following statements to configure openHAB to start automatically using systemd"
+        echo " sudo /bin/systemctl daemon-reload"
+        echo " sudo /bin/systemctl enable openhab2.service"
+        echo "### You can start openhab2 by executing"
+        echo " sudo /bin/systemctl start openhab2.service"
+      elif [ -x /usr/sbin/update-rc.d ] ; then
+        echo "### NOT starting openhab2 by default on bootup, please execute"
+        echo " sudo update-rc.d openhab2 defaults"
+        echo "### In order to start openhab2, execute"
+        echo " sudo /etc/init.d/openhab2 start"
+      fi
+    else
+      # this is an upgrade
+      OH_USER=openhab
+      OH_GROUP=openhab
+      if [ x"${USER_AND_GROUP}" != x ]; then
+        OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
+        OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+      fi
+      mkdir -p $UD_TMP
+      chown -R "$OH_USER:$OH_GROUP" $UD_TMP
+      waitForStopFinished
+      startOpenHAB
+    fi
+    ;;
 esac
 
 exit 0

@@ -2,12 +2,12 @@
 #
 # On .deb based systems:
 # Executed after removal of the package
-#    $1=remove         : On standard remove, keeps conffiles
-#    $1=purge          : On purge, get rid of everything
+#   $1=remove               : On standard remove, keeps conffiles
+#   $1=purge                : On purge, get rid of everything
 #
 # On .rpm based systems:
 # Executed after all scripts have taken place
-#    $1=0              : On remove, get rid of everything
+#   $1=0                    : On remove, get rid of everything
 
 set -e
 
@@ -15,67 +15,69 @@ OH_USER=openhab
 OH_GROUP=openhab
 
 removeOpenHABInit() {
-	if [ -x /bin/systemctl ] ; then
-		/bin/systemctl --no-reload disable openhab2.service > /dev/null 2>&1 || :
-	else
-		update-rc.d openhab2 remove > /dev/null 2>&1 || :
-	fi
+  if [ -x /bin/systemctl ] ; then
+    /bin/systemctl --no-reload disable openhab2.service > /dev/null 2>&1 || :
+  else
+    update-rc.d openhab2 remove > /dev/null 2>&1 || :
+  fi
 }
 
 removeCache(){
-    rm -rf /var/lib/openhab2/cache || true
-    rm -rf /var/lib/openhab2/tmp || true
+  rm -rf /var/lib/openhab2/cache || true
+  rm -rf /var/lib/openhab2/tmp || true
 }
 
 case "$1" in
-	remove)
-		removeOpenHABInit
-		removeCache
-		exit 0
-		;;
-	purge)
-		removeOpenHABInit
-		if getent passwd $OH_USER > /dev/null 2>&1; then
-			deluser --system --quiet $OH_USER || true
-		fi
-		if getent group $OH_GROUP > /dev/null 2>&1; then
-			delgroup --system --quiet $OH_GROUP || true
-		fi
-		rm -rf /var/log/openhab2
-		rm -rf /var/lib/openhab2
-		rm -rf /usr/share/openhab2
-		rm -rf /etc/openhab2
-		exit 0
-		;;
-	0) # Indicates removal on RPM. There is no purge, so assume remove get rid of all
-		removeOpenHABInit
-		if getent passwd $OH_USER > /dev/null 2>&1; then
-			userdel --force $OH_USER || true
-		fi
-		if getent group $OH_GROUP > /dev/null 2>&1; then
-			groupdel $OH_GROUP || true
-		fi
-		rm -rf /var/log/openhab2
-		rm -rf /var/lib/openhab2
-		rm -rf /usr/share/openhab2
-		rm -rf /etc/openhab2
-		exit 0
-		;;
+  remove)
+    removeOpenHABInit
+    removeCache
+    exit 0
+    ;;
+  purge)
+    removeOpenHABInit
+    if getent passwd $OH_USER > /dev/null 2>&1; then
+      deluser --system --quiet $OH_USER || true
+    fi
+    if getent group $OH_GROUP > /dev/null 2>&1; then
+      delgroup --system --quiet $OH_GROUP || true
+    fi
+    rm -rf /var/log/openhab2
+    rm -rf /var/lib/openhab2
+    rm -rf /usr/share/openhab2
+    rm -rf /etc/openhab2
+    exit 0
+    ;;
+  0) 
+    # Indicates removal on RPM. There is no purge, so assume remove get rid of all
+    removeOpenHABInit
+    if getent passwd $OH_USER > /dev/null 2>&1; then
+      userdel --force $OH_USER || true
+    fi
+    if getent group $OH_GROUP > /dev/null 2>&1; then
+      groupdel $OH_GROUP || true
+    fi
+    rm -rf /var/log/openhab2
+    rm -rf /var/lib/openhab2
+    rm -rf /usr/share/openhab2
+    rm -rf /etc/openhab2
+    exit 0
+    ;;
 
-	upgrade)
-		removeCache
-		exit 0
-		;;
-	1) # Indicates RPM upgrade. postrm is called after postinst so do nothing here
-		exit 0
-		;;
+  upgrade)
+    removeCache
+    exit 0
+    ;;
+  1)
+    # Indicates RPM upgrade. postrm is called after postinst so do nothing here
+    exit 0
+    ;;
 
-	abort-install|abort-upgrade|disappear|failed-upgrade)
-		;;
-	*)
-		echo "postrm called with unknown argument \`$1'" >&2
-		exit 1
-		;;
+  abort-install|abort-upgrade|disappear|failed-upgrade)
+    ;;
+  *)
+    echo "postrm called with unknown argument \`$1'" >&2
+    exit 1
+    ;;
 esac
 
 exit 0
