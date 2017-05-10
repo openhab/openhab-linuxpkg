@@ -25,39 +25,39 @@ SETOWNER=yes
 
 # Define LSB log_* functions.
 log_daemon_msg () {
-    echo $@
+  echo $@
 }
 
 log_end_msg () {
-    val=$1
-    if [ $val -eq 0 ]; then
-        log_success_msg ""
-    else
-        log_failure_msg ""
-    fi
-    return $val
+  val=$1
+  if [ $val -eq 0 ]; then
+    log_success_msg ""
+  else
+    log_failure_msg ""
+  fi
+  return $val
 }
 
 log_success_msg () {
-    echo " OK!"
+  echo " OK!"
 }
 
 log_failure_msg () {
-    echo " failed!"
+  echo " failed!"
 }
 
 # Depend on lsb-base (>= 3.2-14) to ensure that this file is present
 # and status_of_proc is working.
 
 if  [ -r /lib/lsb/init-functions ]; then
-    . /lib/lsb/init-functions
+  . /lib/lsb/init-functions
 elif [ -r /etc/init.d/functions ]; then
-    . /etc/init.d/functions
+  . /etc/init.d/functions
 fi
 
 # Read configuration variable file if it is present
 if [ -r /etc/default/openhab2 ]; then
-    . /etc/default/openhab2
+  . /etc/default/openhab2
 fi
 
 OPENHAB_CONF_DIR="/etc/openhab2"
@@ -66,20 +66,20 @@ OPENHAB_HOME_DIR="/var/lib/openhab2"
 OPENHAB_USER_DATA_DIR="${OPENHAB_HOME_DIR}"
 
 if [ -z "$USER_AND_GROUP" ]; then
-        USER_AND_GROUP="openhab:openhab"
+  USER_AND_GROUP="openhab:openhab"
 fi
 
 if [ x"${OPENHAB_JAVA}" != x ]; then
-    JAVA="${OPENHAB_JAVA}"
+  JAVA="${OPENHAB_JAVA}"
 fi
 
 if [ -n ${EXTRA_JAVA_OPTS} ]; then
-    export EXTRA_JAVA_OPTS
+  export EXTRA_JAVA_OPTS
 fi
 
 if [ ! -x "${JAVA}" ]; then
-    log_failure_msg "no java executable found at ${JAVA}"
-    exit 2
+  log_failure_msg "no java executable found at ${JAVA}"
+  exit 2
 fi
 
 USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
@@ -87,19 +87,19 @@ GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
 
 #Check whether the specified user exists
 if ! getent passwd "${USER}" > /dev/null 2>&1; then
-    log_failure_msg "runtime user doesn't exists"
-    exit 2
+  log_failure_msg "runtime user doesn't exists"
+  exit 2
 fi
 
 #Check whether the specified group exists
 if ! getent group "${GROUP}" > /dev/null 2>&1; then
-    log_failure_msg "runtime group doesn't exists"
-    exit 2
+  log_failure_msg "runtime group doesn't exists"
+  exit 2
 fi
 
 # Load the VERBOSE setting and other rcS variables
 if [ -r /lib/init/vars.sh ]; then
-    . /lib/init/vars.sh
+  . /lib/init/vars.sh
 fi
 
 # Check to see if openHAB is currently running
@@ -141,7 +141,7 @@ dostop() {
     # In case the pid in the pidfile was wrong, also kill/stop existing process
     killwaitpid $EXISTINGPID
     log_end_msg 0
-      return 0
+    return 0
   else
     log_end_msg 1
     return 1
@@ -155,8 +155,8 @@ dostart() {
   if [ -z "$EXISTINGPID" ] || [ ! -f $PIDFILE ];
   then
     if start-stop-daemon --start --quiet --pidfile $PIDFILE -c "${USER_AND_GROUP}" \
-       --umask 002 --background --chdir ${OPENHAB_DIR} \
-       --oknodo --exec /usr/share/openhab2/runtime/bin/start
+                        --umask 002 --background --chdir ${OPENHAB_DIR} \
+                        --oknodo --exec /usr/share/openhab2/runtime/bin/start
     then
       timeout=0
       # The correct process is only available once the wrapper scripts have finished.
@@ -182,21 +182,21 @@ dostart() {
 
 case "$1" in
   start)
-        dostart
-        ;;
+    dostart
+    ;;
   stop)
-        dostop
-        ;;
+    dostop
+    ;;
   status)
-        /usr/share/openhab2/runtime/bin/status
-        ;;
+    /usr/share/openhab2/runtime/bin/status
+    ;;
   restart|force-reload)
-        log_daemon_msg "Restarting $DESC" "$NAME"
-        dostop
-        dostart
-        ;;
+    log_daemon_msg "Restarting $DESC" "$NAME"
+    dostop
+    dostart
+    ;;
   *)
-        echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
-        exit 3
-        ;;
+    echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+    exit 3
+    ;;
 esac

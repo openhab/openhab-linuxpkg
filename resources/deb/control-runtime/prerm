@@ -2,44 +2,45 @@
 #
 # On .deb based systems:
 # Executed on old package before all other scripts
-#    $1=upgrade        : On upgrade
-#    $2=remove         : On any uninstall
+#   $1=upgrade              : On upgrade
+#   $2=remove               : On any uninstall
 #
 # On .rpm based systems:
 # Executed on old package (after the installation of the new package on upgrade...)
-#    $1=0              : On removal
-#    $1=1              : On upgrade
+#   $1=0                    : On removal
+#   $1=1                    : On upgrade
 
 set -e
 
 [ -f /etc/default/openhab2 ] && . /etc/default/openhab2
 
 stopOpenHAB() {
-	if [ -x /bin/systemctl ] ; then
-		/bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
-	elif [ -x "/etc/init.d/openhab2" ]; then
-		if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-			invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
-		else
-			/etc/init.d/openhab2 stop > /dev/null 2>&1 || true
-		fi
-		# waiting for the openhab2 process stop, otherwise the removal of the user will fail.
-		# workaround /etc/init.d/openhab2 stop the service needs some time to stop
-		sleep 5
-	fi
+  if [ -x /bin/systemctl ] ; then
+    /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
+  elif [ -x "/etc/init.d/openhab2" ]; then
+    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+      invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
+    else
+      /etc/init.d/openhab2 stop > /dev/null 2>&1 || true
+    fi
+    # waiting for the openhab2 process stop, otherwise the removal of the user will fail.
+    # workaround /etc/init.d/openhab2 stop the service needs some time to stop
+    sleep 5
+  fi
 }
 
 case "$1" in
-	upgrade)
-		stopOpenHAB
-		exit 0
-		;;
-	remove|deconfigure|0) # 0 Indicates removal on an RPM system
-		stopOpenHAB
-		exit 0
-		;;
-	failed-upgrade)
-		;;
+  upgrade)
+    stopOpenHAB
+    exit 0
+    ;;
+  remove|deconfigure|0)
+    # 0 Indicates removal on an RPM system
+    stopOpenHAB
+    exit 0
+    ;;
+  failed-upgrade)
+    ;;
 esac
 
 exit 0
