@@ -104,7 +104,7 @@ fi
 
 # Check to see if openHAB is currently running
 findpid() {
-  ps aux --sort=start_time | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
+  ps aux --sort=start_time | grep openhab2.*java | grep -v grep | awk '{print $2}' | tail -1
 }
 
 EXISTINGPID=$(findpid)
