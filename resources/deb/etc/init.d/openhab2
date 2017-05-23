@@ -73,7 +73,7 @@ if [ x"${OPENHAB_JAVA}" != x ]; then
   JAVA="${OPENHAB_JAVA}"
 fi
 
-if [ -n ${EXTRA_JAVA_OPTS} ]; then
+if [ -n "${EXTRA_JAVA_OPTS}" ]; then
   export EXTRA_JAVA_OPTS
 fi
 
