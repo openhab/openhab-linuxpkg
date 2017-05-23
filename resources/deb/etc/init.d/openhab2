@@ -77,6 +77,15 @@ if [ -n ${EXTRA_JAVA_OPTS} ]; then
   export EXTRA_JAVA_OPTS
 fi
 
+if [ -n ${OPENHAB_HTTP_PORT} ]; then
+  export OPENHAB_HTTP_PORT
+fi
+
+if [ -n ${OPENHAB_HTTPS_PORT} ]; then
+  export OPENHAB_HTTPS_PORT
+fi
+
+
 if [ ! -x "${JAVA}" ]; then
   log_failure_msg "no java executable found at ${JAVA}"
   exit 2
