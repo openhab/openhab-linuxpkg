@@ -72,6 +72,15 @@ restartIfFlagFileExists(){
     rm -f ${RESTART_FLAG_FILE}
     waitForStopFinished
     startOpenHAB
+  else
+    echo "### openHAB was not running so will not start automatically..."
+    if [ -x /bin/systemctl ] ; then
+      echo "### In order to start openhab2, execute"
+      echo " sudo /bin/systemctl start openhab2.service"
+    elif [ -x /usr/sbin/update-rc.d ] ; then
+      echo "### In order to start openhab2, execute"
+      echo " sudo /etc/init.d/openhab2 start"
+    fi
   fi
   return 0
 }

@@ -61,8 +61,8 @@ case "$1" in
     fi
     ;;
   1|2)
-    flagRestart
     # RPM Install (1) or Upgrade (2)
+    flagRestart
     if [ -x /bin/systemctl ] ; then
       /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
     elif [ -x "/etc/init.d/openhab2" ]; then
