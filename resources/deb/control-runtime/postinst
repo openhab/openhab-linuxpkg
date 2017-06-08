@@ -11,6 +11,7 @@
 #   $1=2                    : On upgrade
 
 UD_TMP=/var/lib/openhab2/tmp
+RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
 
 set -e
 if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
@@ -26,11 +27,12 @@ startOpenHAB() {
     /bin/systemctl start openhab2.service
   elif [ -x "/etc/init.d/openhab2" ]; then
     if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
-      invoke-rc.d openhab2 start || true
+      invoke-rc.d openhab2 start
     else
-      /etc/init.d/openhab2 start || true
+      /etc/init.d/openhab2 start
     fi
   fi
+  return 0
 }
 
 # Check to see if openHAB is currently running
@@ -65,6 +67,24 @@ waitForStopFinished(){
   return 0
 }
 
+restartIfFlagFileExists(){
+  if [ -f ${RESTART_FLAG_FILE} ]; then
+    rm -f ${RESTART_FLAG_FILE}
+    waitForStopFinished
+    startOpenHAB
+  else
+    echo "### openHAB was not running so will not start automatically..."
+    if [ -x /bin/systemctl ] ; then
+      echo "### In order to start openhab2, execute"
+      echo " sudo /bin/systemctl start openhab2.service"
+    elif [ -x /usr/sbin/update-rc.d ] ; then
+      echo "### In order to start openhab2, execute"
+      echo " sudo /etc/init.d/openhab2 start"
+    fi
+  fi
+  return 0
+}
+
 case "$1" in
   configure|1|2)
     if [ -z $2 ] && [ $1 != 2 ] ; then
@@ -91,8 +111,10 @@ case "$1" in
       fi
       mkdir -p $UD_TMP
       chown -R "$OH_USER:$OH_GROUP" $UD_TMP
-      waitForStopFinished
-      startOpenHAB
+      if [ -x /bin/systemctl ] ; then
+        /bin/systemctl daemon-reload 2>/dev/null 2>&1
+      fi
+      restartIfFlagFileExists
     fi
     ;;
 esac

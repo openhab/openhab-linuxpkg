@@ -21,8 +21,28 @@ removeCache(){
   true
 }
 
+flagRestart() {
+  if [ -x /binsystemctl ] ; then
+    if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
+      touch ${RESTART_FLAG_FILE}
+    fi
+  elif [ -x "/etc/init.d/openhab2" ]; then
+    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+      if invoke-rc.d openhab2 status > /dev/null 2>&1; then
+        touch ${RESTART_FLAG_FILE}
+      fi
+    else
+      if /etc/init.d/openhab2 status > /dev/null 2>&1; then
+        touch ${RESTART_FLAG_FILE}
+      fi
+    fi
+  fi
+  return 0
+}
+
+
 case "$1" in
-  install) 
+  install)
     # APT Install or Upgrade
     removeCache
     OH_USER=openhab
@@ -42,6 +62,7 @@ case "$1" in
     ;;
   1|2)
     # RPM Install (1) or Upgrade (2)
+    flagRestart
     if [ -x /bin/systemctl ] ; then
       /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
     elif [ -x "/etc/init.d/openhab2" ]; then
