@@ -1,12 +1,14 @@
 # openHAB 2 service configuration
 # 
-# Configure additional options for the JAVA_OPTS environment variable.
+# Additional options for the JAVA_OPTS environment variable.
 # These will be appended to the execution of the openHAB Java runtime in front of all other options.
 # 
-# EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"
-# EXTRA_JAVA_OPTS="-Djna.library.path=/lib/arm-linux-gnueabihf/ -Duser.timezone=Europe/Berlin -Dgnu.io.rxtx.SerialPorts=/dev/ttyS0"
+# A couple of independent examples:
+#   EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyAMA0"
+#   EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"
+#   EXTRA_JAVA_OPTS="-Djna.library.path=/lib/arm-linux-gnueabihf/ -Duser.timezone=Europe/Berlin -Dgnu.io.rxtx.SerialPorts=/dev/ttyS0"
 EXTRA_JAVA_OPTS=""
 
-# Configure the ports openHAB will bind its HTTP/HTTPS web server to.
+# The ports openHAB will bind its HTTP/HTTPS web server to.
 #OPENHAB_HTTP_PORT=8080
 #OPENHAB_HTTPS_PORT=8443
