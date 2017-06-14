@@ -345,15 +345,30 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 distributions.each { dist -> generate_distro_tasks(dist.dist, dist.description, dist.packageName,
                     dist.path, dist.version, dist.release, dist.debDist)}
 
-task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")})
+task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")}) {
+  description = 'Builds all the packages available for the distribution.'
+  group = 'openHAB Package'
+}
 
-task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith("-snapshot")})
+task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith("-snapshot")}) {
+  description = 'Performs all major tasks for the snapshot repos: Download -> Build -> Upload.'
+  group = 'openHAB Main'
+}
 
-task buildBeta5(dependsOn: tasks.findAll { t -> t.name.endsWith("-b5")})
+task buildBeta5(dependsOn: tasks.findAll { t -> t.name.endsWith("-b5")}) {
+  description = 'Performs all major tasks for the Beta (testing) repos: Download -> Build -> Upload.'
+  group = 'openHAB Main' 
+}
 
-task buildRC1(dependsOn: tasks.findAll { t -> t.name.endsWith("-rc1")})
+task buildRC1(dependsOn: tasks.findAll { t -> t.name.endsWith("-rc1")}) {
+  description = 'Performs all major tasks for the Release Client (testing) repos: Download -> Build -> Upload.'
+  group = 'openHAB Main' 
+}
 
-task buildLatestRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-2.0.0")})
+task buildLatestRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-2.0.0")}){
+  description = 'Performs all major tasks for the Release (stable) repos: Download -> Build -> Upload.'
+  group = 'openHAB Main' 
+}
 
 def generate_download_tasks = { dist, url, path -> 
   task "download-${dist}"(type: Download) { 
@@ -370,6 +385,9 @@ task downloadDistros(dependsOn: tasks.findAll {t -> t.name.startsWith("download-
 task removeOlderVersions(type:Exec) {
   def expiryDays = 7
   def expiryEpoch = System.currentTimeMillis() - (86400000 * expiryDays)
+
+  description = "Deletes packages older than ${expiryDays} days from the target repo."
+  group = 'openHAB Cleanup'
 
   executable 'curl'
   args '-X', 'GET', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/search/usage?notUsedSince=${expiryEpoch}&repos=${ARTIFACTORY_REPO},${ARTIFACTORY_REPO}-rpm"
