@@ -42,7 +42,7 @@ flagRestart() {
 
 
 case "$1" in
-  install)
+  install|upgrade)
     # APT Install or Upgrade
     removeCache
     OH_USER=openhab
