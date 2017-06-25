@@ -232,11 +232,13 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           fileType CONFIG | NOREPLACE
           into '/var/lib/openhab2'
           include 'userdata/**'
+          exclude 'userdata/etc/all.policy'
           exclude 'userdata/etc/startup.properties'
           exclude 'userdata/etc/config.properties'
           exclude 'userdata/etc/distribution.info'
           exclude 'userdata/etc/jre.properties'
           exclude 'userdata/etc/org.apache.karaf.*'
+          exclude 'userdata/etc/org.ops4j.pax.url.mvn.cfg'
           exclude 'userdata/etc/profile.cfg'
           exclude 'userdata/etc/branding.properties'
           exclude 'userdata/etc/branding-ssh.properties'
@@ -250,11 +252,13 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         }
         from(tar){
           into '/var/lib/openhab2'
+          include 'userdata/etc/all.policy'
           include 'userdata/etc/startup.properties'
           include 'userdata/etc/config.properties'
           include 'userdata/etc/distribution.info'
           include 'userdata/etc/jre.properties'
           include 'userdata/etc/org.apache.karaf.*'
+          include 'userdata/etc/org.ops4j.pax.url.mvn.cfg'
           include 'userdata/etc/profile.cfg'
           include 'userdata/etc/branding.properties'
           include 'userdata/etc/branding-ssh.properties'
