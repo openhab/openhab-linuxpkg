@@ -391,8 +391,6 @@ task removeOlderVersions(type:Exec) {
   }
 }
 
-task calculateMetadata(type:Exec) {
-
 def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
 def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
 
@@ -401,4 +399,3 @@ task calculateMetadata(type:Exec) {
      args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/openhab/apt-repo"
 }
 
-}
