@@ -396,6 +396,6 @@ def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bint
 
 task calculateMetadata(type:Exec) {
      executable "curl"
-     args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/openhab/apt-repo"
+     args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/openhab/apt-repo2"
 }
 
