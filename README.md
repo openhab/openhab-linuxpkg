@@ -1,47 +1,40 @@
-# Project for building and releasing openHAB 2 Linux deb packages
+## openHAB Linux Package Builder
 
-## Warning
+This repository uses [Gradle](https://gradle.org/) to download the openHAB distributions and package them as .deb or .rpm files.
+These packages follow the usual service or program directory conventions; therefore the directories are different to a manual openHAB install.
 
-  The downloads will make up to 400 megs of traffic!
+Anyone can use a fork of this repo to build their own openHAB .deb or .rpm files.
+Upload tasks are specific to openHAB's distribution services, powered by [JFrog's Artifactory](https://openhab.jfrog.io/) and [Bintray](https://bintray.com/openhab).
 
-## Description
-
-### Beta / Testing build and release
-
-```bash
-./gradlew buildBeta5
-```
-
-### Snapshot / Unstable builds
-
-By executing
-
- ```bash
- ./gradlew buildSnapshot
- ```
-
-will create two packages in build/distributions named **openhab2-offline_2.0.0.yyyyMMddHHmmss-1_all.deb** and
-**openhab2-online_2.0.0.yyyyMMddHHmmss-1_all.deb** and upload these packages to Bintray.
+For information about the general openHAB 2 package, please visit the [openhab-distro github repo](https://github.com/openhab/openhab-distro).
+For general information about openHAB2, please visit the [openHAB homepage](http://www.openhab.org/).
 
 ## Tasks
 
-There are a series of gradle tasks that can executed by following the syntax: `./gradlew [TASK NAME]`
+A list of up to date tasks can be obtained by using the command `./gradlew tasks`. Common tasks include:
 
-| Task Name                          | Description                                               |
-|:-----------------------------------|:----------------------------------------------------------|
-| `buildBeta5`                       | Builds and uploads Beta5 (online and offline)             |
-| `buildSnapshot`                    | Builds and uploads the latest online and offline snapshot |
-| `upload-openhab2-[PACKAGE NAME]`   | Builds and uploads a specified package                    |
-| `packageDistros`                   | Runs all `distro-*` tasks                                 |
-| `distro-openhab2-[PACKAGE NAME]`   | Builds a specific package without uploading it            |
-| `downloadDistros`                  | Downloads the latest compressed packages                  |
-| `download-openhab2-[PACKAGE NAME]` | Downloads the latest version of the specified package     |
-| `calculateMetadata`                | Instructs bintray to calculate the metadata information   |
+| Task Name                                 | Description                                                 |
+|:------------------------------------------|:------------------------------------------------------------|
+| `downloadDistros`                         | Downloads the latest compressed packages                    |
+| `download-[TYPE]-openhab2-[PACKAGE NAME]` | Downloads the latest version of the specified package       |
+| `distro-[TYPE]-openhab2-[PACKAGE NAME]`   | Builds a specific package without uploading it              |
+| `packageDistros`                          | Runs all `distro-*` tasks                                   |
 
+Tasks with dependencies (e.g. building needs download to run first) will run them first automatically.
 
-The variations of `[PACKAGE NAME]` are:
+## Package Types
 
-- online-snapshot
-- offline-snapshot
-- online-b5
-- offline-b5
+The two package `[TYPE]`s are 
+
+ - Deb
+ - Rpm
+
+Examples of `[PACKAGE NAME]` are:
+
+ - 2.1.0
+ - addons-2.1.0
+ - addons-legacy-2.1.0
+ - snapshot
+ - addons-snapshot
+ - addons-legacy-snapshot
+ 
