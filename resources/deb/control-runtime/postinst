@@ -10,8 +10,15 @@
 #   $1=1                    : On installation
 #   $1=2                    : On upgrade
 
-UD_TMP=/var/lib/openhab2/tmp
 RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
+UD_CACHE=/var/lib/openhab2/cache
+UD_TMP=/var/lib/openhab2/tmp
+
+removeCache(){
+  [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
+  [ -d ${UD_TMP} ] && rm -rf ${UD_TMP}
+  true
+}
 
 set -e
 if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
@@ -103,14 +110,13 @@ case "$1" in
       fi
     else
       # this is an upgrade
+      removeCache
       OH_USER=openhab
       OH_GROUP=openhab
       if [ x"${USER_AND_GROUP}" != x ]; then
         OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
         OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
       fi
-      mkdir -p $UD_TMP
-      chown -R "$OH_USER:$OH_GROUP" $UD_TMP
       if [ -x /bin/systemctl ] ; then
         /bin/systemctl daemon-reload 2>/dev/null 2>&1
       fi
