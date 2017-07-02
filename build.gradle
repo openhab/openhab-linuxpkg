@@ -7,7 +7,6 @@ buildscript {
     classpath 'org.apache.commons:commons-lang3:3.1'
     classpath 'org.vafer:jdeb:1.4'
     classpath 'com.bmuschko:gradle-docker-plugin:3.0.1'
-
   }
 }
 
@@ -17,9 +16,6 @@ plugins {
 
 apply plugin: "nebula.ospackage"
 
-def resourcesDir = "resources/"
-def debResourcesDir = resourcesDir + "deb/"
-
 def ARTIFACTORY_ORG = project.hasProperty('artifactoryOrg') ? project.property('artifactoryOrg') : System.env.ARTIFACTORY_ORGANISATION
 def ARTIFACTORY_REPO = project.hasProperty('artifactoryRepo') ? project.property('artifactoryRepo') : System.env.ARTIFACTORY_REPO
 def ARTIFACTORY_KEY = project.hasProperty('artifactoryKey') ? project.property('artifactoryKey') : System.env.ARTIFACTORY_API_KEY
@@ -28,9 +24,15 @@ def ARTIFACTORY_GPG = project.hasProperty('artifactoryGpg') ? project.property('
 def ARTIFACTORY_GPG_KEY = project.hasProperty('artifactoryGpgKey') ? project.property('artifactoryGpgKey') : System.env.ARTIFACTORY_GPG_KEY
 def ARTIFACTORY_GPG_KEY_ID = project.hasProperty('artifactoryGpgKeyId') ? project.property('artifactoryGpgKeyId') : System.env.ARTIFACTORY_GPG_KEY_ID
 
-ARTIFACTORY_ORG = ARTIFACTORY_ORG ?: "openhab"
-ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: "openhab-linuxpkg"
-ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: "A224060A" 
+ARTIFACTORY_ORG = ARTIFACTORY_ORG ?: 'openhab'
+ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: 'openhab-linuxpkg'
+ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A' 
+
+def OHVersion = project.hasProperty('openHABVersion') ? project.property('openHABVersion') : System.env.OPENHAB_VERSION
+def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
+
+OHVersion = OHVersion ?: '2.1.0'
+OHSnapVersion = OHSnapVersion ?: '2.2.0'
 
 def OSPACKAGE_ARCH = "all"
 
@@ -69,59 +71,59 @@ ospackage {
 def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
   [
-    "dist": "openhab2-2.1.0",
-    "description": "Linux installation package for openHAB 2.",
-    "debDist": "stable",
-    "packageName": "openhab2",
-    "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F2.1.0%2Fopenhab-2.1.0.tar.gz",
-    "path": buildDir.getAbsolutePath() + '/' + 'openhab-2.1.0.tar.gz',
-    "version": "2.1.0",
-    "release": '1'
+    "dist":        "openhab2-${OHVersion}",
+    "description": 'Linux installation package for openHAB 2.',
+    "debDist":     'stable',
+    "packageName": 'openhab2',
+    "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHVersion}%2Fopenhab-${OHVersion}.tar.gz",
+    "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
+    "version":     "${OHVersion}",
+    "release":     '1'
   ],[
-    "dist": "openhab2-addons-2.1.0",
-    "description": "Linux installation package for openHAB 2 addons.",
-    "debDist": "stable",
-    "packageName": "openhab2-addons",
-    "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F2.1.0%2Fopenhab-addons-2.1.0.kar",
-    "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-2.1.0.kar',
-    "version": "2.1.0",
-    "release": '1'
+    'dist':        "openhab2-addons-${OHVersion}",
+    'description': 'Linux installation package for openHAB 2 addons.',
+    'debDist':     'stable',
+    'packageName': 'openhab2-addons',
+    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHVersion}%2Fopenhab-addons-${OHVersion}.kar",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHVersion}.kar",
+    'version':     "${OHVersion}",
+    'release':     '1'
   ],[
-    "dist": "openhab2-addons-legacy-2.1.0",
-    "description": "Linux installation package for legacy openHAB 2 addons.",
-    "debDist": "stable",
-    "packageName": "openhab2-addons-legacy",
-    "url": "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F2.1.0%2Fopenhab-addons-legacy-2.1.0.kar",
-    "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-legacy-2.1.0.kar',
-    "version": "2.1.0",
-    "release": '1'
+    'dist':        "openhab2-addons-legacy-${OHVersion}",
+    'description': 'Linux installation package for legacy openHAB 2 addons.',
+    'debDist':     'stable',
+    'packageName': 'openhab2-addons-legacy',
+    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHVersion}%2Fopenhab-addons-legacy-${OHVersion}.kar",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
+    'version':     "${OHVersion}",
+    'release':     '1'
   ],[
-    "dist": "openhab2-snapshot",
-    "description": "Linux installation package for openHAB 2.",
-    "debDist": "unstable",
-    "packageName": "openhab2",
-    "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-2.2.0-SNAPSHOT.tar.gz",
-    "path": buildDir.getAbsolutePath() + '/' + 'openhab-2.2.0-SNAPSHOT.tar.gz',
-    "version": "2.2.0~" + timestamp,
-    "release": '1'
+    'dist':        'openhab2-snapshot',
+    'description': 'Linux installation package for openHAB 2.',
+    'debDist':     'unstable',
+    'packageName': 'openhab2',
+    'url':         "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
+    'version':     "${OHSnapVersion}~" + timestamp,
+    'release':     '1'
   ],[
-    "dist": "openhab2-addons-snapshot",
-    "description": "Linux installation package for openHAB 2 addons.",
-    "debDist": "unstable",
-    "packageName": "openhab2-addons",
-    "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-2.2.0-SNAPSHOT.kar",
-    "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-2.2.0-SNAPSHOT.kar',
-    "version": "2.2.0~" + timestamp,
-    "release": '1'
+    'dist':        'openhab2-addons-snapshot',
+    'description': 'Linux installation package for openHAB 2 addons.',
+    'debDist':     'unstable',
+    'packageName': 'openhab2-addons',
+    'url':         "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
+    'version':     "${OHSnapVersion}~" + timestamp,
+    'release':     '1'
   ],[
-    "dist": "openhab2-addons-legacy-snapshot",
-    "description": "Linux installation package for legacy openHAB 2 addons.",
-    "debDist": "unstable",
-    "packageName": "openhab2-addons-legacy",
-    "url": "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-2.2.0-SNAPSHOT.kar",
-    "path": buildDir.getAbsolutePath() + '/' + 'openhab-addons-legacy-2.2.0-SNAPSHOT.kar',
-    "version": "2.2.0~" + timestamp,
-    "release": '1'
+    'dist':        'openhab2-addons-legacy-snapshot',
+    'description': 'Linux installation package for legacy openHAB 2 addons.',
+    'debDist':     'unstable',
+    'packageName': 'openhab2-addons-legacy',
+    'url':         "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
+    'version':     "${OHSnapVersion}~" + timestamp,
+    'release':     '1'
   ]
 ]
 
@@ -147,7 +149,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
       */
       Closure suckUpEmptyDirectories = { path, u, g, mode ->
         into(path) {
-          from "${debResourcesDir}dirs${path}"
+          from "resources/dirs${path}"
           user u
           permissionGroup g
           dirMode mode
@@ -162,13 +164,12 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into 'usr/share/openhab2/addons'
         }
       } else {
-        preInstall file(resourcesDir + 'deb/control-runtime/preinst')
-        postInstall file(resourcesDir + 'deb/control-runtime/postinst')
-        preUninstall file(resourcesDir + 'deb/control-runtime/prerm')
-        postUninstall file(resourcesDir + 'deb/control-runtime/postrm')
+        preInstall file('resources/control-runtime/preinst')
+        postInstall file('resources/control-runtime/postinst')
+        preUninstall file('resources/control-runtime/prerm')
+        postUninstall file('resources/control-runtime/postrm')
 
         configurationFile('/etc/default/openhab2')
-        configurationFile('/usr/lib/systemd/system/openhab2.service')
 
         if (pType == 'Deb') {
           requires('adduser')
@@ -182,20 +183,21 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', user, permissionGroup, 0755)
         suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', user, permissionGroup, 0755)
         suckUpEmptyDirectories('/usr/share/openhab2/bin', user, permissionGroup, 0755)
-        from(debResourcesDir + 'etc/default/openhab2'){
+
+        from('resources/etc/default'){
           fileType CONFIG | NOREPLACE
           user 'root'
           permissionGroup 'root'
           fileMode 0644
           into '/etc/default'
         }
-        from(debResourcesDir + 'bin/setpermissions.sh'){
+        from('resources/bin/setpermissions.sh'){
           user 'root'
           permissionGroup 'root'
           fileMode 0775
           into '/usr/share/openhab2/bin'
         }
-        from(debResourcesDir + 'systemd/openhab2.service'){
+        from('resources/systemd/openhab2.service'){
           fileType CONFIG | NOREPLACE
           fileMode 0644
           user 'root'
@@ -203,7 +205,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into '/usr/lib/systemd/system'
         }
         if (pType == 'Deb') {
-          from(debResourcesDir + 'etc/init.d/openhab2'){
+          from('resources/etc/init.d/openhab2'){
             fileMode 0775
             user 'root'
             permissionGroup 'root'
@@ -214,7 +216,6 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into '/usr/share/openhab2'
           exclude 'conf/**'
           exclude 'userdata/**'
-          exclude 'runtime/bin/oh2_dir_layout'
           exclude 'start.bat'
           exclude 'start_debug.bat'
         }
@@ -269,10 +270,6 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
             details.path = pkgPath
           }
         }
-        from(debResourcesDir + 'bin/oh2_dir_layout'){
-          fileMode 0775
-          into '/usr/share/openhab2/runtime/bin'
-        }
       }
     }
 
@@ -290,7 +287,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
       } else if (pType == 'Rpm') {
         fileName = "${gPackageName}-${gVersion}-${gRelease}.noarch.rpm"
         curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}-rpm/${gDebDist}/${gVersion}/${fileName}"
-        curlOptions = "artifactory.licenses=Eclipse-1.0"
+        curlOptions = 'artifactory.licenses=Eclipse-1.0'
       }
       
       executable "curl"
@@ -398,4 +395,3 @@ task calculateMetadata(type:Exec) {
      executable "curl"
      args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/openhab/apt-repo2"
 }
-

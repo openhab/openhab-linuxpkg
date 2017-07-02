@@ -12,30 +12,60 @@
 # Author: openHAB <openhab@openhab.org>
 #
 
+# Read configuration variable file if it is present
+if [ -r /etc/default/openhab2 ]; then
+  . /etc/default/openhab2
+fi
+
+if [ -r /etc/default/openhab2_dirs ]; then
+  . /etc/default/openhab2_dirs
+fi
+
+
+if [ -n "${EXTRA_JAVA_OPTS}" ]; then export EXTRA_JAVA_OPTS; fi
+
+# Read and set openHAB variables set in /etc/default/ scripts
+if [ -n "${OPENHAB_HTTP_PORT}" ]; then export OPENHAB_HTTP_PORT; fi
+if [ -n "${OPENHAB_HTTPS_PORT}" ]; then export OPENHAB_HTTPS_PORT; fi
+if [ -n "${OPENHAB_HOME}" ]; then export OPENHAB_HOME; fi
+if [ -n "${OPENHAB_CONF}" ]; then export OPENHAB_CONF; fi
+if [ -n "${OPENHAB_RUNTIME}" ]; then export OPENHAB_RUNTIME; fi
+if [ -n "${OPENHAB_USERDATA}" ]; then export OPENHAB_USERDATA; fi
+if [ -n "${OPENHAB_LOGDIR}" ]; then export OPENHAB_LOGDIR; fi
+
+if [ -z "${OPENHAB_USER}" ]; then
+  OPENHAB_USER="openhab"
+else
+  export OPENHAB_USER
+fi
+
+if [ -z "${OPENHAB_GROUP}" ]; then
+  OPENHAB_GROUP="openhab"
+else
+  export OPENHAB_GROUP
+fi
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
-OPENHAB_INST_DIR="/usr/share/openhab2"
 
 DESC="openHAB2 server"
 NAME=openhab2
 JAVA="/usr/bin/java"
 PIDFILE=/var/run/$NAME.pid
 SCRIPTNAME=/etc/init.d/$NAME
-SETOWNER=yes
 
 # Define LSB log_* functions.
 log_daemon_msg () {
-  echo $@
+  echo "$@"
 }
 
 log_end_msg () {
   val=$1
-  if [ $val -eq 0 ]; then
+  if [ "${val}" -eq 0 ]; then
     log_success_msg ""
   else
     log_failure_msg ""
   fi
-  return $val
+  return "${val}"
 }
 
 log_success_msg () {
@@ -55,35 +85,14 @@ elif [ -r /etc/init.d/functions ]; then
   . /etc/init.d/functions
 fi
 
-# Read configuration variable file if it is present
-if [ -r /etc/default/openhab2 ]; then
-  . /etc/default/openhab2
-fi
-
-OPENHAB_CONF_DIR="/etc/openhab2"
-OPENHAB_DIR="/usr/share/openhab2"
-OPENHAB_HOME_DIR="/var/lib/openhab2"
-OPENHAB_USER_DATA_DIR="${OPENHAB_HOME_DIR}"
-
 if [ -z "$USER_AND_GROUP" ]; then
-  USER_AND_GROUP="openhab:openhab"
+  USER_AND_GROUP="${OPENHAB_USER}:${OPENHAB_GROUP}"
 fi
 
 if [ x"${OPENHAB_JAVA}" != x ]; then
   JAVA="${OPENHAB_JAVA}"
 fi
 
-if [ -n "${EXTRA_JAVA_OPTS}" ]; then
-  export EXTRA_JAVA_OPTS
-fi
-
-if [ -n ${OPENHAB_HTTP_PORT} ]; then
-  export OPENHAB_HTTP_PORT
-fi
-
-if [ -n ${OPENHAB_HTTPS_PORT} ]; then
-  export OPENHAB_HTTPS_PORT
-fi
 
 
 if [ ! -x "${JAVA}" ]; then
@@ -91,8 +100,8 @@ if [ ! -x "${JAVA}" ]; then
   exit 2
 fi
 
-USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+USER=$(echo ${USER_AND_GROUP} | cut -d ":" -f 1)
+GROUP=$(echo ${USER_AND_GROUP} | cut -d ":" -f 2)
 
 #Check whether the specified user exists
 if ! getent passwd "${USER}" > /dev/null 2>&1; then
@@ -113,7 +122,7 @@ fi
 
 # Check to see if openHAB is currently running
 findpid() {
-  ps aux --sort=start_time | grep openhab2.*java | grep -v grep | awk '{print $2}' | tail -1
+  ps aux --sort=start_time | grep "openhab2.*java" | grep -v grep | awk '{print $2}' | tail -1
 }
 
 EXISTINGPID=$(findpid)
@@ -121,15 +130,15 @@ EXISTINGPID=$(findpid)
 # Kill/Wait pid
 killwaitpid() {
   kpid=$1
-  echo -n "Waiting for openHAB to stop"
-  while kill -0 $kpid 2> /dev/null ; do
-    if [ $timeout -eq 60 ]; then
+  echo "Waiting for openHAB to stop..."
+  while kill -0 "${kpid}" 2> /dev/null ; do
+    if [ "${timeout}" -eq 60 ]; then
       # finally kill the process if timeout is reached
       echo "killing the process with pid $kpid"
-      kill -9 $kpid
+      kill -9 "${kpid}"
       break
     else
-      echo -n "."
+      printf "."
       timeout=$((timeout+1))
       sleep 1
     fi
@@ -139,16 +148,16 @@ killwaitpid() {
 # Stop subroutine
 dostop() {
   log_daemon_msg "Stopping $DESC" "$NAME"
-  if /usr/share/openhab2/runtime/bin/stop
+  if "${OPENHAB_RUNTIME}/bin/stop"
   then
     # workaround stop returns before the openhab process has really stopped
     timeout=0
-    if stpid=`cat /var/run/openhab2.pid 2> /dev/null`; then
-      killwaitpid $stpid
+    if stpid=$(cat /var/run/openhab2.pid 2> /dev/null); then
+      killwaitpid "${stpid}"
     fi
     rm -f $PIDFILE
     # In case the pid in the pidfile was wrong, also kill/stop existing process
-    killwaitpid $EXISTINGPID
+    killwaitpid "${EXISTINGPID}"
     log_end_msg 0
     return 0
   else
@@ -161,21 +170,21 @@ dostop() {
 dostart() {
   log_daemon_msg "Starting $DESC" "$NAME"
   # OpenHAB may be shutting down if a process still exists but there's no PID file.
-  if [ -z "$EXISTINGPID" ] || [ ! -f $PIDFILE ];
+  if [ -z "${EXISTINGPID}" ] || [ ! -f "${PIDFILE}" ];
   then
-    if start-stop-daemon --start --quiet --pidfile $PIDFILE -c "${USER_AND_GROUP}" \
-                        --umask 002 --background --chdir ${OPENHAB_DIR} \
-                        --oknodo --exec /usr/share/openhab2/runtime/bin/start
+    if start-stop-daemon --start --quiet --pidfile "${PIDFILE}" -c "${USER_AND_GROUP}" \
+                        --umask 002 --background --chdir "${OPENHAB_HOME}" \
+                        --oknodo --exec "${OPENHAB_RUNTIME}/bin/start"
     then
       timeout=0
       # The correct process is only available once the wrapper scripts have finished.
-      until [ $timeout -eq 20 ] || [ x"$spid" != x ];
+      until [ "${timeout}" -eq 20 ] || [ x"${spid}" != x ];
       do
         sleep 1
         spid=$(findpid)
         timeout=$((timeout+1))
       done
-      echo "$spid" > $PIDFILE
+      echo "${spid}" > "${PIDFILE}"
       log_end_msg 0
       return 0
     else
@@ -183,7 +192,7 @@ dostart() {
       return 1
     fi
   else
-    echo -n "Error: OpenHAB is already running with PID: $EXISTINGPID!"
+    echo "Error: OpenHAB is already running with PID: ${EXISTINGPID}!"
     log_end_msg 1
     return 1
   fi
@@ -200,12 +209,13 @@ case "$1" in
     /usr/share/openhab2/runtime/bin/status
     ;;
   restart|force-reload)
-    log_daemon_msg "Restarting $DESC" "$NAME"
+    log_daemon_msg "Restarting ${DESC}" "${NAME}"
     dostop
     dostart
     ;;
   *)
-    echo "Usage: $SCRIPTNAME {start|stop|status|restart|force-reload}" >&2
+    echo "Usage: ${SCRIPTNAME} {start|stop|status|restart|force-reload}" >&2
     exit 3
     ;;
 esac
+
