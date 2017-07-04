@@ -184,21 +184,14 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', user, permissionGroup, 0755)
         suckUpEmptyDirectories('/usr/share/openhab2/bin', user, permissionGroup, 0755)
 
-        from('resources/etc/default'){
+        from('resources/etc/default/openhab2'){
           fileType CONFIG | NOREPLACE
           user 'root'
           permissionGroup 'root'
           fileMode 0644
-          into '/etc/default'
-        }
-        from('resources/bin/setpermissions.sh'){
-          user 'root'
-          permissionGroup 'root'
-          fileMode 0775
-          into '/usr/share/openhab2/bin'
+          into '/etc/default/'
         }
         from('resources/systemd/openhab2.service'){
-          fileType CONFIG | NOREPLACE
           fileMode 0644
           user 'root'
           permissionGroup 'root'

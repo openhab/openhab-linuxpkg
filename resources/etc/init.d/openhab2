@@ -17,33 +17,28 @@ if [ -r /etc/default/openhab2 ]; then
   . /etc/default/openhab2
 fi
 
-if [ -r /etc/default/openhab2_dirs ]; then
-  . /etc/default/openhab2_dirs
-fi
-
-
 if [ -n "${EXTRA_JAVA_OPTS}" ]; then export EXTRA_JAVA_OPTS; fi
 
 # Read and set openHAB variables set in /etc/default/ scripts
-if [ -n "${OPENHAB_HTTP_PORT}" ]; then export OPENHAB_HTTP_PORT; fi
-if [ -n "${OPENHAB_HTTPS_PORT}" ]; then export OPENHAB_HTTPS_PORT; fi
-if [ -n "${OPENHAB_HOME}" ]; then export OPENHAB_HOME; fi
-if [ -n "${OPENHAB_CONF}" ]; then export OPENHAB_CONF; fi
-if [ -n "${OPENHAB_RUNTIME}" ]; then export OPENHAB_RUNTIME; fi
-if [ -n "${OPENHAB_USERDATA}" ]; then export OPENHAB_USERDATA; fi
-if [ -n "${OPENHAB_LOGDIR}" ]; then export OPENHAB_LOGDIR; fi
+if [ -z "${OPENHAB_HTTP_PORT}" ];  then OPENHAB_HTTP_PORT=8080; fi
+if [ -z "${OPENHAB_HTTPS_PORT}" ]; then OPENHAB_HTTPS_PORT=8443; fi
+if [ -z "${OPENHAB_HOME}" ];       then OPENHAB_HOME="/usr/share/openhab2"; fi
+if [ -z "${OPENHAB_CONF}" ];       then OPENHAB_CONF="/etc/openhab2"; fi
+if [ -z "${OPENHAB_RUNTIME}" ];    then OPENHAB_RUNTIME="${OPENHAB_HOME}/runtime"; fi
+if [ -z "${OPENHAB_USERDATA}" ];   then OPENHAB_USERDATA="/var/lib/openhab2"; fi
+if [ -z "${OPENHAB_LOGDIR}" ];     then OPENHAB_LOGDIR="/var/log/openhab2"; fi
+if [ -z "${OPENHAB_USER}" ];       then OPENHAB_USER="openhab"; fi
+if [ -z "${OPENHAB_GROUP}" ];      then OPENHAB_GROUP="openhab"; fi
 
-if [ -z "${OPENHAB_USER}" ]; then
-  OPENHAB_USER="openhab"
-else
-  export OPENHAB_USER
-fi
-
-if [ -z "${OPENHAB_GROUP}" ]; then
-  OPENHAB_GROUP="openhab"
-else
-  export OPENHAB_GROUP
-fi
+export OPENHAB_HTTP_PORT
+export OPENHAB_HTTPS_PORT
+export OPENHAB_HOME
+export OPENHAB_CONF
+export OPENHAB_RUNTIME
+export OPENHAB_USERDATA
+export OPENHAB_LOGDIR
+export OPENHAB_USER
+export OPENHAB_GROUP
 
 PATH=/sbin:/usr/sbin:/bin:/usr/bin
 
@@ -93,8 +88,6 @@ if [ x"${OPENHAB_JAVA}" != x ]; then
   JAVA="${OPENHAB_JAVA}"
 fi
 
-
-
 if [ ! -x "${JAVA}" ]; then
   log_failure_msg "no java executable found at ${JAVA}"
   exit 2
@@ -130,11 +123,11 @@ EXISTINGPID=$(findpid)
 # Kill/Wait pid
 killwaitpid() {
   kpid=$1
-  echo "Waiting for openHAB to stop..."
+  printf "Waiting for process ${kpid} to stop..."
   while kill -0 "${kpid}" 2> /dev/null ; do
     if [ "${timeout}" -eq 60 ]; then
       # finally kill the process if timeout is reached
-      echo "killing the process with pid $kpid"
+      printf "Timeout: killing process ${kpid}..."
       kill -9 "${kpid}"
       break
     else
@@ -143,6 +136,7 @@ killwaitpid() {
       sleep 1
     fi
   done
+  echo " done!"
 }
 
 # Stop subroutine
@@ -169,7 +163,7 @@ dostop() {
 # Start subroutine
 dostart() {
   log_daemon_msg "Starting $DESC" "$NAME"
-  # OpenHAB may be shutting down if a process still exists but there's no PID file.
+  # openHAB may be shutting down if a process still exists but there's no PID file.
   if [ -z "${EXISTINGPID}" ] || [ ! -f "${PIDFILE}" ];
   then
     if start-stop-daemon --start --quiet --pidfile "${PIDFILE}" -c "${USER_AND_GROUP}" \
@@ -218,4 +212,3 @@ case "$1" in
     exit 3
     ;;
 esac
-

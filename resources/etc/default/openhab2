@@ -8,7 +8,24 @@
 #   EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"
 #   EXTRA_JAVA_OPTS="-Djna.library.path=/lib/arm-linux-gnueabihf/ -Duser.timezone=Europe/Berlin -Dgnu.io.rxtx.SerialPorts=/dev/ttyS0"
 EXTRA_JAVA_OPTS=""
-
+#
 # The ports openHAB will bind its HTTP/HTTPS web server to.
+#
 #OPENHAB_HTTP_PORT=8080
 #OPENHAB_HTTPS_PORT=8443
+#
+# These settings override the default apt/rpm locations and should be used with caution.
+# openHAB will fail to update itself if you're using different paths. 
+# Only set these if you are testing and are confident in debugging.
+# 
+#OPENHAB_HOME=/usr/share/openhab2
+#OPENHAB_CONF=/etc/openhab2
+#OPENHAB_RUNTIME=/usr/share/openhab2/runtime
+#OPENHAB_USERDATA=/var/lib/openhab2
+#OPENHAB_LOGDIR=/var/log/openhab2
+#
+# The user and group that takes ownership of openHAB. Only available for init.d systems.
+# To edit user and group for systemd, see the service file at /usr/lib/systemd/system/openhab2.service.
+#
+#OPENHAB_USER=openhab
+#OPENHAB_GROUP=openhab
