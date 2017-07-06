@@ -177,6 +177,8 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           requires('systemd')
         }
 
+        recommends('oracle-java8-installer | zulu-8 | zulu-embedded-8 | openjdk-8-jdk-headless')
+
         FileTree tar = tarTree(gInputFile)
         suckUpEmptyDirectories('/var/log/openhab2', user, permissionGroup, 0755)
         suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', user, permissionGroup, 0755)
