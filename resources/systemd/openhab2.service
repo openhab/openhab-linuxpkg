@@ -6,12 +6,15 @@ Wants=network-online.target
 After=network-online.target
 
 [Service]
-EnvironmentFile=/etc/default/openhab2
+Environment=OPENHAB_HOME=/usr/share/openhab2
+Environment=OPENHAB_CONF=/etc/openhab2
+Environment=OPENHAB_RUNTIME=/usr/share/openhab2/runtime
+Environment=OPENHAB_USERDATA=/var/lib/openhab2
+Environment=OPENHAB_LOGDIR=/var/log/openhab2
+EnvironmentFile=-/etc/default/openhab2
 User=openhab
 Group=openhab
 WorkingDirectory=/usr/share/openhab2
-#PermissionsStartOnly=true
-#ExecStartPre=/usr/share/openhab/bin/setpermissions.sh
 ExecStart=/usr/share/openhab2/start.sh server
 ExecStop=/usr/share/openhab2/runtime/bin/stop
 # Shutdown delay in seconds, before process is tried to be killed with KILL (if configured)
