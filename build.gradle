@@ -73,7 +73,7 @@ def distributions = [
   [
     "dist":        "openhab2-${OHVersion}",
     "description": 'Linux installation package for openHAB 2.',
-    "debDist":     'stable',
+    "debDist":     ['stable','testing','unstable'],
     "packageName": 'openhab2',
     "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHVersion}%2Fopenhab-${OHVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
@@ -82,7 +82,7 @@ def distributions = [
   ],[
     'dist':        "openhab2-addons-${OHVersion}",
     'description': 'Linux installation package for openHAB 2 addons.',
-    'debDist':     'stable',
+    'debDist':     ['stable','testing','unstable'],
     'packageName': 'openhab2-addons',
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHVersion}%2Fopenhab-addons-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHVersion}.kar",
@@ -91,7 +91,7 @@ def distributions = [
   ],[
     'dist':        "openhab2-addons-legacy-${OHVersion}",
     'description': 'Linux installation package for legacy openHAB 2 addons.',
-    'debDist':     'stable',
+    'debDist':     ['stable','testing','unstable'],
     'packageName': 'openhab2-addons-legacy',
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHVersion}%2Fopenhab-addons-legacy-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
@@ -100,7 +100,7 @@ def distributions = [
   ],[
     'dist':        'openhab2-snapshot',
     'description': 'Linux installation package for openHAB 2.',
-    'debDist':     'unstable',
+    'debDist':     ['unstable'],
     'packageName': 'openhab2',
     'url':         "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
@@ -109,7 +109,7 @@ def distributions = [
   ],[
     'dist':        'openhab2-addons-snapshot',
     'description': 'Linux installation package for openHAB 2 addons.',
-    'debDist':     'unstable',
+    'debDist':     ['unstable'],
     'packageName': 'openhab2-addons',
     'url':         "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
@@ -118,7 +118,7 @@ def distributions = [
   ],[
     'dist':        'openhab2-addons-legacy-snapshot',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
-    'debDist':     'unstable',
+    'debDist':     ['unstable'],
     'packageName': 'openhab2-addons-legacy',
     'url':         "https://openhab.ci.cloudbees.com/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
@@ -128,6 +128,9 @@ def distributions = [
 ]
 
 def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVersion, gRelease, gDebDist ->
+
+  def topDist = gDebDist.first()
+
   packageTypes.each { pType -> 
     def packageType = Deb
     if (pType == 'Rpm') { packageType = Rpm }
@@ -141,7 +144,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
       }
 
       version = gVersion
-      distribution = gDebDist
+      distribution = topDist
       packageDescription = gDescription
 
       /**
@@ -268,18 +271,20 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 
     task "upload-${pType}-${dist}"(type:Exec, dependsOn: "distro-${pType}-${dist}") {
       def debArchs = ''
+      def debDists = ''
       def curlURL = ''
       def fileName = ''
       def curlOptions = ''
 
       if (pType == 'Deb') {
         architectures.each {arch -> debArchs = debArchs + "deb.architecture=${arch};"}
+        gDebDist.each {singleDebDist -> debDists = debDists + "deb.distribution=${singleDebDist};"}
         fileName = "${gPackageName}_${gVersion}-${gRelease}_${OSPACKAGE_ARCH}.deb"
         curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}/pool/main/${gVersion}/${fileName}"
-        curlOptions = "deb.distribution=${gDebDist};deb.component=main;${debArchs};artifactory.licenses=Eclipse-1.0"
+        curlOptions = "{$debDists};deb.component=main;${debArchs};artifactory.licenses=Eclipse-1.0"
       } else if (pType == 'Rpm') {
         fileName = "${gPackageName}-${gVersion}-${gRelease}.noarch.rpm"
-        curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}-rpm/${gDebDist}/${gVersion}/${fileName}"
+        curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}-rpm/${topDist}/${gVersion}/${fileName}"
         curlOptions = 'artifactory.licenses=Eclipse-1.0'
       }
       
