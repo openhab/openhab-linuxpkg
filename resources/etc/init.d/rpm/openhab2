@@ -123,11 +123,11 @@ EXISTINGPID=$(findpid)
 # Kill/Wait pid
 killwaitpid() {
   kpid=$1
-  printf "Waiting for process ${kpid} to stop..."
+  printf 'Waiting for process %s to stop...' "${kpid}"
   while kill -0 "${kpid}" 2> /dev/null ; do
     if [ "${timeout}" -eq 60 ]; then
       # finally kill the process if timeout is reached
-      printf "Timeout: killing process ${kpid}..."
+      printf "Timeout: killing process %s..." "${kpid}"
       kill -9 "${kpid}"
       break
     else
@@ -146,12 +146,14 @@ dostop() {
   then
     # workaround stop returns before the openhab process has really stopped
     timeout=0
-    if stpid=$(cat /var/run/openhab2.pid 2> /dev/null); then
+    if stpid=$(cat ${PIDFILE} 2> /dev/null); then
       killwaitpid "${stpid}"
     fi
     rm -f $PIDFILE
     # In case the pid in the pidfile was wrong, also kill/stop existing process
-    killwaitpid "${EXISTINGPID}"
+    if [ "${stpid}" != "{EXISTINGPID}" ]; then
+      killwaitpid "${EXISTINGPID}"
+    fi
     log_end_msg 0
     return 0
   else
@@ -166,9 +168,7 @@ dostart() {
   # openHAB may be shutting down if a process still exists but there's no PID file.
   if [ -z "${EXISTINGPID}" ] || [ ! -f "${PIDFILE}" ];
   then
-    if start-stop-daemon --start --quiet --pidfile "${PIDFILE}" -c "${USER_AND_GROUP}" \
-                        --umask 002 --background --chdir "${OPENHAB_HOME}" \
-                        --oknodo --exec "${OPENHAB_RUNTIME}/bin/start"
+    if daemon --user "${USER}" --pidfile "$PIDFILE" "${OPENHAB_RUNTIME}/bin/start &"
     then
       timeout=0
       # The correct process is only available once the wrapper scripts have finished.
@@ -200,7 +200,7 @@ case "$1" in
     dostop
     ;;
   status)
-    /usr/share/openhab2/runtime/bin/status
+    "${OPENHAB_RUNTIME}/bin/status"
     ;;
   restart|force-reload)
     log_daemon_msg "Restarting ${DESC}" "${NAME}"
