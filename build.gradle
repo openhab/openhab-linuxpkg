@@ -176,8 +176,6 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 
         if (pType == 'Deb') {
           requires('adduser')
-        } else {
-          requires('systemd')
         }
 
         recommends('oracle-java8-installer | zulu-8 | zulu-embedded-8 | openjdk-8-jdk-headless')
@@ -200,10 +198,17 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           fileMode 0644
           user 'root'
           permissionGroup 'root'
-          into '/usr/lib/systemd/system'
+          into '/usr/lib/systemd/system/'
         }
         if (pType == 'Deb') {
-          from('resources/etc/init.d/openhab2'){
+          from('resources/etc/init.d/deb/openhab2'){
+            fileMode 0775
+            user 'root'
+            permissionGroup 'root'
+            into '/etc/init.d/'
+          }
+        } else {
+          from('resources/etc/init.d/rpm/openhab2'){
             fileMode 0775
             user 'root'
             permissionGroup 'root'
