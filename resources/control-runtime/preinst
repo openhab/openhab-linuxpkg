@@ -14,6 +14,7 @@ set -e
 
 UD_CACHE=/var/lib/openhab2/cache
 UD_TMP=/var/lib/openhab2/tmp
+RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
 
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
