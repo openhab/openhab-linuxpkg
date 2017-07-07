@@ -76,7 +76,8 @@ log_failure_msg () {
 
 if  [ -r /lib/lsb/init-functions ]; then
   . /lib/lsb/init-functions
-elif [ -r /etc/init.d/functions ]; then
+fi
+if [ -r /etc/init.d/functions ]; then
   . /etc/init.d/functions
 fi
 
@@ -168,7 +169,7 @@ dostart() {
   # openHAB may be shutting down if a process still exists but there's no PID file.
   if [ -z "${EXISTINGPID}" ] || [ ! -f "${PIDFILE}" ];
   then
-    if daemon --user "${USER}" --pidfile "$PIDFILE" "${OPENHAB_RUNTIME}/bin/start &"
+    if (cd "$OPENHAB_HOME"; daemon --user "${USER}" --pidfile "$PIDFILE" "${OPENHAB_RUNTIME}/bin/start &")
     then
       timeout=0
       # The correct process is only available once the wrapper scripts have finished.
