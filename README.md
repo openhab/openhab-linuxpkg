@@ -20,7 +20,9 @@ A list of up to date tasks can be obtained by using the command `./gradlew tasks
 | `distro-[TYPE]-openhab2-[PACKAGE NAME]`   | Builds a specific package without uploading it              |
 | `packageDistros`                          | Runs all `distro-*` tasks                                   |
 
-Tasks with dependencies (e.g. building needs download to run first) will run them first automatically.
+You can set the target version by setting `OPENHAB_VERSION=x.x.x`, `OPENHAB_TESTING_VERSION=x.x.x.rcx` and `OPENHAB_SNAPSHOT_VERSION=x.x.x`
+
+Tasks with dependencies (e.g. package depends on a download task) will run them first automatically.
 
 ## Package Types
 
@@ -29,12 +31,24 @@ The two package `[TYPE]`s are
  - Deb
  - Rpm
 
-Examples of `[PACKAGE NAME]` are:
+The list of `[PACKAGE NAME]`s are:
 
- - 2.1.0
- - addons-2.1.0
- - addons-legacy-2.1.0
+ - release
+   - addons-release
+   - addons-legacy-release
+ - testing
+   - addons-testing
+   - addons-legacy-testing
  - snapshot
- - addons-snapshot
- - addons-legacy-snapshot
+   - addons-snapshot
+   - addons-legacy-snapshot
  
+## Examples
+
+```shell
+## Build the .deb package for openhab2 release and place it in build/distributions.
+sudo ./gradlew -DOPENHAB_VERSION=2.1.0 distro-Deb-openhab2-release
+
+## Build the .rpm packages for openhab snapshot and place them in build/distributions.
+sudo ./gradlew -DOPENHAB_SNAPSHOT_VERSION=2.2.0 distro-Rpm-openhab2-snapshot distro-Rpm-openhab2-addons-snapshot
+```

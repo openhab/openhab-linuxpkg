@@ -29,9 +29,11 @@ ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: 'openhab-linuxpkg'
 ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A' 
 
 def OHVersion = project.hasProperty('openHABVersion') ? project.property('openHABVersion') : System.env.OPENHAB_VERSION
+def OHTestingVersion = project.hasProperty('openHABTestingVersion') ? project.property('openHABTestingVersion') : System.env.OPENHAB_TESTING_VERSION
 def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
 
 OHVersion = OHVersion ?: '2.1.0'
+OHTestingVersion = OHTestingVersion ?: '2.0.0.RC1'
 OHSnapVersion = OHSnapVersion ?: '2.2.0'
 
 def OSPACKAGE_ARCH = "all"
@@ -71,7 +73,7 @@ ospackage {
 def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
   [
-    "dist":        "openhab2-${OHVersion}",
+    "dist":        'openhab2-release',
     "description": 'Linux installation package for openHAB 2.',
     "debDist":     ['stable','testing','unstable'],
     "packageName": 'openhab2',
@@ -80,7 +82,7 @@ def distributions = [
     "version":     "${OHVersion}",
     "release":     '1'
   ],[
-    'dist':        "openhab2-addons-${OHVersion}",
+    'dist':        'openhab2-addons-release',
     'description': 'Linux installation package for openHAB 2 addons.',
     'debDist':     ['stable','testing','unstable'],
     'packageName': 'openhab2-addons',
@@ -89,13 +91,40 @@ def distributions = [
     'version':     "${OHVersion}",
     'release':     '1'
   ],[
-    'dist':        "openhab2-addons-legacy-${OHVersion}",
+    'dist':        'openhab2-addons-legacy-release',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
     'debDist':     ['stable','testing','unstable'],
     'packageName': 'openhab2-addons-legacy',
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHVersion}%2Fopenhab-addons-legacy-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
     'version':     "${OHVersion}",
+    'release':     '1'
+  ],[
+    "dist":        'openhab2-testing',
+    "description": 'Linux installation package for openHAB 2.',
+    "debDist":     ['testing','unstable'],
+    "packageName": 'openhab2',
+    "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHTestingVersion}%2Fopenhab-${OHTestingVersion}.tar.gz",
+    "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHTestingVersion}.tar.gz",
+    "version":     "${OHTestingVersion}",
+    "release":     '1'
+  ],[
+    'dist':        'openhab2-addons-testing',
+    'description': 'Linux installation package for openHAB 2 addons.',
+    'debDist':     ['testing','unstable'],
+    'packageName': 'openhab2-addons',
+    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHTestingVersion}%2Fopenhab-addons-${OHTestingVersion}.kar",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHTestingVersion}.kar",
+    'version':     "${OHTestingVersion}",
+    'release':     '1'
+  ],[
+    'dist':        'openhab2-addons-legacy-testing',
+    'description': 'Linux installation package for legacy openHAB 2 addons.',
+    'debDist':     ['testing','unstable'],
+    'packageName': 'openhab2-addons-legacy',
+    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHTestingVersion}%2Fopenhab-addons-legacy-${OHTestingVersion}.kar",
+    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHTestingVersion}.kar",
+    'version':     "${OHTestingVersion}",
     'release':     '1'
   ],[
     'dist':        'openhab2-snapshot',
@@ -295,8 +324,8 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         curlOptions = 'artifactory.licenses=Eclipse-1.0'
       }
       
-      executable "curl"
-      args "-X", "PUT", "${curlURL};${curlOptions}", "-H", "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-T", "build/distributions/${fileName}"
+      executable 'curl'
+      args '-X', 'PUT', "${curlURL};${curlOptions}", '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", '-T', "build/distributions/${fileName}"
       standardOutput = new ByteArrayOutputStream()
       
       doLast {
@@ -305,7 +334,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         def object = jsonSlurper.parseText(standardOutput.toString())
         def success =  object.uri != null ? object.uri == "${curlURL}" : false
         if (! success){
-          throw new GradleException("upload failed: " + object.message)
+          throw new GradleException('upload failed: ' + object.message)
         }
       }
     }
@@ -315,17 +344,22 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 distributions.each { dist -> generate_distro_tasks(dist.dist, dist.description, dist.packageName,
                     dist.path, dist.version, dist.release, dist.debDist)}
 
-task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith("distro-")}) {
+task packageDistros(dependsOn: tasks.findAll { t -> t.name.startsWith('distro-')}) {
   description = 'Builds all the packages available for the distribution.'
   group = 'openHAB Package'
 }
 
-task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith("-snapshot")}) {
+task buildSnapshot(dependsOn: tasks.findAll { t -> t.name.endsWith('-snapshot')}) {
   description = 'Performs all major tasks for the snapshot repos: Download -> Build -> Upload.'
   group = 'openHAB Main'
 }
 
-task buildLatestRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-2.1.0")}){
+task buildTesting(dependsOn: tasks.findAll { t -> t.name.endsWith('-testing')}) {
+  description = 'Performs all major tasks for the testing repos: Download -> Build -> Upload.'
+  group = 'openHAB Main'
+}
+
+task buildRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-release")}){
   description = 'Performs all major tasks for the Release (stable) repos: Download -> Build -> Upload.'
   group = 'openHAB Main' 
 }
@@ -400,3 +434,4 @@ task calculateMetadata(type:Exec) {
      executable "curl"
      args "-X", "POST", "-H", "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "https://api.bintray.com/calc_metadata/openhab/apt-repo2"
 }
+
