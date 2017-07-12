@@ -202,6 +202,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         postUninstall file('resources/control-runtime/postrm')
 
         configurationFile('/etc/default/openhab2')
+        configurationFile('/etc/profile.d/openhab2.sh')
 
         if (pType == 'Deb') {
           requires('adduser')
@@ -222,6 +223,13 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           permissionGroup 'root'
           fileMode 0644
           into '/etc/default/'
+        }
+        from('resources/etc/profile.d/openhab2.sh'){
+          fileType CONFIG | NOREPLACE
+          fileMode 0644
+          user 'root'
+          permissionGroup 'root'
+          into '/etc/profile.d/'
         }
         from('resources/systemd/openhab2.service'){
           fileMode 0644
