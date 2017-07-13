@@ -29,5 +29,3 @@ EXTRA_JAVA_OPTS=""
 #
 #OPENHAB_USER=openhab
 #OPENHAB_GROUP=openhab
-
-# vim: syntax=sh
