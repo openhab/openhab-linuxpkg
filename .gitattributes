@@ -1,0 +1,6 @@
+# Autodetect text files
+* text=auto
+
+#Linguist
+resources/etc/default/openhab2 linguist-language=sh
+resources/systemd/openhab2.service linguist-language=sh
