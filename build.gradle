@@ -252,12 +252,18 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
             into '/etc/init.d/'
           }
         }
+        from ('resources/replacements/update'){
+          fileMode 0755
+          into '/usr/share/openhab2/runtime/bin/'
+        }
         from(tar){
           into '/usr/share/openhab2'
           exclude 'conf/**'
           exclude 'userdata/**'
-          exclude 'start.bat'
-          exclude 'start_debug.bat'
+          exclude '**/*.bat'
+          exclude '**/*.ps1'
+          exclude 'runtime/bin/contrib/**'
+          exclude 'runtime/bin/update'
         }
         from(tar){
           fileType CONFIG | NOREPLACE
