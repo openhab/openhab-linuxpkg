@@ -29,3 +29,9 @@ EXTRA_JAVA_OPTS=""
 #
 #OPENHAB_USER=openhab
 #OPENHAB_GROUP=openhab
+#
+# The Karaf startmode for the openHAB runtime. Only available for systemctl/systemd systems.
+# Defaults to daemon when unset here. Multiple options can be used without quotes. 
+# debug increases log output. daemon launches the Karaf/openHAB processes. 
+#
+#OPENHAB_STARTMODE=debug
