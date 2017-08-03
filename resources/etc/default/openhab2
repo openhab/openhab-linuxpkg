@@ -24,6 +24,11 @@ EXTRA_JAVA_OPTS=""
 #OPENHAB_USERDATA=/var/lib/openhab2
 #OPENHAB_LOGDIR=/var/log/openhab2
 #
+# Set the following variable if you'd like a custom backup location.
+# runtime/bin/backup and runtime/bin/restore will use this path for the zip files.
+#
+#OPENHAB_BACKUPS=/var/lib/openhab2/backups
+#
 # The user and group that takes ownership of openHAB. Only available for init.d systems.
 # To edit user and group for systemd, see the service file at /usr/lib/systemd/system/openhab2.service.
 #
