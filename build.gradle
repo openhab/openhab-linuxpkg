@@ -237,6 +237,12 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           permissionGroup 'root'
           into '/usr/lib/systemd/system/'
         }
+        from('resources/usr/bin/openhab'){
+          fileMode 0755
+          user 'root'
+          permissionGroup 'root'
+          into '/usr/bin/'
+        }
         if (pType == 'Deb') {
           from('resources/etc/init.d/deb/openhab2'){
             fileMode 0775
