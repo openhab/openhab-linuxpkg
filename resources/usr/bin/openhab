@@ -8,9 +8,8 @@ usage() {
   echo "Usage:  openhab command [options]"
   echo ""
   echo "Possible commands:"
-  echo "    start                       -- Starts openHAB as a daemon service."
-  echo "    stop                        -- Stops an openHAB daemon service."
-  echo "    restart                     -- Stops then starts an openHAB daemon service."
+  echo "    start [--debug]             -- Starts openHAB in the terminal."
+  echo "    stop                        -- Stops any running instance of openHAB."
   echo "    status                      -- Checks to see if openHAB is running."
   echo "    console                     -- Opens the openHAB console."
   echo "    backup [filename]           -- Stores the current configuration of openHAB."
@@ -21,44 +20,9 @@ usage() {
 }
 
 # Script requires options, list them if none given
-if [ "$#" -eq "0" ]; then
+if [ "$#" -eq "0" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
   usage
 fi
-
-# Select between common daemon services
-# Scripts are included with package
-OHStart() {
-  if [ -x /bin/systemctl ] ; then
-    echo "Using command '/bin/systemctl start openhab2.service'..."
-    /bin/systemctl start openhab2.service
-  elif [ -x "/etc/init.d/openhab2" ]; then
-    invokeCommand="$(which invoke-rc.d 2>/dev/null)"
-    if [ -x "$invokeCommand" ]; then
-      echo "Using command 'invoke-rc.d openhab2 start'..."
-      invoke-rc.d openhab2 start
-    else
-      /etc/init.d/openhab2 start
-    fi
-  fi
-}
-
-# Select between common services to stop openHAB
-OHStop() {
-  if [ -x /bin/systemctl ]; then
-    echo "Using command '/bin/systemctl --no-reload stop openhab2.service'..."
-    /bin/systemctl --no-reload stop openhab2.service
-  elif [ -x "/etc/init.d/openhab2" ]; then
-    invokeCommand="$(which invoke-rc.d 2>/dev/null)"
-    if [ -x "$invokeCommand" ]; then
-      echo "Using command 'invoke-rc.d openhab2 stop'..."
-      invoke-rc.d openhab2 stop
-    else
-      /etc/init.d/openhab2 stop
-    fi
-    # init.d script needs time to fully stop the service
-    sleep 5
-  fi
-}
 
 # Some functions require root
 checkRoot() {
@@ -69,42 +33,65 @@ checkRoot() {
   fi
 }
 
-# Load any possible custom directory
-if [ -r /etc/default/openhab2 ]; then
+# Load the default directory paths and any possible custom ones set
+if [ -r /etc/profile.d/openhab2.sh ]; then
+  . /etc/profile.d/openhab2.sh
+elif [ -r /etc/default/openhab2 ]; then
   . /etc/default/openhab2
 fi
-
-# Read and set openHAB variables set in /etc/default/openhab
-# Otherwise, use the defaults set from package install
-if [ -z "${OPENHAB_HOME}" ];       then OPENHAB_HOME="/usr/share/openhab2"; fi
-if [ -z "${OPENHAB_RUNTIME}" ];    then OPENHAB_RUNTIME="${OPENHAB_HOME}/runtime"; fi
-if [ -z "${OPENHAB_LOGDIR}" ];     then OPENHAB_LOGDIR="/var/log/openhab2"; fi
-export OPENHAB_HOME
-export OPENHAB_RUNTIME
-export OPENHAB_LOGDIR
 
 option="$1"
 shift
 
 # Select between options
 case "$option" in
-  "start")
-    checkRoot "$option"
-    OHStart
-    ;;
-  "stop")
-    checkRoot "$option"
-    OHStop
-    ;;
-  "restart")
-  checkRoot "$option"
-  if [ -x /bin/systemctl ]; then
-    echo "Using command '/bin/systemctl restart openhab2.service'..."
-    /bin/systemctl restart openhab2.service
-  else
-    OHStop
-    OHStart
-  fi
+
+  # Deamon scripts already exist, encourge the user to use them.
+  "start" | "stop" | "restart" | "status" )
+    if [ "$option" = "status" ];then
+      optionVerb="find the status of"
+    else
+      optionVerb="$option"
+    fi
+
+    # Find the appropriate daemon tool
+    if [ -x "/bin/systemctl" ]; then
+      echo "A systemd service configuration exists..."
+      echo "Use 'sudo /bin/systemctl $option openhab2.service' to $optionVerb an openHAB service"
+    else
+      echo "An init.d script exists..."
+      if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
+        echo "Use 'sudo invoke-rc.d openhab2 $option' to $optionVerb an openHAB service."
+      else
+        echo "Use 'sudo /etc/init.d/openhab2 $option' to $optionVerb an openHAB service."
+      fi
+    fi
+
+    # Then, do as asked with the 'manual' openHAB scripts...
+    if [ "$option" = "start" ]; then
+      echo "Launching an instance in this terminal.."
+      checkRoot "$option"
+      if [ "$1" = "--debug" ] || [ "$1" = "-d" ]; then
+        "$OPENHAB_HOME/start_debug.sh"
+      else
+        "$OPENHAB_HOME/start.sh"
+      fi
+
+    # Karaf script will stop an instance or warn the user if nothing is running.
+    elif [ "$option" = "stop" ]; then
+      echo "Stopping any instance of openHAB..."
+      checkRoot "$option"
+      "$OPENHAB_RUNTIME/bin/stop"
+
+    # If openHAB is running, echo the PID.
+    elif [ "$option" = "status" ]; then
+      existingPID="$(ps aux --sort=start_time | grep "openhab2.*java" | grep -v grep | awk '{print $2}' | tail -1)"
+      if [ -z "$existingPID" ]; then
+        echo "openHAB is not running."
+      else
+        echo "openHAB is running with PID: $existingPID"
+      fi
+    fi
     ;;
   "console"|"client")
     # Assume defaults for the Karaf client
@@ -123,32 +110,11 @@ case "$option" in
       "$OPENHAB_RUNTIME/bin/restore" "$filename"
     else
       echo "Restore needs a valid backup file to continue."
-      usage
+      echo "  e.g. 'sudo openhab restore backup.zip'"
     fi
     ;;
   "showlogs"|"logs")
-    # Use multitail if available, otherwise use standard tail
-    if [ -x "/usr/bin/multitail" ]; then
-      multitail "${OPENHAB_LOGDIR:?}/"*.log
-    else
-      tail -f "${OPENHAB_LOGDIR:?}"/*.log
-    fi
-    ;;
-  "status")
-    # Use systemctl's status function by default.
-    if [ -x /bin/systemctl ]; then
-      echo "Using command '/bin/systemctl status openhab2'..."
-      checkRoot "$option"
-      /bin/systemctl status openhab2.service
-    else
-      # Otherwise, find the java process responsible for openHAB
-      existingPID="$(ps aux --sort=start_time | grep "openhab2.*java" | grep -v grep | awk '{print $2}' | tail -1)"
-      if [ -z "$existingPID" ]; then
-        echo "openHAB is not running."
-      else
-        echo "openHAB is running with PID: $existingPID"
-      fi
-    fi
+    tail -f "${OPENHAB_LOGDIR:?}"/*.log
     ;;
   *)
    # Default to showing available commands
