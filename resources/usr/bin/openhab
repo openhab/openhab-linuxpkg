@@ -28,7 +28,7 @@ fi
 checkRoot() {
   if [ "$(id -u)" -ne 0 ]; then
     optionName="$1"
-    echo "This option needs to run as root! (e.g. use sudo openhab $optionName ..)" >&2
+    echo "This option needs to run as root! (e.g. use 'sudo openhab $optionName')" >&2
     exit 1
   fi
 }
@@ -46,8 +46,8 @@ shift
 # Select between options
 case "$option" in
 
-  # Deamon scripts already exist, encourge the user to use them.
-  "start" | "stop" | "restart" | "status" )
+  "start"|"stop"|"restart"|"status")
+    # Deamon scripts already exist, encourge the user to use them.
     if [ "$option" = "status" ];then
       optionVerb="find the status of"
     else
@@ -93,15 +93,18 @@ case "$option" in
       fi
     fi
     ;;
+
   "console"|"client")
     # Assume defaults for the Karaf client
     "$OPENHAB_RUNTIME/bin/client"
     ;;
+
   "backup")
     # Run the premade backup script
     filename="$1"
     "$OPENHAB_RUNTIME/bin/backup" "$filename"
     ;;
+
   "restore")
     # Run some basic checks before running the restore script
     checkRoot "$option"
@@ -113,11 +116,13 @@ case "$option" in
       echo "  e.g. 'sudo openhab restore backup.zip'"
     fi
     ;;
+
   "showlogs"|"logs")
     tail -f "${OPENHAB_LOGDIR:?}"/*.log
     ;;
+
   *)
-   # Default to showing available commands
+    # Default to showing available commands
     echo "Unrecognised command: $option"
     usage
     ;;
