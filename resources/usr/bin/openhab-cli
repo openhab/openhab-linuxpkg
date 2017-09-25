@@ -5,7 +5,7 @@
 ## License information available at /usr/share/openhab2/LICENSE.txt by default
 
 usage() {
-  echo "Usage:  openhab command [options]"
+  echo "Usage:  openhab-cli command [options]"
   echo ""
   echo "Possible commands:"
   echo "    start [--debug]             -- Starts openHAB in the terminal."
@@ -113,7 +113,7 @@ case "$option" in
       "$OPENHAB_RUNTIME/bin/restore" "$filename"
     else
       echo "Restore needs a valid backup file to continue."
-      echo "  e.g. 'sudo openhab restore backup.zip'"
+      echo "  e.g. 'sudo openhab-cli restore backup.zip'"
     fi
     ;;
 
