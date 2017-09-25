@@ -1,0 +1,129 @@
+#!/bin/sh
+
+## This is a utility script to simplify the use of openHAB 2
+## Intended to be used with a packaged install (.deb/.rpm)
+## License information available at /usr/share/openhab2/LICENSE.txt by default
+
+usage() {
+  echo "Usage:  openhab command [options]"
+  echo ""
+  echo "Possible commands:"
+  echo "    start [--debug]             -- Starts openHAB in the terminal."
+  echo "    stop                        -- Stops any running instance of openHAB."
+  echo "    status                      -- Checks to see if openHAB is running."
+  echo "    console                     -- Opens the openHAB console."
+  echo "    backup [filename]           -- Stores the current configuration of openHAB."
+  echo "    restore filename            -- Restores the state of openHAB to a backup."
+  echo "    showlogs                    -- Displays the log messages of openHAB as they appear."
+  echo ""
+  exit 2
+}
+
+# Script requires options, list them if none given
+if [ "$#" -eq "0" ] || [ "$1" = "-h" ] || [ "$1" = "--help" ] ; then
+  usage
+fi
+
+# Some functions require root
+checkRoot() {
+  if [ "$(id -u)" -ne 0 ]; then
+    optionName="$1"
+    echo "This option needs to run as root! (e.g. use 'sudo openhab $optionName')" >&2
+    exit 1
+  fi
+}
+
+# Load the default directory paths and any possible custom ones set
+if [ -r /etc/profile.d/openhab2.sh ]; then
+  . /etc/profile.d/openhab2.sh
+elif [ -r /etc/default/openhab2 ]; then
+  . /etc/default/openhab2
+fi
+
+option="$1"
+shift
+
+# Select between options
+case "$option" in
+
+  "start"|"stop"|"restart"|"status")
+    # Deamon scripts already exist, encourge the user to use them.
+    if [ "$option" = "status" ];then
+      optionVerb="find the status of"
+    else
+      optionVerb="$option"
+    fi
+
+    # Find the appropriate daemon tool
+    if [ -x "/bin/systemctl" ]; then
+      echo "A systemd service configuration exists..."
+      echo "Use 'sudo /bin/systemctl $option openhab2.service' to $optionVerb an openHAB service"
+    else
+      echo "An init.d script exists..."
+      if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
+        echo "Use 'sudo invoke-rc.d openhab2 $option' to $optionVerb an openHAB service."
+      else
+        echo "Use 'sudo /etc/init.d/openhab2 $option' to $optionVerb an openHAB service."
+      fi
+    fi
+
+    # Then, do as asked with the 'manual' openHAB scripts...
+    if [ "$option" = "start" ]; then
+      echo "Launching an instance in this terminal.."
+      checkRoot "$option"
+      if [ "$1" = "--debug" ] || [ "$1" = "-d" ]; then
+        "$OPENHAB_HOME/start_debug.sh"
+      else
+        "$OPENHAB_HOME/start.sh"
+      fi
+
+    # Karaf script will stop an instance or warn the user if nothing is running.
+    elif [ "$option" = "stop" ]; then
+      echo "Stopping any instance of openHAB..."
+      checkRoot "$option"
+      "$OPENHAB_RUNTIME/bin/stop"
+
+    # If openHAB is running, echo the PID.
+    elif [ "$option" = "status" ]; then
+      existingPID="$(ps aux --sort=start_time | grep "openhab2.*java" | grep -v grep | awk '{print $2}' | tail -1)"
+      if [ -z "$existingPID" ]; then
+        echo "openHAB is not running."
+      else
+        echo "openHAB is running with PID: $existingPID"
+      fi
+    fi
+    ;;
+
+  "console"|"client")
+    # Assume defaults for the Karaf client
+    "$OPENHAB_RUNTIME/bin/client"
+    ;;
+
+  "backup")
+    # Run the premade backup script
+    filename="$1"
+    "$OPENHAB_RUNTIME/bin/backup" "$filename"
+    ;;
+
+  "restore")
+    # Run some basic checks before running the restore script
+    checkRoot "$option"
+    filename="$1"
+    if [ -f "$filename" ]; then
+      "$OPENHAB_RUNTIME/bin/restore" "$filename"
+    else
+      echo "Restore needs a valid backup file to continue."
+      echo "  e.g. 'sudo openhab restore backup.zip'"
+    fi
+    ;;
+
+  "showlogs"|"logs")
+    tail -f "${OPENHAB_LOGDIR:?}"/*.log
+    ;;
+
+  *)
+    # Default to showing available commands
+    echo "Unrecognised command: $option"
+    usage
+    ;;
+esac
