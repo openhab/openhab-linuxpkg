@@ -15,6 +15,7 @@ usage() {
   echo "    backup [filename]           -- Stores the current configuration of openHAB."
   echo "    restore filename            -- Restores the state of openHAB to a backup."
   echo "    showlogs                    -- Displays the log messages of openHAB as they appear."
+  echo "    info                        -- Displays distribution information."
   echo ""
   exit 2
 }
@@ -28,7 +29,7 @@ fi
 checkRoot() {
   if [ "$(id -u)" -ne 0 ]; then
     optionName="$1"
-    echo "This option needs to run as root! (e.g. use 'sudo openhab $optionName')" >&2
+    echo "This option needs to run as root! (e.g. use 'sudo openhab-cli $optionName')" >&2
     exit 1
   fi
 }
@@ -55,10 +56,10 @@ case "$option" in
     fi
 
     # Find the appropriate daemon tool
-    if [ -x "/bin/systemctl" ]; then
+    if [ -x "/bin/systemctl" ] && [ -f "/usr/lib/systemd/system/openhab2.service" ]; then
       echo "A systemd service configuration exists..."
       echo "Use 'sudo /bin/systemctl $option openhab2.service' to $optionVerb an openHAB service"
-    else
+    elif [ -x "/etc/init.d/openhab2" ]; then
       echo "An init.d script exists..."
       if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
         echo "Use 'sudo invoke-rc.d openhab2 $option' to $optionVerb an openHAB service."
@@ -85,11 +86,12 @@ case "$option" in
 
     # If openHAB is running, echo the PID.
     elif [ "$option" = "status" ]; then
-      existingPID="$(ps aux --sort=start_time | grep "openhab2.*java" | grep -v grep | awk '{print $2}' | tail -1)"
+      existingPID="$(pgrep -f "openhab2.*java")"
       if [ -z "$existingPID" ]; then
         echo "openHAB is not running."
       else
-        echo "openHAB is running with PID: $existingPID"
+        existingTime="$(ps -o etime= -p "$existingPID")"
+        echo "openHAB is running with PID: $existingPID and has been running for $existingTime"
       fi
     fi
     ;;
@@ -119,6 +121,42 @@ case "$option" in
 
   "showlogs"|"logs")
     tail -f "${OPENHAB_LOGDIR:?}"/*.log
+    ;;
+
+  "info")
+    openHABVersion="$(awk '/openhab-distro/{print $3}' "$OPENHAB_USERDATA/etc/version.properties")"
+    if test "${openHABVersion#*SNAPSHOT}" != "SNAPSHOT"; then
+      buildNumber="($(awk '/build-no/{print $4}' "$OPENHAB_USERDATA/etc/version.properties"))"
+    fi
+    pid="$(pgrep -f "openhab2.*java")"
+    if [ -n "$pid" ]; then
+      uid=$(awk '/^Uid:/{print $2}' "/proc/$pid/status")
+      openHABUser="$(getent passwd "$uid" | awk -F: '{print $1}')"
+      userStatus="(Active Process $pid)"
+    elif [ -n "$OPENHAB_USER" ]; then
+      openHABUser="$OPENHAB_USER"
+      userStatus="(Environment Variable Set)"
+    else
+      openHABUser="$(ls -ld "$OPENHAB_HOME" | awk '{print $3}')"
+      userStatus="(Owner of home directory)"
+    fi
+    groupsList="$(id -Gn "$openHABUser")"
+    localIP="$(hostname -I | awk '{print $1}')"
+    printf "%-15s %s %s\\n" "Version:" "$openHABVersion" "$buildNumber"
+    printf "%-15s %s %s\\n" "User:" "$openHABUser" "$userStatus"
+    printf "%-15s %s\\n" "User Groups:" "$groupsList"
+    printf "\\n"
+    printf "%-15s %-16s | %-30s | %s\\n" "Directories:" "Folder Name" "Path" "User:Group"
+    printf "%-15s %-16s | %-30s | %s\\n" " " "-----------" "----" "----------"
+    for folderName in "OPENHAB_HOME" "OPENHAB_RUNTIME" "OPENHAB_USERDATA" "OPENHAB_CONF" "OPENHAB_LOGDIR" "OPENHAB_BACKUPS"
+    do
+      folderPath=$(printenv $folderName)
+      folderUserGroup=$(ls -ld "$folderPath" | awk '{print $3 ":" $4}')
+      printf "%-15s %-16s | %-30s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
+    done
+    printf "\\n"
+    printf "%-15s %s\\n" "Dashboard URLS:" "http://$localIP:$OPENHAB_HTTP_PORT"
+    printf  "%-15s %s\\n" "" "https://$localIP:$OPENHAB_HTTPS_PORT"
     ;;
 
   *)
