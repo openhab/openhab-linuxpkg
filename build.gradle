@@ -82,7 +82,7 @@ def distributions = [
     "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHVersion}%2Fopenhab-${OHVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
     "version":     "${OHVersion}",
-    "release":     '${OHReleaseNumber}'
+    "release":     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab2-addons-release',
     'description': 'Linux installation package for openHAB 2 addons.',
@@ -91,7 +91,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHVersion}%2Fopenhab-addons-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHVersion}.kar",
     'version':     "${OHVersion}",
-    'release':     '${OHReleaseNumber}'
+    'release':     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab2-addons-legacy-release',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
@@ -100,7 +100,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHVersion}%2Fopenhab-addons-legacy-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
     'version':     "${OHVersion}",
-    'release':     '${OHReleaseNumber}'
+    'release':     "${OHReleaseNumber}"
   ],[
     "dist":        'openhab2-testing',
     "description": 'Linux installation package for openHAB 2.',
@@ -109,7 +109,7 @@ def distributions = [
     "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHTestingVersion}%2Fopenhab-${OHTestingVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHTestingVersion}.tar.gz",
     "version":     "${OHTestingVersion}",
-    "release":     '${OHReleaseNumber}'
+    "release":     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab2-addons-testing',
     'description': 'Linux installation package for openHAB 2 addons.',
@@ -118,7 +118,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHTestingVersion}%2Fopenhab-addons-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHTestingVersion}.kar",
     'version':     "${OHTestingVersion}",
-    'release':     '${OHReleaseNumber}'
+    'release':     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab2-addons-legacy-testing',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
@@ -127,7 +127,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHTestingVersion}%2Fopenhab-addons-legacy-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHTestingVersion}.kar",
     'version':     "${OHTestingVersion}",
-    'release':     '${OHReleaseNumber}'
+    'release':     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab2-snapshot',
     'description': 'Linux installation package for openHAB 2.',
