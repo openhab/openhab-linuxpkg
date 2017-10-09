@@ -155,7 +155,7 @@ case "$option" in
       printf "%-15s %-16s | %-30s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
     done
     printf "\\n"
-    printf "%-15s %s\\n" "Dashboard URLS:" "http://$localIP:$OPENHAB_HTTP_PORT"
+    printf "%-15s %s\\n" "Dashboard URLs:" "http://$localIP:$OPENHAB_HTTP_PORT"
     printf  "%-15s %s\\n" "" "https://$localIP:$OPENHAB_HTTPS_PORT"
     ;;
 
