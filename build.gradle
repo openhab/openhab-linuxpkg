@@ -31,10 +31,12 @@ ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A'
 def OHVersion = project.hasProperty('openHABVersion') ? project.property('openHABVersion') : System.env.OPENHAB_VERSION
 def OHTestingVersion = project.hasProperty('openHABTestingVersion') ? project.property('openHABTestingVersion') : System.env.OPENHAB_TESTING_VERSION
 def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
+def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
 
 OHVersion = OHVersion ?: '2.1.0'
 OHTestingVersion = OHTestingVersion ?: '2.0.0.RC1'
 OHSnapVersion = OHSnapVersion ?: '2.2.0'
+OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def OSPACKAGE_ARCH = "all"
 
@@ -80,7 +82,7 @@ def distributions = [
     "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHVersion}%2Fopenhab-${OHVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
     "version":     "${OHVersion}",
-    "release":     '1'
+    "release":     '${OHReleaseNumber}'
   ],[
     'dist':        'openhab2-addons-release',
     'description': 'Linux installation package for openHAB 2 addons.',
@@ -89,7 +91,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHVersion}%2Fopenhab-addons-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHVersion}.kar",
     'version':     "${OHVersion}",
-    'release':     '1'
+    'release':     '${OHReleaseNumber}'
   ],[
     'dist':        'openhab2-addons-legacy-release',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
@@ -98,7 +100,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHVersion}%2Fopenhab-addons-legacy-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
     'version':     "${OHVersion}",
-    'release':     '1'
+    'release':     '${OHReleaseNumber}'
   ],[
     "dist":        'openhab2-testing',
     "description": 'Linux installation package for openHAB 2.',
@@ -107,7 +109,7 @@ def distributions = [
     "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHTestingVersion}%2Fopenhab-${OHTestingVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHTestingVersion}.tar.gz",
     "version":     "${OHTestingVersion}",
-    "release":     '1'
+    "release":     '${OHReleaseNumber}'
   ],[
     'dist':        'openhab2-addons-testing',
     'description': 'Linux installation package for openHAB 2 addons.',
@@ -116,7 +118,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHTestingVersion}%2Fopenhab-addons-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHTestingVersion}.kar",
     'version':     "${OHTestingVersion}",
-    'release':     '1'
+    'release':     '${OHReleaseNumber}'
   ],[
     'dist':        'openhab2-addons-legacy-testing',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
@@ -125,7 +127,7 @@ def distributions = [
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHTestingVersion}%2Fopenhab-addons-legacy-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHTestingVersion}.kar",
     'version':     "${OHTestingVersion}",
-    'release':     '1'
+    'release':     '${OHReleaseNumber}'
   ],[
     'dist':        'openhab2-snapshot',
     'description': 'Linux installation package for openHAB 2.',
