@@ -12,8 +12,8 @@ usage() {
   echo "    stop                        -- Stops any running instance of openHAB."
   echo "    status                      -- Checks to see if openHAB is running."
   echo "    console                     -- Opens the openHAB console."
-  echo "    backup [filename]           -- Stores the current configuration of openHAB."
-  echo "    restore filename            -- Restores the state of openHAB to a backup."
+#  echo "    backup [filename]           -- Stores the current configuration of openHAB."
+#  echo "    restore filename            -- Restores the state of openHAB to a backup."
   echo "    showlogs                    -- Displays the log messages of openHAB as they appear."
   echo "    info                        -- Displays distribution information."
   echo ""
@@ -101,23 +101,24 @@ case "$option" in
     "$OPENHAB_RUNTIME/bin/client"
     ;;
 
-  "backup")
-    # Run the premade backup script
-    filename="$1"
-    "$OPENHAB_RUNTIME/bin/backup" "$filename"
-    ;;
+## Backup and Restore functions available in 2.2.0
+#  "backup")
+#    # Run the premade backup script
+#    filename="$1"
+#    "$OPENHAB_RUNTIME/bin/backup" "$filename"
+#    ;;
 
-  "restore")
-    # Run some basic checks before running the restore script
-    checkRoot "$option"
-    filename="$1"
-    if [ -f "$filename" ]; then
-      "$OPENHAB_RUNTIME/bin/restore" "$filename"
-    else
-      echo "Restore needs a valid backup file to continue."
-      echo "  e.g. 'sudo openhab-cli restore backup.zip'"
-    fi
-    ;;
+#  "restore")
+#    # Run some basic checks before running the restore script
+#    checkRoot "$option"
+#    filename="$1"
+#    if [ -f "$filename" ]; then
+#      "$OPENHAB_RUNTIME/bin/restore" "$filename"
+#    else
+#      echo "Restore needs a valid backup file to continue."
+#      echo "  e.g. 'sudo openhab-cli restore backup.zip'"
+#    fi
+#    ;;
 
   "showlogs"|"logs")
     tail -f "${OPENHAB_LOGDIR:?}"/*.log
@@ -151,8 +152,10 @@ case "$option" in
     for folderName in "OPENHAB_HOME" "OPENHAB_RUNTIME" "OPENHAB_USERDATA" "OPENHAB_CONF" "OPENHAB_LOGDIR" "OPENHAB_BACKUPS"
     do
       folderPath=$(printenv $folderName)
-      folderUserGroup=$(ls -ld "$folderPath" | awk '{print $3 ":" $4}')
-      printf "%-15s %-16s | %-30s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
+      if [ -d "$folderPath" ]; then
+        folderUserGroup=$(ls -ld "$folderPath" | awk '{print $3 ":" $4}')
+        printf "%-15s %-16s | %-30s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
+      fi
     done
     printf "\\n"
     printf "%-15s %s\\n" "Dashboard URLs:" "http://$localIP:$OPENHAB_HTTP_PORT"
