@@ -198,10 +198,10 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into 'usr/share/openhab2/addons'
         }
       } else {
-        preInstall file('resources/control-runtime/preinst')
-        postInstall file('resources/control-runtime/postinst')
-        preUninstall file('resources/control-runtime/prerm')
-        postUninstall file('resources/control-runtime/postrm')
+        preInstallFile file('resources/control-runtime/preinst')
+        postInstallFile file('resources/control-runtime/postinst')
+        preUninstallFile file('resources/control-runtime/prerm')
+        postUninstallFile file('resources/control-runtime/postrm')
 
         configurationFile('/etc/default/openhab2')
         configurationFile('/etc/profile.d/openhab2.sh')
