@@ -8,14 +8,14 @@ usage() {
   echo "Usage:  openhab-cli command [options]"
   echo ""
   echo "Possible commands:"
-  echo "    start [--debug]             -- Starts openHAB in the terminal."
-  echo "    stop                        -- Stops any running instance of openHAB."
-  echo "    status                      -- Checks to see if openHAB is running."
-  echo "    console                     -- Opens the openHAB console."
-  echo "    backup [filename]           -- Stores the current configuration of openHAB."
-  echo "    restore filename            -- Restores the state of openHAB to a backup."
-  echo "    showlogs                    -- Displays the log messages of openHAB as they appear."
-  echo "    info                        -- Displays distribution information."
+  echo "  start [--debug]     -- Starts openHAB in the terminal."
+  echo "  stop                -- Stops any running instance of openHAB."
+  echo "  status              -- Checks to see if openHAB is running."
+  echo "  console             -- Opens the openHAB console."
+  echo "  backup [filename]   -- Stores the current configuration of openHAB."
+  echo "  restore filename    -- Restores the openHAB configuration from a backup."
+  echo "  showlogs            -- Displays the log messages of openHAB."
+  echo "  info                -- Displays distribution information."
   echo ""
   exit 2
 }
@@ -98,7 +98,7 @@ case "$option" in
 
   "console"|"client")
     # Assume defaults for the Karaf client
-    "$OPENHAB_RUNTIME/bin/client"
+    "$OPENHAB_RUNTIME/bin/client" "$@"
     ;;
 
   "backup")
@@ -142,23 +142,22 @@ case "$option" in
     fi
     groupsList="$(id -Gn "$openHABUser")"
     localIP="$(hostname -I | awk '{print $1}')"
-    printf "%-15s %s %s\\n" "Version:" "$openHABVersion" "$buildNumber"
-    printf "%-15s %s %s\\n" "User:" "$openHABUser" "$userStatus"
-    printf "%-15s %s\\n" "User Groups:" "$groupsList"
-    printf "\\n"
-    printf "%-15s %-16s | %-30s | %s\\n" "Directories:" "Folder Name" "Path" "User:Group"
-    printf "%-15s %-16s | %-30s | %s\\n" " " "-----------" "----" "----------"
+    printf "%-12s %s %s\\n\\n" "Version:" "$openHABVersion" "$buildNumber"
+    printf "%-12s %s %s\\n" "User:" "$openHABUser" "$userStatus"
+    printf "%-12s %s\\n\\n" "User Groups:" "$groupsList"
+    printf "%-12s %-16s | %-27s | %s\\n" "Directories:" "Folder Name" "Path" "User:Group"
+    printf "%-12s %-16s | %-27s | %s\\n" " " "-----------" "----" "----------"
     for folderName in "OPENHAB_HOME" "OPENHAB_RUNTIME" "OPENHAB_USERDATA" "OPENHAB_CONF" "OPENHAB_LOGDIR" "OPENHAB_BACKUPS"
     do
       folderPath=$(printenv $folderName)
       if [ -d "$folderPath" ]; then
         folderUserGroup=$(ls -ld "$folderPath" | awk '{print $3 ":" $4}')
-        printf "%-15s %-16s | %-30s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
+        printf "%-12s %-16s | %-27s | %s\\n" " " "$folderName" "$folderPath" "$folderUserGroup"
       fi
     done
     printf "\\n"
-    printf "%-15s %s\\n" "Dashboard URLs:" "http://$localIP:$OPENHAB_HTTP_PORT"
-    printf  "%-15s %s\\n" "" "https://$localIP:$OPENHAB_HTTPS_PORT"
+    printf "%-12s %s\\n" "URLs:" "http://$localIP:$OPENHAB_HTTP_PORT"
+    printf  "%-12s %s\\n\\n" "" "https://$localIP:$OPENHAB_HTTPS_PORT"
     ;;
 
   *)
