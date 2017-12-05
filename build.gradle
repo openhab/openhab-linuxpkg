@@ -465,6 +465,8 @@ task removeOlderVersions(type:Exec) {
 }
 
 task deployToBintray(type:Exec) {
+  mustRunAfter buildRelease
+
   def distributeRepo = 'openhab-linuxpkg-distribution'
   def distributeURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/distribute"
 
@@ -501,16 +503,19 @@ task deployToBintray(type:Exec) {
 }
 
 task calculateMetadata() {
-  def apiURL = "https://api.bintray.com/calc_metadata/openhab/"
+  mustRunAfter deployToBintray
 
+  def apiURL = "https://api.bintray.com/calc_metadata/openhab/"
   def repoPaths = [
     "${apiURL}/apt-repo2",
     "${apiURL}/rpm-repo2/stable"
   ]
-  
-  repoPaths.each { repoPath ->
-    exec {
-      commandLine 'curl', '-X', 'POST', '-H', "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "${repoPath}"
+
+  doLast{
+    repoPaths.each { repoPath ->
+      exec {
+        commandLine 'curl', '-X', 'POST', '-H', "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "${repoPath}"
+      }
     }
   }
 }

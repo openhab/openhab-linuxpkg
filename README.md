@@ -20,7 +20,7 @@ A list of up to date tasks can be obtained by using the command `./gradlew tasks
 | `distro-[TYPE]-openhab2-[PACKAGE NAME]`   | Builds a specific package without uploading it              |
 | `packageDistros`                          | Runs all `distro-*` tasks                                   |
 
-You can set the target version by setting `OPENHAB_VERSION=x.x.x`, `OPENHAB_TESTING_VERSION=x.x.x.rcx` and `OPENHAB_SNAPSHOT_VERSION=x.x.x`
+You can set the target version by setting `OPENHAB_VERSION=x.x.x`, `OPENHAB_TESTING_VERSION=x.x.x.rcx` and `OPENHAB_SNAPSHOT_VERSION=x.x.x` environment variables
 
 Tasks with dependencies (e.g. package depends on a download task) will run them first automatically.
 
@@ -47,8 +47,8 @@ The list of `[PACKAGE NAME]`s are:
 
 ```shell
 ## Build the .deb package for openhab2 release and place it in build/distributions.
-sudo ./gradlew -DOPENHAB_VERSION=2.1.0 distro-Deb-openhab2-release
+sudo ./gradlew distro-Deb-openhab2-release
 
 ## Build the .rpm packages for openhab snapshot and place them in build/distributions.
-sudo ./gradlew -DOPENHAB_SNAPSHOT_VERSION=2.2.0 distro-Rpm-openhab2-snapshot distro-Rpm-openhab2-addons-snapshot
+sudo ./gradlew distro-Rpm-openhab2-snapshot distro-Rpm-openhab2-addons-snapshot
 ```
