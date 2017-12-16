@@ -34,11 +34,21 @@ checkRoot() {
   fi
 }
 
+# For testing if override functions exist
+isFunction() { 
+  command -V "$1" 2>/dev/null | grep -qwi function
+}
+
 # Load the default directory paths and any possible custom ones set
 if [ -r /etc/profile.d/openhab2.sh ]; then
   . /etc/profile.d/openhab2.sh
 elif [ -r /etc/default/openhab2 ]; then
   . /etc/default/openhab2
+fi
+
+# Load the override scripts to replace full comands
+if [ -r /etc/openhab-cli/command-overrides.sh ]; then
+  . /etc/openhab-cli/command-overrides.sh
 fi
 
 option="$1"
@@ -98,7 +108,11 @@ case "$option" in
 
   "console"|"client")
     # Assume defaults for the Karaf client
-    "$OPENHAB_RUNTIME/bin/client" "$@"
+    if isFunction console_override; then
+      console_override
+    else
+      "$OPENHAB_RUNTIME/bin/client" "$@"
+    fi
     ;;
 
   "backup")
@@ -120,7 +134,11 @@ case "$option" in
     ;;
 
   "showlogs"|"logs")
-    tail -f "${OPENHAB_LOGDIR:?}"/*.log
+    if isFunction showlogs_override; then
+      showlogs_override
+    else
+      tail -f "${OPENHAB_LOGDIR:?}"/*.log
+    fi
     ;;
 
   "info")

@@ -201,7 +201,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into 'usr/share/openhab2/addons'
         }
       } else {
-      
+
         if (pType == 'Rpm') {
           preInstall file('resources/control-runtime/preinst')
           postInstall file('resources/control-runtime/postinst')
@@ -213,9 +213,10 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           preUninstallFile file('resources/control-runtime/prerm')
           postUninstallFile file('resources/control-runtime/postrm')
         }
-        
+
         configurationFile('/etc/default/openhab2')
         configurationFile('/etc/profile.d/openhab2.sh')
+        configurationFile('/etc/openhab-cli/command-overrides.sh')
 
         if (pType == 'Deb') {
           requires('adduser')
@@ -274,6 +275,13 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         from ('resources/replacements/update'){
           fileMode 0755
           into '/usr/share/openhab2/runtime/bin/'
+        }
+        from ('resources/etc/openhab-cli'){
+          fileType CONFIG | NOREPLACE
+          fileMode 0755
+          user 'root'
+          permissionGroup 'root'
+          into '/etc/openhab-cli/'
         }
         from(tar){
           into '/usr/share/openhab2'
@@ -360,11 +368,11 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}-rpm/${topDist}/${gVersion}/${fileName}"
         curlOptions = 'artifactory.licenses=Eclipse-1.0'
       }
-      
+
       executable 'curl'
       args '-X', 'PUT', "${curlURL};${curlOptions}", '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", '-T', "build/distributions/${fileName}"
       standardOutput = new ByteArrayOutputStream()
-      
+
       doLast {
         println standardOutput.toString()
         def jsonSlurper = new JsonSlurper()
@@ -477,7 +485,7 @@ task deployToBintray(type:Exec) {
   def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/stable/${OHVersion}/openhab2-${OHVersion}-${OHReleaseNumber}.noarch.rpm"
   def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/stable/${OHVersion}/openhab2-addons-${OHVersion}-${OHReleaseNumber}.noarch.rpm"
   def rpmLegacyPath = "${ARTIFACTORY_REPO}-rpm/stable/${OHVersion}/openhab2-addons-legacy-${OHVersion}-${OHReleaseNumber}.noarch.rpm"
-  
+
   def curlOptions = """{\
     "targetRepo" : "${distributeRepo}",
     "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${aptLegacyPath}","${rpmPackagePath}","${rpmAddonPath}","${rpmLegacyPath}"],
@@ -488,7 +496,7 @@ task deployToBintray(type:Exec) {
   args '-X', 'POST', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', 'Content-Type: application/json', '-d', "${curlOptions}", "${distributeURL}" 
   standardOutput = new ByteArrayOutputStream()
   errorOutput = new ByteArrayOutputStream()
-  
+
   doLast {
     def jsonSluper = new JsonSlurper()
     def jsonText = jsonSluper.parseText(standardOutput.toString())
