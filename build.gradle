@@ -481,7 +481,7 @@ task deployToBintray(type:Exec) {
   def curlOptions = """{\
     "targetRepo" : "${distributeRepo}",
     "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${aptLegacyPath}","${rpmPackagePath}","${rpmAddonPath}","${rpmLegacyPath}"],
-    "dryRun" : "true"}\
+    "dryRun" : "false"}\
   """
 
   executable "curl"
