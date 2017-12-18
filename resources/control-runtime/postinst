@@ -73,6 +73,7 @@ restartIfFlagFileExists(){
     waitForStopFinished
     startOpenHAB
   else
+    echo "###"
     echo "### openHAB was not running so will not start automatically..."
     if [ -x /bin/systemctl ] ; then
       echo "### In order to start openhab2, execute"
