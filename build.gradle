@@ -472,51 +472,63 @@ task removeOlderVersions(type:Exec) {
   }
 }
 
-task deployToBintray(type:Exec) {
-  mustRunAfter buildRelease
+def releaseTypes = [
+  'stable',
+  'testing'
+]
 
-  def distributeRepo = 'openhab-linuxpkg-distribution'
-  def distributeURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/distribute"
+releaseTypes.each { releaseType ->
+  def releaseVersion = '0.0.0'
 
-  def aptPackagePath = "${ARTIFACTORY_REPO}/pool/main/${OHVersion}/openhab2_${OHVersion}-${OHReleaseNumber}_all.deb"
-  def aptAddonPath = "${ARTIFACTORY_REPO}/pool/main/${OHVersion}/openhab2-addons_${OHVersion}-${OHReleaseNumber}_all.deb"
-  def aptLegacyPath = "${ARTIFACTORY_REPO}/pool/main/${OHVersion}/openhab2-addons-legacy_${OHVersion}-${OHReleaseNumber}_all.deb"
+  if (releaseType == 'stable') {
+    releaseVersion = "${OHVersion}"
+  } else {
+    releaseVersion = "${OHTestingVersion}"
+  }
 
-  def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/stable/${OHVersion}/openhab2-${OHVersion}-${OHReleaseNumber}.noarch.rpm"
-  def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/stable/${OHVersion}/openhab2-addons-${OHVersion}-${OHReleaseNumber}.noarch.rpm"
-  def rpmLegacyPath = "${ARTIFACTORY_REPO}-rpm/stable/${OHVersion}/openhab2-addons-legacy-${OHVersion}-${OHReleaseNumber}.noarch.rpm"
+  task "deployToBintray-${releaseType}"(type:Exec) {
+    def distributeRepo = 'openhab-linuxpkg-distribution'
+    def distributeURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/distribute"
 
-  def curlOptions = """{\
-    "targetRepo" : "${distributeRepo}",
-    "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${aptLegacyPath}","${rpmPackagePath}","${rpmAddonPath}","${rpmLegacyPath}"],
-    "dryRun" : "false"}\
-  """
+    def aptPackagePath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2_${releaseVersion}-${OHReleaseNumber}_all.deb"
+    def aptAddonPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2-addons_${releaseVersion}-${OHReleaseNumber}_all.deb"
+    def aptLegacyPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2-addons-legacy_${releaseVersion}-${OHReleaseNumber}_all.deb"
 
-  executable "curl"
-  args '-X', 'POST', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', 'Content-Type: application/json', '-d', "${curlOptions}", "${distributeURL}" 
-  standardOutput = new ByteArrayOutputStream()
-  errorOutput = new ByteArrayOutputStream()
+    def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
+    def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-addons-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
+    def rpmLegacyPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-addons-legacy-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
 
-  doLast {
-    def jsonSluper = new JsonSlurper()
-    def jsonText = jsonSluper.parseText(standardOutput.toString())
+    def curlOptions = """{\
+      "targetRepo" : "${distributeRepo}",
+      "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${aptLegacyPath}","${rpmPackagePath}","${rpmAddonPath}","${rpmLegacyPath}"],
+      "dryRun" : "true"}\
+    """
 
-    if (jsonText.errors) {
-      def errortext=jsonText.errors.message.toString()
-      throw new GradleException('Distribution to Bintray failed: ' + errortext)
-    } else {
-      print standardOutput.toString()
+    executable "curl"
+    args '-X', 'POST', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', 'Content-Type: application/json', '-d', "${curlOptions}", "${distributeURL}" 
+    standardOutput = new ByteArrayOutputStream()
+    errorOutput = new ByteArrayOutputStream()
+
+    doLast {
+      def jsonSluper = new JsonSlurper()
+      def jsonText = jsonSluper.parseText(standardOutput.toString())
+
+      if (jsonText.errors) {
+        def errortext=jsonText.errors.message.toString()
+        throw new GradleException('Distribution to Bintray failed: ' + errortext)
+      } else {
+        print standardOutput.toString()
+      }
     }
   }
 }
 
 task calculateMetadata() {
-  mustRunAfter deployToBintray
-
   def apiURL = "https://api.bintray.com/calc_metadata/openhab/"
   def repoPaths = [
     "${apiURL}/apt-repo2",
-    "${apiURL}/rpm-repo2/stable"
+    "${apiURL}/rpm-repo2/stable",
+    "${apiURL}/rpm-repo2/testing"
   ]
 
   doLast{
