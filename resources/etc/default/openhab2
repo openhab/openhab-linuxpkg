@@ -8,6 +8,14 @@
 #OPENHAB_HTTPS_PORT=8443
 
 #########################
+## HTTP(S) LISTEN ADDRESS
+##  The listen address used by the HTTP(S) server.
+##  0.0.0.0 (default) allows a connection from any location
+##  127.0.0.1 only allows the local machine to connect
+
+#OPENHAB_HTTP_ADDRESS=0.0.0.0
+
+#########################
 ## BACKUP DIRECTORY
 ## Set the following variable to specify the backup location.
 ## runtime/bin/backup and runtime/bin/restore will use this path for the zip files.
