@@ -109,6 +109,10 @@ case "$1" in
         OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
         OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
       fi
+      
+      sudo rm -f /var/lib/openhab2/etc/overrides.properties
+      sudo rm -f /var/lib/openhab2/etc/org.openhab.addons.cfg
+      
       mkdir -p $UD_TMP
       chown -R "$OH_USER:$OH_GROUP" $UD_TMP
       if [ -x /bin/systemctl ] ; then
