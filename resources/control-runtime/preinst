@@ -14,11 +14,13 @@ set -e
 
 UD_CACHE=/var/lib/openhab2/cache
 UD_TMP=/var/lib/openhab2/tmp
+UD_KAR=/var/lib/openhab2/kar
 RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
 
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
   [ -d ${UD_TMP} ] && rm -rf ${UD_TMP}
+  [ -d ${UD_KAR} ] && rm -rf ${UD_KAR}
   true
 }
 
