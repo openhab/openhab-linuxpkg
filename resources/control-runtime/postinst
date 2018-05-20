@@ -109,8 +109,7 @@ case "$1" in
         OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
         OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
       fi
-      
-      rm -f /var/lib/openhab2/etc/overrides.properties
+
       rm -f /var/lib/openhab2/etc/org.openhab.addons.cfg
       
       mkdir -p $UD_TMP
