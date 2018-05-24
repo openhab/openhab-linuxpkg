@@ -26,7 +26,7 @@ def ARTIFACTORY_GPG_KEY_ID = project.hasProperty('artifactoryGpgKeyId') ? projec
 
 ARTIFACTORY_ORG = ARTIFACTORY_ORG ?: 'openhab'
 ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: 'openhab-linuxpkg'
-ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A' 
+ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A'
 
 def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
 def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
@@ -36,9 +36,9 @@ def OHTestingVersion = project.hasProperty('openHABTestingVersion') ? project.pr
 def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
 def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
 
-OHVersion = OHVersion ?: '2.1.0'
-OHTestingVersion = OHTestingVersion ?: '2.0.0.RC1'
-OHSnapVersion = OHSnapVersion ?: '2.2.0'
+OHVersion = OHVersion ?: '2.3.0'
+OHTestingVersion = OHTestingVersion ?: '2.3.0.RC1'
+OHSnapVersion = OHSnapVersion ?: '2.4.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def OSPACKAGE_ARCH = "all"
@@ -165,11 +165,16 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
 
   def topDist = gDebDist.first()
 
-  packageTypes.each { pType -> 
+  packageTypes.each { pType ->
     def packageType = Deb
     if (pType == 'Rpm') { packageType = Rpm }
-    
+
     task "distro-${pType}-${dist}"(type: packageType, dependsOn: "download-${dist}") {
+      if ((topDist == 'testing') && (gVersion.count('.') > 2)) {
+        def lastDotIndex = gVersion.lastIndexOf('.')
+        def newVersion = gVersion.substring(0,lastDotIndex)+'~'+gVersion.substring(lastDotIndex+1);
+        gVersion=newVersion.toString()
+      }
       if (pType == 'Deb') { arch = "${OSPACKAGE_ARCH}" }
       release = gRelease
       packageName = gPackageName
@@ -422,11 +427,11 @@ task buildTesting(dependsOn: tasks.findAll { t -> t.name.endsWith('-testing')}) 
 
 task buildRelease(dependsOn: tasks.findAll { t -> t.name.endsWith("-release")}){
   description = 'Performs all major tasks for the Release (stable) repos: Download -> Build -> Upload.'
-  group = 'openHAB Main' 
+  group = 'openHAB Main'
 }
 
-def generate_download_tasks = { dist, url, path -> 
-  task "download-${dist}"(type: Download) { 
+def generate_download_tasks = { dist, url, path ->
+  task "download-${dist}"(type: Download) {
     onlyIfNewer true
     src url
     dest new File(path)
@@ -500,6 +505,11 @@ releaseTypes.each { releaseType ->
     releaseVersion = "${OHVersion}"
   } else {
     releaseVersion = "${OHTestingVersion}"
+    if (releaseVersion.count('.') > 2) {
+      def lastDotIndex = releaseVersion.lastIndexOf('.')
+      def newVersion = releaseVersion.substring(0,lastDotIndex)+'~'+releaseVersion.substring(lastDotIndex+1);
+      releaseVersion=newVersion
+    }
   }
 
   task "deployToBintray-${releaseType}"(type:Exec) {
@@ -521,7 +531,7 @@ releaseTypes.each { releaseType ->
     """
 
     executable "curl"
-    args '-X', 'POST', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', 'Content-Type: application/json', '-d', "${curlOptions}", "${distributeURL}" 
+    args '-X', 'POST', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', 'Content-Type: application/json', '-d', "${curlOptions}", "${distributeURL}"
     standardOutput = new ByteArrayOutputStream()
     errorOutput = new ByteArrayOutputStream()
 
