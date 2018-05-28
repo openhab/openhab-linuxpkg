@@ -473,7 +473,7 @@ task removeOlderVersions(type:Exec) {
       matches.each { object ->
         def matchedURL = object.uri
 
-        if ((matchedURL.contains('~') || matchedURL.contains('unstable')) && (matchedURL.contains('.deb') || matchedURL.contains('.rpm'))) {
+        if ((matchedURL.contains('~') || matchedURL.contains('unstable')) && (!matchedURL.contains('~RC') && !matchedURL.contains('~M')) && (matchedURL.contains('.deb') || matchedURL.contains('.rpm'))) {
           def matchedFolder = matchedURL.substring(0,matchedURL.lastIndexOf('/'))
           def matchedLocation = matchedFolder - 'api/storage/'
 
