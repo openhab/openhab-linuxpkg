@@ -107,7 +107,7 @@ def distributions = [
   ],[
     "dist":        'openhab2-testing',
     "description": 'Linux installation package for openHAB 2.',
-    "debDist":     ['testing','unstable'],
+    "debDist":     ['testing'],
     "packageName": 'openhab2',
     "url":         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab/${OHTestingVersion}/openhab-${OHTestingVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHTestingVersion}.tar.gz",
@@ -116,7 +116,7 @@ def distributions = [
   ],[
     'dist':        'openhab2-addons-testing',
     'description': 'Linux installation package for openHAB 2 addons.',
-    'debDist':     ['testing','unstable'],
+    'debDist':     ['testing'],
     'packageName': 'openhab2-addons',
     'url':         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab-addons/${OHTestingVersion}/openhab-addons-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHTestingVersion}.kar",
@@ -125,7 +125,7 @@ def distributions = [
   ],[
     'dist':        'openhab2-addons-legacy-testing',
     'description': 'Linux installation package for legacy openHAB 2 addons.',
-    'debDist':     ['testing','unstable'],
+    'debDist':     ['testing'],
     'packageName': 'openhab2-addons-legacy',
     'url':         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab-addons-legacy/${OHTestingVersion}/openhab-addons-legacy-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHTestingVersion}.kar",
