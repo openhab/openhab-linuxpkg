@@ -47,7 +47,7 @@ case "$1" in
     rm -rf /etc/openhab2
     exit 0
     ;;
-  0) 
+  0)
     # Indicates removal on RPM. There is no purge, so assume remove get rid of all
     removeOpenHABInit
     if getent passwd $OH_USER > /dev/null 2>&1; then
