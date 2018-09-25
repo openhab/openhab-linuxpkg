@@ -12,6 +12,8 @@
 
 UD_TMP=/var/lib/openhab2/tmp
 RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
+OLD_VERSION_FILE=/var/lib/openhab2/.previousVersion
+
 
 set -e
 if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
@@ -26,7 +28,7 @@ startOpenHAB() {
     /bin/systemctl daemon-reload
     /bin/systemctl start openhab2.service
   elif [ -x "/etc/init.d/openhab2" ]; then
-    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+    if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
       invoke-rc.d openhab2 start
     else
       /etc/init.d/openhab2 start
@@ -39,7 +41,7 @@ startOpenHAB() {
 findpid() {
   OH_USER=openhab
   if [ x"${USER_AND_GROUP}" != x ]; then
-    OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
+    OH_USER=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 1)
   fi
   ps aux -u "$OH_USER" --sort=start_time 2>/dev/null | grep openhab.*java | grep -v grep | awk '{print $2}' | tail -1
 }
@@ -47,17 +49,17 @@ findpid() {
 waitForStopFinished(){
   # this is a workaround for upgrading from deb installations prior to 2.0.0
   timeout=0
-  pid=`findpid`
+  pid=$(findpid)
   if [  x"$pid" != x ]; then
-    echo -n "Waiting for the openHAB service to stop "
-    while kill -0 $pid 2>/dev/null ; do
+    printf "Waiting for the openHAB service to stop "
+    while kill -0 "$pid" 2>/dev/null ; do
       if [ $timeout -eq 20 ]; then
         # finally kill the process if timeout is reached
         echo "killing the openHAB service with pid $pid"
-        kill -9 $pid
+        kill -9 "$pid"
         break
       else
-        echo -n "."
+        printf "."
         timeout=$((timeout+1))
         sleep 1
       fi
@@ -85,9 +87,76 @@ restartIfFlagFileExists(){
   return 0
 }
 
+getVersionNumber(){
+  firstPart="$(echo "$1" | awk -F'.' '{print $1}')"
+  secondPart="$(echo "$1" | awk -F'.' '{print $2}')"
+  thirdPart="$(echo "$1" | awk -F'.' '{print $3}')"
+  thirdPart="${thirdPart%%-*}"
+  echo $((firstPart*10000+secondPart*100+thirdPart))
+}
+
+runCommand() {
+    string="$1"
+
+    command="$(echo "$string" | awk -F';' '{print $1}')"
+    param1="$(echo "$string" | awk -F';' '{print $2}')"
+
+    case $command in
+    'NOTE')  printf '  \033[32mNote:\033[m     %s\n' "$param1";;
+    'ALERT') printf '  \033[31mWarning:\033[m  %s\n' "$param1";;
+    esac
+}
+
+scanVersioningList() {
+  Section="$1"
+  VersionMessage="$2"
+  InSection=false
+  InNewVersion=false
+  oldVersionNumber=$(getVersionNumber "$oldVersion")
+
+  ## Read the file line by line.
+  while IFS= read -r Line
+  do
+    case $Line in
+    '')
+      continue
+    ;;
+    ## Flag to run the relevant [[section]] only.
+    "[[$Section]]")
+      InSection=true
+    ;;
+    ## Stop reading the file if another [[section]] starts.
+    "[["*"]]")
+      if $InSection; then
+        break
+      fi
+    ;;
+    ## Detect the [version] and execute the line if relevant.
+    '['*'.'*'.'*']')
+      if $InSection; then
+        LineVersion="$(echo "$Line" | awk -F'[][]' '{print $2}')"
+        LineVersionNumber=$(getVersionNumber "$LineVersion")
+        if [ "$oldVersionNumber" -le "$LineVersionNumber" ]; then
+          InNewVersion=true
+          echo ""
+          echo "$VersionMessage $LineVersion:"
+        else
+          InNewVersion=false
+        fi
+      fi
+    ;;
+    *)
+      if $InSection && $InNewVersion; then
+        runCommand "$Line"
+      fi
+    ;;
+    esac
+  done < "/usr/share/openhab2/runtime/bin/update.lst"
+}
+
 case "$1" in
   configure|1|2)
-    if [ -z $2 ] && [ $1 != 2 ] ; then
+    if [ -z "$2" ] && [ "$1" != 2 ] ; then
       # this is a fresh installation
       if [ -x /bin/systemctl ] ; then
         echo "### NOT starting on installation, please execute the following statements to configure openHAB to start automatically using systemd"
@@ -106,17 +175,23 @@ case "$1" in
       OH_USER=openhab
       OH_GROUP=openhab
       if [ x"${USER_AND_GROUP}" != x ]; then
-        OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-        OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+        OH_USER=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 1)
+        OH_GROUP=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 2)
       fi
 
       rm -f /var/lib/openhab2/etc/org.openhab.addons.cfg
-      
+
       mkdir -p $UD_TMP
       chown -R "$OH_USER:$OH_GROUP" $UD_TMP
       if [ -x /bin/systemctl ] ; then
         /bin/systemctl daemon-reload 2>/dev/null 2>&1
       fi
+      if [ -f ${OLD_VERSION_FILE} ]; then
+        oldVersion="$(cat ${OLD_VERSION_FILE})"
+        rm -f ${OLD_VERSION_FILE}
+        scanVersioningList "MSG" "Listing important changes for version"
+      fi
+      echo ""
       restartIfFlagFileExists
     fi
     ;;

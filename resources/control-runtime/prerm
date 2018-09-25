@@ -20,7 +20,7 @@ stopOpenHAB() {
   if [ -x /bin/systemctl ] ; then
     /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
   elif [ -x "/etc/init.d/openhab2" ]; then
-    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+    if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
       invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
     else
       /etc/init.d/openhab2 stop > /dev/null 2>&1 || true
@@ -37,7 +37,7 @@ flagRestart() {
       touch ${RESTART_FLAG_FILE}
     fi
   elif [ -x "/etc/init.d/openhab2" ]; then
-    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+    if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
       if invoke-rc.d openhab2 status > /dev/null 2>&1; then
         touch ${RESTART_FLAG_FILE}
       fi

@@ -16,6 +16,7 @@ UD_CACHE=/var/lib/openhab2/cache
 UD_TMP=/var/lib/openhab2/tmp
 UD_KAR=/var/lib/openhab2/kar
 RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
+OLD_VERSION_FILE=/var/lib/openhab2/.previousVersion
 
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
@@ -25,12 +26,12 @@ removeCache(){
 }
 
 flagRestart() {
-  if [ -x /binsystemctl ] ; then
+  if [ -x /bin/systemctl ] ; then
     if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
       touch ${RESTART_FLAG_FILE}
     fi
   elif [ -x "/etc/init.d/openhab2" ]; then
-    if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+    if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
       if invoke-rc.d openhab2 status > /dev/null 2>&1; then
         touch ${RESTART_FLAG_FILE}
       fi
@@ -43,16 +44,24 @@ flagRestart() {
   return 0
 }
 
+flagVersion() {
+  versionFile="/var/lib/openhab2/etc/version.properties"
+  if [ -f "${versionFile}" ]; then
+    awk '/openhab-distro/{print $3}' "${versionFile}" > "${OLD_VERSION_FILE}"
+  fi
+}
+
 
 case "$1" in
   install|upgrade)
     # APT Install or Upgrade
     removeCache
+    flagVersion
     OH_USER=openhab
     OH_GROUP=openhab
     if [ x"${USER_AND_GROUP}" != x ]; then
-      OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-      OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+      OH_USER=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 1)
+      OH_GROUP=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 2)
     fi
     if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
       addgroup --system "$OH_GROUP" --quiet
@@ -66,10 +75,11 @@ case "$1" in
   1|2)
     # RPM Install (1) or Upgrade (2)
     flagRestart
+    flagVersion
     if [ -x /bin/systemctl ] ; then
       /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
     elif [ -x "/etc/init.d/openhab2" ]; then
-      if [ -x "`which invoke-rc.d 2>/dev/null`" ]; then
+      if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
         invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
       else
         /etc/init.d/openhab2 stop > /dev/null 2>&1 || true
@@ -80,8 +90,8 @@ case "$1" in
     OH_USER=openhab
     OH_GROUP=openhab
     if [ x"${USER_AND_GROUP}" != x ]; then
-      OH_USER=`echo ${USER_AND_GROUP} | cut -d ":" -f 1`
-      OH_GROUP=`echo ${USER_AND_GROUP} | cut -d ":" -f 2`
+      OH_USER=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 1)
+      OH_GROUP=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 2)
     fi
     if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
       groupadd --system "$OH_GROUP"
