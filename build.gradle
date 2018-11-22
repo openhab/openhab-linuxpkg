@@ -181,9 +181,6 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
       if (pType == 'Deb') { arch = "${OSPACKAGE_ARCH}" }
       release = gRelease
       packageName = gPackageName
-      if (pType == 'Rpm') {
-        gVersion = gVersion.replaceAll('~','.')
-      }
 
       version = gVersion
       distribution = topDist
