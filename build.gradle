@@ -35,11 +35,15 @@ def OHVersion = project.hasProperty('openHABVersion') ? project.property('openHA
 def OHTestingVersion = project.hasProperty('openHABTestingVersion') ? project.property('openHABTestingVersion') : System.env.OPENHAB_TESTING_VERSION
 def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
 def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
+def OHDistroBuildNumber = project.hasProperty('openHABDistroBuildNumber') ? project.property('openHABDistroBuildNumber') : System.env.DISTRO_BUILD_NUMBER
 
 OHVersion = OHVersion ?: '2.3.0'
 OHTestingVersion = OHTestingVersion ?: '2.3.0.RC1'
 OHSnapVersion = OHSnapVersion ?: '2.4.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
+
+def timestamp = new Date().format('yyyyMMddHHmmss')
+def OHPackageSnapVersion = OHDistroBuildNumber ? "${OHSnapVersion}~S${OHDistroBuildNumber}" : "${OHSnapVersion}~" + timestamp
 
 def OSPACKAGE_ARCH = "all"
 
@@ -75,7 +79,6 @@ ospackage {
   signatureSize = 543
 }
 
-def timestamp = new Date().format('yyyyMMddHHmmss')
 def distributions = [
   [
     "dist":        'openhab2-release',
@@ -138,7 +141,7 @@ def distributions = [
     'packageName': 'openhab2',
     'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
-    'version':     "${OHSnapVersion}~" + timestamp,
+    'version':     "${OHPackageSnapVersion}",
     'release':     '1'
   ],[
     'dist':        'openhab2-addons-snapshot',
@@ -147,7 +150,7 @@ def distributions = [
     'packageName': 'openhab2-addons',
     'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
-    'version':     "${OHSnapVersion}~" + timestamp,
+    'version':     "${OHPackageSnapVersion}",
     'release':     '1'
   ],[
     'dist':        'openhab2-addons-legacy-snapshot',
@@ -156,7 +159,7 @@ def distributions = [
     'packageName': 'openhab2-addons-legacy',
     'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
-    'version':     "${OHSnapVersion}~" + timestamp,
+    'version':     "${OHPackageSnapVersion}",
     'release':     '1'
   ]
 ]
@@ -203,7 +206,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         requires('openhab2')
         from(gInputFile) {
           if (pType == 'Rpm') {addParentDirs=false}
-          into 'usr/share/openhab2/addons'
+          into '/usr/share/openhab2/addons'
         }
       } else {
 
