@@ -87,6 +87,16 @@ restartIfFlagFileExists(){
   return 0
 }
 
+checkJava(){
+  # Java must be at least version 8, check for this
+  . /usr/share/openhab2/runtime/bin/inc
+  locateJava >/dev/null
+  VERSION=$("${JAVA}" -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
+  if [ "${VERSION}" -lt "8" ]; then
+    echo "### WARNING: Java 8 not detected! You must install Java 8 in order to use openHAB 2.X.X"
+  fi
+}
+
 getVersionNumber(){
   firstPart="$(echo "$1" | awk -F'.' '{print $1}')"
   secondPart="$(echo "$1" | awk -F'.' '{print $2}')"
@@ -170,6 +180,7 @@ case "$1" in
         echo "### In order to start openhab2, execute"
         echo " sudo /etc/init.d/openhab2 start"
       fi
+      checkJava
     else
       # this is an upgrade
       OH_USER=openhab
@@ -192,6 +203,7 @@ case "$1" in
         scanVersioningList "MSG" "Listing important changes for version"
       fi
       echo ""
+      checkJava
       restartIfFlagFileExists
     fi
     ;;
