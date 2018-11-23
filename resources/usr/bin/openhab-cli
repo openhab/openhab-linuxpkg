@@ -8,16 +8,16 @@ usage() {
   echo "Usage:  openhab-cli command [options]"
   echo ""
   echo "Possible commands:"
-  echo "  backup [filename]   -- Stores the current configuration of openHAB."
-  echo "  clean-cache         -- Cleans the openHAB temporary folders."
-  echo "  console             -- Opens the openHAB console."
-  echo "  info                -- Displays distribution information."
-  echo "  reset-ownership     -- Gives openHAB control of its own directories."
-  echo "  restore filename    -- Restores the openHAB configuration from a backup."
-  echo "  showlogs            -- Displays the log messages of openHAB."
-  echo "  start [--debug]     -- Starts openHAB in the terminal."
-  echo "  status              -- Checks to see if openHAB is running."
-  echo "  stop                -- Stops any running instance of openHAB."
+  echo "  backup [--full] [filename]   -- Stores the current configuration of openHAB."
+  echo "  clean-cache                  -- Cleans the openHAB temporary folders."
+  echo "  console                      -- Opens the openHAB console."
+  echo "  info                         -- Displays distribution information."
+  echo "  reset-ownership              -- Gives openHAB control of its own directories."
+  echo "  restore filename             -- Restores the openHAB configuration from a backup."
+  echo "  showlogs                     -- Displays the log messages of openHAB."
+  echo "  start [--debug]              -- Starts openHAB in the terminal."
+  echo "  status                       -- Checks to see if openHAB is running."
+  echo "  stop                         -- Stops any running instance of openHAB."
   echo ""
   exit 2
 }
@@ -85,8 +85,7 @@ case "$option" in
 
   "backup")
     # Run the pre-made backup script
-    filename="$1"
-    "$OPENHAB_RUNTIME/bin/backup" "$filename"
+    "$OPENHAB_RUNTIME/bin/backup" "$@"
     ;;
 
   "clean-cache")
