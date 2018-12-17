@@ -37,9 +37,9 @@ def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.prop
 def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
 def OHDistroBuildNumber = project.hasProperty('openHABDistroBuildNumber') ? project.property('openHABDistroBuildNumber') : System.env.DISTRO_BUILD_NUMBER
 
-OHVersion = OHVersion ?: '2.3.0'
-OHTestingVersion = OHTestingVersion ?: '2.3.0.RC1'
-OHSnapVersion = OHSnapVersion ?: '2.4.0'
+OHVersion = OHVersion ?: '2.4.0'
+OHTestingVersion = OHTestingVersion ?: '2.4.0.RC1'
+OHSnapVersion = OHSnapVersion ?: '2.5.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
