@@ -76,13 +76,13 @@ restartIfFlagFileExists(){
     waitForStopFinished
     startOpenHAB
   else
-    printf "# ${OPENHAB_TEXT} openHAB was not running so will not start after upgrade.\n"
+    printf "${OPENHAB_TEXT} openHAB was not running so will not start after upgrade.\n"
     if [ -x /bin/systemctl ] ; then
-      printf "# ${OPENHAB_TEXT} Please use the command:\n"
-      echo "${WHITESP_TEXT}     sudo /bin/systemctl start openhab2.service"
+      printf "${OPENHAB_TEXT} Please use the command:\n"
+      echo "${WHITESP_TEXT}   sudo /bin/systemctl start openhab2.service"
     elif [ -x /usr/sbin/update-rc.d ] ; then
-      printf "# ${OPENHAB_TEXT} Please use the command:\n"
-      echo "${WHITESP_TEXT}     sudo /etc/init.d/openhab2 start"
+      printf "${OPENHAB_TEXT} Please use the command:\n"
+      echo "${WHITESP_TEXT}   sudo /etc/init.d/openhab2 start"
     else
       echo ""
     fi
@@ -95,8 +95,8 @@ checkJava(){
   # Java must be at least version 8, check for this
   VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
   if [ -z "$VERSION" ] || [ "${VERSION}" -lt "8" ]; then
-    printf "# ${OPENHAB_TEXT} WARNING: We were unable to detect Java 8 on your system. This is needed before openHAB can be started.\n" 
-    printf "# ${OPENHAB_TEXT} Please install the current version of Java 8 or check the openHAB documentation for details."
+    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 8 on your system. This is needed before openHAB can be started.\n" 
+    printf "${OPENHAB_TEXT} Please install the current version of Java 8 or check the openHAB documentation for details."
     echo ""
   fi
 }
@@ -173,18 +173,18 @@ case "$1" in
     if [ -z "$2" ] && [ "$1" != 2 ] ; then
       # this is a fresh installation
       if [ -x /bin/systemctl ] ; then
-        printf "# ${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
-        echo "${WHITESP_TEXT}     sudo /bin/systemctl daemon-reload"
-        echo "${WHITESP_TEXT}     sudo /bin/systemctl enable openhab2.service"
+        printf "${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
+        echo "${WHITESP_TEXT}   sudo /bin/systemctl daemon-reload"
+        echo "${WHITESP_TEXT}   sudo /bin/systemctl enable openhab2.service"
         echo ""
-        printf "# ${OPENHAB_TEXT} You can start openhab2 manually by executing the command:\n"
-        echo "${WHITESP_TEXT}     sudo /bin/systemctl start openhab2.service"
+        printf "${OPENHAB_TEXT} You can start openhab2 manually by executing the command:\n"
+        echo "${WHITESP_TEXT}   sudo /bin/systemctl start openhab2.service"
       elif [ -x /usr/sbin/update-rc.d ] ; then
-        printf "# ${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
-        echo "${WHITESP_TEXT}     sudo update-rc.d openhab2 defaults"
+        printf "${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
+        echo "${WHITESP_TEXT}   sudo update-rc.d openhab2 defaults"
         echo ""
-        printf "# ${OPENHAB_TEXT} You can start openhab2 manually by executing the command:\n"
-        echo "${WHITESP_TEXT}     sudo /etc/init.d/openhab2 start"
+        printf "${OPENHAB_TEXT} You can start openhab2 manually by executing the command:\n"
+        echo "${WHITESP_TEXT}   sudo /etc/init.d/openhab2 start"
       else
         echo ""
       fi
@@ -209,7 +209,7 @@ case "$1" in
       if [ -f ${OLD_VERSION_FILE} ]; then
         oldVersion="$(cat ${OLD_VERSION_FILE})"
         rm -f ${OLD_VERSION_FILE}
-        scanVersioningList "MSG" "# ${OPENHAB_TEXT} Listing important changes for version"
+        scanVersioningList "MSG" "${OPENHAB_TEXT} Listing important changes for version"
       fi
       echo ""
       checkJava
