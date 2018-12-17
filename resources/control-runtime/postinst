@@ -13,7 +13,8 @@
 UD_TMP=/var/lib/openhab2/tmp
 RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
 OLD_VERSION_FILE=/var/lib/openhab2/.previousVersion
-
+OPENHAB_TEXT='[\033[1;33mopenHAB\033[0m]'
+WHITESP_TEXT='         '
 
 set -e
 if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
@@ -64,7 +65,7 @@ waitForStopFinished(){
         sleep 1
       fi
     done
-    echo "" # an extra newline
+    echo ""
   fi
   return 0
 }
@@ -75,16 +76,29 @@ restartIfFlagFileExists(){
     waitForStopFinished
     startOpenHAB
   else
-    echo "### openHAB was not running so will not start automatically..."
+    printf "${OPENHAB_TEXT} openHAB was not running so will not start after upgrade.\n"
     if [ -x /bin/systemctl ] ; then
-      echo "### In order to start openhab2, execute"
-      echo " sudo /bin/systemctl start openhab2.service"
+      printf "${OPENHAB_TEXT} Please use the command:\n"
+      echo "${WHITESP_TEXT}   sudo /bin/systemctl start openhab2.service"
     elif [ -x /usr/sbin/update-rc.d ] ; then
-      echo "### In order to start openhab2, execute"
-      echo " sudo /etc/init.d/openhab2 start"
+      printf "${OPENHAB_TEXT} Please use the command:\n"
+      echo "${WHITESP_TEXT}   sudo /etc/init.d/openhab2 start"
+    else
+      echo ""
     fi
+    echo ""
   fi
   return 0
+}
+
+checkJava(){
+  # Java must be at least version 8, check for this
+  VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
+  if [ -z "$VERSION" ] || [ "${VERSION}" -lt "8" ]; then
+    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 8 on your system. This is needed before openHAB can be started.\n" 
+    printf "${OPENHAB_TEXT} Please install the current version of Java 8 or check the openHAB documentation for details."
+    echo ""
+  fi
 }
 
 getVersionNumber(){
@@ -139,7 +153,7 @@ scanVersioningList() {
         if [ "$oldVersionNumber" -le "$LineVersionNumber" ]; then
           InNewVersion=true
           echo ""
-          echo "$VersionMessage $LineVersion:"
+          printf "$VersionMessage $LineVersion:\n"
         else
           InNewVersion=false
         fi
@@ -159,17 +173,23 @@ case "$1" in
     if [ -z "$2" ] && [ "$1" != 2 ] ; then
       # this is a fresh installation
       if [ -x /bin/systemctl ] ; then
-        echo "### NOT starting on installation, please execute the following statements to configure openHAB to start automatically using systemd"
-        echo " sudo /bin/systemctl daemon-reload"
-        echo " sudo /bin/systemctl enable openhab2.service"
-        echo "### You can start openhab2 by executing"
-        echo " sudo /bin/systemctl start openhab2.service"
+        printf "${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
+        echo "${WHITESP_TEXT}   sudo /bin/systemctl daemon-reload"
+        echo "${WHITESP_TEXT}   sudo /bin/systemctl enable openhab2.service"
+        echo ""
+        printf "${OPENHAB_TEXT} You can start openhab2 manually by executing the command:\n"
+        echo "${WHITESP_TEXT}   sudo /bin/systemctl start openhab2.service"
       elif [ -x /usr/sbin/update-rc.d ] ; then
-        echo "### NOT starting openhab2 by default on bootup, please execute"
-        echo " sudo update-rc.d openhab2 defaults"
-        echo "### In order to start openhab2, execute"
-        echo " sudo /etc/init.d/openhab2 start"
+        printf "${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
+        echo "${WHITESP_TEXT}   sudo update-rc.d openhab2 defaults"
+        echo ""
+        printf "${OPENHAB_TEXT} You can start openhab2 manually by executing the command:\n"
+        echo "${WHITESP_TEXT}   sudo /etc/init.d/openhab2 start"
+      else
+        echo ""
       fi
+      echo ""
+      checkJava
     else
       # this is an upgrade
       OH_USER=openhab
@@ -189,9 +209,10 @@ case "$1" in
       if [ -f ${OLD_VERSION_FILE} ]; then
         oldVersion="$(cat ${OLD_VERSION_FILE})"
         rm -f ${OLD_VERSION_FILE}
-        scanVersioningList "MSG" "Listing important changes for version"
+        scanVersioningList "MSG" "${OPENHAB_TEXT} Listing important changes for version"
       fi
       echo ""
+      checkJava
       restartIfFlagFileExists
     fi
     ;;
