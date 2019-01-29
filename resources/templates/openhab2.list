@@ -1,0 +1,13 @@
+### openHAB 2.X Repositories ###
+
+# This file contains the repos for the different versions of openHAB.
+# Remove the hash comment on the deb line to enable a particular repo
+
+## openHAB Stable Repository
+#deb https://dl.bintray.com/openhab/apt-repo2 stable main
+
+## openHAB Testing Repository
+#deb https://openhab.jfrog.io/openhab/openhab-linuxpkg testing main
+
+## openHAB Snapshot Repository
+#deb https://openhab.jfrog.io/openhab/openhab-linuxpkg unstable main

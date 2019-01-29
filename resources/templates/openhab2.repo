@@ -1,0 +1,26 @@
+### openHAB 2.X Repositories ###
+
+# This file contains the repos for the different versions of openHAB.
+# Set enabled to 1/0 to enable/disable a repo respectively.
+# Multiple repos can be enabled at once, so it is recommended to have at least stable enabled.
+
+[openHAB-Stable]
+name=openHAB 2.x.x Snapshots
+baseurl=https://dl.bintray.com/openhab/rpm-repo2/stable
+gpgcheck=1
+gpgkey=https://bintray.com/user/downloadSubjectPublicKey?username=openhab
+enabled=1
+
+[openHAB-Testing]
+name=openHAB 2.x.x Snapshots
+baseurl=https://openhab.jfrog.io/openhab/openhab-linuxpkg-rpm/testing
+gpgcheck=1
+gpgkey=https://bintray.com/user/downloadSubjectPublicKey?username=openhab
+enabled=0
+
+[openHAB-Snapshots]
+name=openHAB 2.x.x Snapshots
+baseurl=https://openhab.jfrog.io/openhab/openhab-linuxpkg-rpm/unstable
+gpgcheck=1
+gpgkey=https://bintray.com/user/downloadSubjectPublicKey?username=openhab
+enabled=0

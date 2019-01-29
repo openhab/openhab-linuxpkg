@@ -18,6 +18,7 @@ usage() {
   echo "  start [--debug]              -- Starts openHAB in the terminal."
   echo "  status                       -- Checks to see if openHAB is running."
   echo "  stop                         -- Stops any running instance of openHAB."
+  echo "  update-repo [repo]           -- Updates the package repository and signature."
   echo ""
   exit 2
 }
@@ -234,9 +235,64 @@ case "$option" in
     fi
     ;;
 
+  "update-repo")
+    checkRoot "$option"
+    if [ -z "$1" ]; then
+      repo="stable"
+      echo "No repo specified, selecting '$repo' by default..."
+    else
+      repo="$1"
+    fi
+    case "$repo" in
+      "stable")
+        debLineNumber=7
+        rpmLineNumber=12
+      ;;
+      "testing")
+        debLineNumber=10
+        rpmLineNumber=19
+      ;;
+      "unstable")
+        debLineNumber=13
+        rpmLineNumber=26
+      ;;
+      *)
+        echo "Error: Invalid repo name '$repo', valid options are 'stable', 'testing and 'unstable'"
+        exit 2
+      ;;
+    esac
+    echo "This command will tell the package manger to use openHAB's $repo repository."
+    confirmAction
+    debSource="$OPENHAB_HOME/package-templates/openhab2.list"
+    rpmSource="$OPENHAB_HOME/package-templates/openhab2.repo"
+    pubKey="$OPENHAB_HOME/package-templates/openhab.public.key.asc"
+    if [ -f "$debSource" ]; then
+      destination="/etc/apt/sources.list.d/openhab2.list"
+      echo "Creating ${destination}..."
+      sed "$debLineNumber"' s/^ *#//' "$debSource" > $destination
+      echo "Adding Public key..."
+      gpg --homedir /dev/null --dearmor "$pubKey" || {
+        echo "Error: Could not add public key, see the openHAB documentation to add it manually."
+        exit 1
+      }
+      mv "$pubKey.gpg" /etc/apt/trusted.gpg.d/openhab2.gpg
+    elif [ -f "$rpmSource" ]; then
+      destination="/etc/yum.repos.d/openhab2.repo"
+      echo "Creating ${destination}..."
+      sed "$rpmLineNumber"' s/0$/1/' "$rpmSource" > $destination || {
+        echo "Error: Could not update $destination..."
+        exit 1
+      }
+    else
+      echo "Error: Could not find source file for package manager."
+    fi
+      echo "Success! Please use your package manager's update command get the latest updates."
+    ;;
   *)
     # Default to showing available commands
     echo "Unrecognised command: $option"
     usage
     ;;
 esac
+
+exit 0

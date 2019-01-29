@@ -198,6 +198,15 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           fileMode mode
         }
       }
+      
+      from("resources/templates") {
+        into '/usr/share/openhab2/package-templates'
+        if (pType == 'Rpm') {
+          exclude '**/*.list'
+        } else {
+          exclude '**/*.repo'
+        }
+      }
 
       if (dist.contains('addons')){
         requires('openhab2')
