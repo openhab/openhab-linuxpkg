@@ -170,6 +170,16 @@ scanVersioningList() {
 
 case "$1" in
   configure|1|2)
+    OH_USER=openhab
+    OH_GROUP=openhab
+    for pGroup in bluetooth tty dialout audio
+    do
+      if ! id -nG "$OH_USER" | grep -qw "$pGroup"; then
+        if getent group $pGroup > /dev/null 2>&1 ; then
+          usermod -a -G $pGroup $OH_USER
+        fi
+      fi
+    done
     if [ -z "$2" ] && [ "$1" != 2 ] ; then
       # this is a fresh installation
       if [ -x /bin/systemctl ] ; then
@@ -192,8 +202,6 @@ case "$1" in
       checkJava
     else
       # this is an upgrade
-      OH_USER=openhab
-      OH_GROUP=openhab
       if [ x"${USER_AND_GROUP}" != x ]; then
         OH_USER=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 1)
         OH_GROUP=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 2)
