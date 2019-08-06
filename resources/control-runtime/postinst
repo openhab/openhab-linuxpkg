@@ -22,7 +22,11 @@ if [ x"${OH_DOCKER_INSTALLATION}" != x ]; then
     exit 0
 fi
 
-[ -f /etc/default/openhab2 ] && . /etc/default/openhab2
+if [ -r /etc/profile.d/openhab2.sh ]; then
+  . /etc/profile.d/openhab2.sh
+elif [ -r /etc/default/openhab2 ]; then
+  . /etc/default/openhab2
+fi
 
 startOpenHAB() {
   if [ -x /bin/systemctl ] ; then
@@ -112,6 +116,10 @@ getVersionNumber(){
 runCommand() {
     string="$1"
 
+    string="$(echo "$string" | sed "s:\$OPENHAB_USERDATA:${OPENHAB_USERDATA:?}:g")"
+    string="$(echo "$string" | sed "s:\$OPENHAB_CONF:${OPENHAB_CONF:?}:g")"
+    string="$(echo "$string" | sed "s:\$OPENHAB_HOME:${OPENHAB_HOME:?}:g")"
+
     command="$(echo "$string" | awk -F';' '{print $1}')"
     param1="$(echo "$string" | awk -F';' '{print $2}')"
     param2="$(echo "$string" | awk -F';' '{print $3}')"
@@ -127,7 +135,6 @@ runCommand() {
     ;;
     'NOTE')  printf '  \033[32mNote:\033[m     %s\n' "$param1";;
     'ALERT') printf '  \033[31mWarning:\033[m  %s\n' "$param1";;
-    
     esac
 }
 
@@ -137,6 +144,11 @@ scanVersioningList() {
   InSection=false
   InNewVersion=false
   oldVersionNumber=$(getVersionNumber "$oldVersion")
+
+  ## Snapshots should always use the latest update list.
+  case $oldVersion in
+    *"-"* | *"."*"."*"."*) oldVersionNumber=$((oldVersionNumber-1));;
+  esac
 
   ## Read the file line by line.
   while IFS= read -r Line
@@ -160,7 +172,7 @@ scanVersioningList() {
       if $InSection; then
         LineVersion="$(echo "$Line" | awk -F'[][]' '{print $2}')"
         LineVersionNumber=$(getVersionNumber "$LineVersion")
-        if [ "$oldVersionNumber" -le "$LineVersionNumber" ]; then
+        if [ "$oldVersionNumber" -lt "$LineVersionNumber" ]; then
           InNewVersion=true
           echo ""
           printf "$VersionMessage $LineVersion:\n"
