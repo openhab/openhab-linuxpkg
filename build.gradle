@@ -496,8 +496,7 @@ task removeOlderVersions(type:Exec) {
 }
 
 def releaseTypes = [
-  'stable',
-  'testing'
+  'stable'
 ]
 
 releaseTypes.each { releaseType ->
