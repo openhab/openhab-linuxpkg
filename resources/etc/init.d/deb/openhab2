@@ -31,6 +31,11 @@ if [ -z "${OPENHAB_LOGDIR}" ];     then OPENHAB_LOGDIR="/var/log/openhab2"; fi
 if [ -z "${OPENHAB_USER}" ];       then OPENHAB_USER="openhab"; fi
 if [ -z "${OPENHAB_GROUP}" ];      then OPENHAB_GROUP="openhab"; fi
 
+# Override configuration variables from user file if it present
+if [ -r ${OPENHAB_CONF}/linux.parameters ]; then
+  . ${OPENHAB_CONF}/linux.parameters
+fi
+
 export OPENHAB_HTTP_PORT
 export OPENHAB_HTTPS_PORT
 export OPENHAB_HOME
