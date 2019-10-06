@@ -385,11 +385,11 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         gDebDist.each {singleDebDist -> debDists = debDists + "deb.distribution=${singleDebDist};"}
         fileName = "${gPackageName}_${gVersion}-${gRelease}_${OSPACKAGE_ARCH}.deb"
         curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}/pool/main/${gVersion}/${fileName}"
-        curlOptions = "{$debDists};deb.component=main;${debArchs};artifactory.licenses=Eclipse-1.0"
+        curlOptions = "{$debDists};deb.component=main;${debArchs};artifactory.licenses=Eclipse-2.0"
       } else if (pType == 'Rpm') {
         fileName = "${gPackageName}-${gVersion}-${gRelease}.noarch.rpm"
         curlURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/${ARTIFACTORY_REPO}-rpm/${topDist}/${gVersion}/${fileName}"
-        curlOptions = 'artifactory.licenses=Eclipse-1.0'
+        curlOptions = 'artifactory.licenses=Eclipse-2.0'
       }
 
       executable 'curl'
