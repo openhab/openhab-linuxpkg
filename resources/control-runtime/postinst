@@ -126,6 +126,12 @@ runCommand() {
     param3="$(echo "$string" | awk -F';' '{print $4}')"
 
     case $command in
+    'MOVE')
+      if [ -f "$param1" ]; then
+        echo "  Moving:   From $param1 to $param2"
+        mv "$param1" "$param2"
+      fi
+    ;;
     'REPLACE')
       # Avoid error if file does not exist
       if [ -f "$param3" ]; then
