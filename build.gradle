@@ -553,6 +553,7 @@ releaseTypes.each { releaseType ->
 task calculateMetadata() {
   def apiURL = "https://api.bintray.com/calc_metadata/openhab/"
   def repoPaths = [
+    "${apiURL}/apt-repo",
     "${apiURL}/apt-repo2",
     "${apiURL}/rpm-repo2/stable",
     "${apiURL}/rpm-repo2/testing"
