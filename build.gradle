@@ -81,15 +81,6 @@ ospackage {
 
 def distributions = [
   [
-    "dist":        'openhab2-release',
-    "description": 'Linux installation package for openHAB 2.',
-    "debDist":     ['stable','testing','unstable'],
-    "packageName": 'openhab2',
-    "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHVersion}%2Fopenhab-${OHVersion}.tar.gz",
-    "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
-    "version":     "${OHVersion}",
-    "release":     "${OHReleaseNumber}"
-  ],[
     'dist':        'openhab2-addons-release',
     'description': 'Linux installation package for openHAB 2 addons.',
     'debDist':     ['stable','testing','unstable'],
@@ -107,15 +98,6 @@ def distributions = [
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
     'version':     "${OHVersion}",
     'release':     "${OHReleaseNumber}"
-  ],[
-    "dist":        'openhab2-testing',
-    "description": 'Linux installation package for openHAB 2.',
-    "debDist":     ['testing'],
-    "packageName": 'openhab2',
-    "url":         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab/${OHTestingVersion}/openhab-${OHTestingVersion}.tar.gz",
-    "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHTestingVersion}.tar.gz",
-    "version":     "${OHTestingVersion}",
-    "release":     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab2-addons-testing',
     'description': 'Linux installation package for openHAB 2 addons.',
@@ -135,20 +117,11 @@ def distributions = [
     'version':     "${OHTestingVersion}",
     'release':     "${OHReleaseNumber}"
   ],[
-    'dist':        'openhab2-snapshot',
-    'description': 'Linux installation package for openHAB 2.',
-    'debDist':     ['unstable'],
-    'packageName': 'openhab2',
-    'url':         "https://ci.openhab.org/job/openHAB2.5.x-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
-    'path':        buildDir.getAbsolutePath() + '/' + "openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
-    'version':     "${OHPackageSnapVersion}",
-    'release':     '1'
-  ],[
     'dist':        'openhab2-addons-snapshot',
     'description': 'Linux installation package for openHAB 2 addons.',
     'debDist':     ['unstable'],
     'packageName': 'openhab2-addons',
-    'url':         "https://ci.openhab.org/job/openHAB2.5.x-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
+    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
@@ -157,7 +130,7 @@ def distributions = [
     'description': 'Linux installation package for legacy openHAB 2 addons.',
     'debDist':     ['unstable'],
     'packageName': 'openhab2-addons-legacy',
-    'url':         "https://ci.openhab.org/job/openHAB2.5.x-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
+    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
