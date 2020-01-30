@@ -4,9 +4,9 @@ import groovy.json.JsonSlurper
 buildscript {
   dependencies{
     classpath fileTree(dir: 'libs', include: '*jar')
-    classpath 'org.apache.commons:commons-lang3:3.1'
-    classpath 'org.vafer:jdeb:1.4'
-    classpath 'com.bmuschko:gradle-docker-plugin:3.0.1'
+    classpath 'org.apache.commons:commons-lang3:3.9'
+    classpath 'org.vafer:jdeb:1.8'
+    classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
   }
 }
 
@@ -73,10 +73,12 @@ ospackage {
   user = 'openhab'
   permissionGroup = 'openhab'
 
-  signingKeyId = "${ARTIFACTORY_GPG_KEY_ID}"
-  signingKeyPassphrase = "${ARTIFACTORY_GPG}"
-  signingKeyRingFile = new File("${ARTIFACTORY_GPG_KEY}")
-  signatureSize = 543
+  if(ARTIFACTORY_GPG_KEY != null){
+    signingKeyId = "${ARTIFACTORY_GPG_KEY_ID}"
+    signingKeyRingFile = new File("${ARTIFACTORY_GPG_KEY}")
+    signingKeyPassphrase = "${ARTIFACTORY_GPG}"
+    signingKeySignatureSize = 543
+  }
 }
 
 def distributions = [

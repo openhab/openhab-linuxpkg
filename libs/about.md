@@ -6,7 +6,7 @@ the following is provided for informational purposes only, and you should look t
 
 *Redline*
 
-Fork: https://github.com/BClark09/redline/tree/signature-size
+Fork: https://github.com/BClark09/redline/tree/signature-size-redo
 Forked from: https://github.com/craigwblake/redline
 Licence: [MIT License](https://github.com/craigwblake/redline/blob/master/license.txt)
 
