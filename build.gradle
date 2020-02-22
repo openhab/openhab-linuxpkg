@@ -337,6 +337,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           exclude 'userdata/etc/startup.properties'
           exclude 'userdata/etc/system.properties'
           exclude 'userdata/etc/version.properties'
+          exclude 'userdata/tmp/**'
           eachFile { details ->
             def pkgPath = details.path - 'userdata'
             details.path = pkgPath
