@@ -30,7 +30,6 @@ fi
 
 startOpenHAB() {
   if [ -x /bin/systemctl ] ; then
-    /bin/systemctl daemon-reload
     /bin/systemctl start openhab2.service
   elif [ -x "/etc/init.d/openhab2" ]; then
     if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
@@ -211,6 +210,7 @@ case "$1" in
     if [ -z "$2" ] && [ "$1" != 2 ] ; then
       # this is a fresh installation
       if [ -x /bin/systemctl ] ; then
+        rm -f /etc/init.d/openhab2
         printf "${OPENHAB_TEXT} Please use the following commands to launch openHAB on a system restart.\n"
         echo "${WHITESP_TEXT}   sudo /bin/systemctl daemon-reload"
         echo "${WHITESP_TEXT}   sudo /bin/systemctl enable openhab2.service"
@@ -240,6 +240,7 @@ case "$1" in
       mkdir -p $UD_TMP
       chown -R "$OH_USER:$OH_GROUP" $UD_TMP
       if [ -x /bin/systemctl ] ; then
+        rm -f /etc/init.d/openhab2
         /bin/systemctl daemon-reload 2>/dev/null 2>&1
       fi
       if [ -f ${OLD_VERSION_FILE} ]; then
