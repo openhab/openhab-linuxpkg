@@ -101,15 +101,6 @@ def distributions = [
     'version':     "${OHVersion}",
     'release':     "${OHReleaseNumber}"
   ],[
-    'dist':        'openhab2-addons-legacy-release',
-    'description': 'Linux installation package for legacy openHAB 2 addons.',
-    'debDist':     ['stable','testing','unstable'],
-    'packageName': 'openhab2-addons-legacy',
-    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons-legacy%2F${OHVersion}%2Fopenhab-addons-legacy-${OHVersion}.kar",
-    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHVersion}.kar",
-    'version':     "${OHVersion}",
-    'release':     "${OHReleaseNumber}"
-  ],[
     "dist":        'openhab2-testing',
     "description": 'Linux installation package for openHAB 2.',
     "debDist":     ['testing'],
@@ -128,15 +119,6 @@ def distributions = [
     'version':     "${OHTestingVersion}",
     'release':     "${OHReleaseNumber}"
   ],[
-    'dist':        'openhab2-addons-legacy-testing',
-    'description': 'Linux installation package for legacy openHAB 2 addons.',
-    'debDist':     ['testing'],
-    'packageName': 'openhab2-addons-legacy',
-    'url':         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab-addons-legacy/${OHTestingVersion}/openhab-addons-legacy-${OHTestingVersion}.kar",
-    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHTestingVersion}.kar",
-    'version':     "${OHTestingVersion}",
-    'release':     "${OHReleaseNumber}"
-  ],[
     'dist':        'openhab2-snapshot',
     'description': 'Linux installation package for openHAB 2.',
     'debDist':     ['unstable'],
@@ -152,15 +134,6 @@ def distributions = [
     'packageName': 'openhab2-addons',
     'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
-    'version':     "${OHPackageSnapVersion}",
-    'release':     '1'
-  ],[
-    'dist':        'openhab2-addons-legacy-snapshot',
-    'description': 'Linux installation package for legacy openHAB 2 addons.',
-    'debDist':     ['unstable'],
-    'packageName': 'openhab2-addons-legacy',
-    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons-legacy/target/openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
-    'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-legacy-${OHSnapVersion}-SNAPSHOT.kar",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
   ]
@@ -522,15 +495,13 @@ releaseTypes.each { releaseType ->
 
     def aptPackagePath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2_${releaseVersion}-${OHReleaseNumber}_all.deb"
     def aptAddonPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2-addons_${releaseVersion}-${OHReleaseNumber}_all.deb"
-    def aptLegacyPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2-addons-legacy_${releaseVersion}-${OHReleaseNumber}_all.deb"
 
     def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
     def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-addons-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
-    def rpmLegacyPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-addons-legacy-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
 
     def curlOptions = """{\
       "targetRepo" : "${distributeRepo}",
-      "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${aptLegacyPath}","${rpmPackagePath}","${rpmAddonPath}","${rpmLegacyPath}"],
+      "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${rpmPackagePath}","${rpmAddonPath}"],
       "dryRun" : "false"}\
     """
 
