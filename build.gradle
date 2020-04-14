@@ -39,7 +39,7 @@ def OHDistroBuildNumber = project.hasProperty('openHABDistroBuildNumber') ? proj
 
 OHVersion = OHVersion ?: '2.4.0'
 OHTestingVersion = OHTestingVersion ?: '2.4.0.RC1'
-OHSnapVersion = OHSnapVersion ?: '2.5.0'
+OHSnapVersion = OHSnapVersion ?: '2.5.4'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
@@ -258,6 +258,10 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           fileMode 0755
           into '/usr/share/openhab2/runtime/bin/'
         }
+        from ('resources/replacements/start.sh'){
+          fileMode 0755
+          into '/usr/share/openhab2/'
+        }
         from ('resources/etc/openhab-cli'){
           fileType CONFIG | NOREPLACE
           fileMode 0755
@@ -273,6 +277,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           exclude '**/*.ps1'
           exclude 'runtime/bin/contrib/**'
           exclude 'runtime/bin/update'
+          exclude 'start.sh'
         }
         from(tar){
           fileType CONFIG | NOREPLACE
