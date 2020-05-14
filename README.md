@@ -6,8 +6,8 @@ These packages follow the usual service or program directory conventions; theref
 Anyone can use a fork of this repo to build their own openHAB .deb or .rpm files.
 Upload tasks are specific to openHAB's distribution services, powered by [JFrog's Artifactory](https://openhab.jfrog.io/) and [Bintray](https://bintray.com/openhab).
 
-For information about the general openHAB 2 package, please visit the [openhab-distro github repo](https://github.com/openhab/openhab-distro).
-For general information about openHAB2, please visit the [openHAB homepage](http://www.openhab.org/).
+For information about the general openHAB package, please visit the [openhab-distro github repo](https://github.com/openhab/openhab-distro).
+For general information about openHAB, please visit the [openHAB homepage](http://www.openhab.org/).
 
 ## Tasks
 
@@ -16,8 +16,8 @@ A list of up to date tasks can be obtained by using the command `./gradlew tasks
 | Task Name                                 | Description                                                 |
 |:------------------------------------------|:------------------------------------------------------------|
 | `downloadDistros`                         | Downloads the latest compressed packages                    |
-| `download-[TYPE]-openhab2-[PACKAGE NAME]` | Downloads the latest version of the specified package       |
-| `distro-[TYPE]-openhab2-[PACKAGE NAME]`   | Builds a specific package without uploading it              |
+| `download-[TYPE]-openhab-[PACKAGE NAME]` | Downloads the latest version of the specified package       |
+| `distro-[TYPE]-openhab-[PACKAGE NAME]`   | Builds a specific package without uploading it              |
 | `packageDistros`                          | Runs all `distro-*` tasks                                   |
 
 You can set the target version by setting `OPENHAB_VERSION=x.x.x`, `OPENHAB_TESTING_VERSION=x.x.x.rcx` and `OPENHAB_SNAPSHOT_VERSION=x.x.x` environment variables
@@ -46,9 +46,9 @@ The list of `[PACKAGE NAME]`s are:
 ## Examples
 
 ```shell
-## Build the .deb package for openhab2 release and place it in build/distributions.
-sudo ./gradlew distro-Deb-openhab2-release
+## Build the .deb package for openhab release and place it in build/distributions.
+sudo ./gradlew distro-Deb-openhab-release
 
 ## Build the .rpm packages for openhab snapshot and place them in build/distributions.
-sudo ./gradlew distro-Rpm-openhab2-snapshot distro-Rpm-openhab2-addons-snapshot
+sudo ./gradlew distro-Rpm-openhab-snapshot distro-Rpm-openhab-addons-snapshot
 ```

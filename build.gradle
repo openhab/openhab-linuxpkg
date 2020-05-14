@@ -37,9 +37,9 @@ def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.prop
 def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
 def OHDistroBuildNumber = project.hasProperty('openHABDistroBuildNumber') ? project.property('openHABDistroBuildNumber') : System.env.DISTRO_BUILD_NUMBER
 
-OHVersion = OHVersion ?: '2.4.0'
-OHTestingVersion = OHTestingVersion ?: '2.4.0.RC1'
-OHSnapVersion = OHSnapVersion ?: '2.5.4'
+OHVersion = OHVersion ?: '3.0.0'
+OHTestingVersion = OHTestingVersion ?: '3.0.0.B1'
+OHSnapVersion = OHSnapVersion ?: '3.0.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
@@ -67,6 +67,10 @@ ospackage {
   vendor = "openHAB Foundation"
   url = "www.openhab.org"
 
+  conflicts('openhab2')
+  conflicts('openhab-runtime')
+  replaces('openhab2','3.0.0~', LESS)
+  breaks('openhab2','3.0.0~', LESS)
   conflicts('openhab2-online')
   conflicts('openhab2-offline')
 
@@ -83,56 +87,56 @@ ospackage {
 
 def distributions = [
   [
-    "dist":        'openhab2-release',
-    "description": 'Linux installation package for openHAB 2.',
+    "dist":        'openhab-release',
+    "description": 'Linux installation package for openHAB.',
     "debDist":     ['stable','testing','unstable'],
-    "packageName": 'openhab2',
-    "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab%2F${OHVersion}%2Fopenhab-${OHVersion}.tar.gz",
+    "packageName": 'openhab',
+    "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/${OHVersion}/openhab-${OHVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
     "version":     "${OHVersion}",
     "release":     "${OHReleaseNumber}"
   ],[
-    'dist':        'openhab2-addons-release',
-    'description': 'Linux installation package for openHAB 2 addons.',
+    'dist':        'openhab-addons-release',
+    'description': 'Linux installation package for openHAB addons.',
     'debDist':     ['stable','testing','unstable'],
-    'packageName': 'openhab2-addons',
-    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org%2Fopenhab%2Fdistro%2Fopenhab-addons%2F${OHVersion}%2Fopenhab-addons-${OHVersion}.kar",
+    'packageName': 'openhab-addons',
+    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab-addons/${OHVersion}/openhab-addons-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHVersion}.kar",
     'version':     "${OHVersion}",
     'release':     "${OHReleaseNumber}"
   ],[
-    "dist":        'openhab2-testing',
-    "description": 'Linux installation package for openHAB 2.',
+    "dist":        'openhab-testing',
+    "description": 'Linux installation package for openHAB.',
     "debDist":     ['testing'],
-    "packageName": 'openhab2',
+    "packageName": 'openhab',
     "url":         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab/${OHTestingVersion}/openhab-${OHTestingVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHTestingVersion}.tar.gz",
     "version":     "${OHTestingVersion}",
     "release":     "${OHReleaseNumber}"
   ],[
-    'dist':        'openhab2-addons-testing',
-    'description': 'Linux installation package for openHAB 2 addons.',
+    'dist':        'openhab-addons-testing',
+    'description': 'Linux installation package for openHAB addons.',
     'debDist':     ['testing'],
-    'packageName': 'openhab2-addons',
+    'packageName': 'openhab-addons',
     'url':         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab-addons/${OHTestingVersion}/openhab-addons-${OHTestingVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHTestingVersion}.kar",
     'version':     "${OHTestingVersion}",
     'release':     "${OHReleaseNumber}"
   ],[
-    'dist':        'openhab2-snapshot',
-    'description': 'Linux installation package for openHAB 2.',
+    'dist':        'openhab-snapshot',
+    'description': 'Linux installation package for openHAB.',
     'debDist':     ['unstable'],
-    'packageName': 'openhab2',
-    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
+    'packageName': 'openhab',
+    'url':         "https://ci.openhab.org/job/openHAB3-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
   ],[
-    'dist':        'openhab2-addons-snapshot',
-    'description': 'Linux installation package for openHAB 2 addons.',
+    'dist':        'openhab-addons-snapshot',
+    'description': 'Linux installation package for openHAB addons.',
     'debDist':     ['unstable'],
-    'packageName': 'openhab2-addons',
-    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
+    'packageName': 'openhab-addons',
+    'url':         "https://ci.openhab.org/job/openHAB3-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
@@ -175,10 +179,10 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
       }
 
       if (dist.contains('addons')){
-        requires('openhab2')
+        requires('openhab')
         from(gInputFile) {
           if (pType == 'Rpm') {addParentDirs=false}
-          into '/usr/share/openhab2/addons'
+          into '/usr/share/openhab/addons'
         }
       } else {
 
@@ -194,8 +198,8 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           postUninstallFile file('resources/control-runtime/postrm')
         }
 
-        configurationFile('/etc/default/openhab2')
-        configurationFile('/etc/profile.d/openhab2.sh')
+        configurationFile('/etc/default/openhab')
+        configurationFile('/etc/profile.d/openhab.sh')
         configurationFile('/etc/openhab-cli/command-overrides.sh')
 
         if (pType == 'Deb') {
@@ -207,27 +211,27 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         recommends('unzip')
 
         FileTree tar = tarTree(gInputFile)
-        suckUpEmptyDirectories('/var/log/openhab2', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/db4o', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/rrd4j', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/var/lib/openhab2/persistence/mapdb', user, permissionGroup, 0755)
-        suckUpEmptyDirectories('/usr/share/openhab2/bin', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/log/openhab', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab/persistence/db4o', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab/persistence/rrd4j', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/var/lib/openhab/persistence/mapdb', user, permissionGroup, 0755)
+        suckUpEmptyDirectories('/usr/share/openhab/bin', user, permissionGroup, 0755)
 
-        from('resources/etc/default/openhab2'){
+        from('resources/etc/default/openhab'){
           fileType CONFIG | NOREPLACE
           user 'root'
           permissionGroup 'root'
           fileMode 0644
           into '/etc/default/'
         }
-        from('resources/etc/profile.d/openhab2.sh'){
+        from('resources/etc/profile.d/openhab.sh'){
           fileType CONFIG | NOREPLACE
           fileMode 0644
           user 'root'
           permissionGroup 'root'
           into '/etc/profile.d/'
         }
-        from('resources/systemd/openhab2.service'){
+        from('resources/systemd/openhab.service'){
           fileMode 0644
           user 'root'
           permissionGroup 'root'
@@ -240,14 +244,14 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into '/usr/bin/'
         }
         if (pType == 'Deb') {
-          from('resources/etc/init.d/deb/openhab2'){
+          from('resources/etc/init.d/deb/openhab'){
             fileMode 0775
             user 'root'
             permissionGroup 'root'
             into '/etc/init.d/'
           }
         } else {
-          from('resources/etc/init.d/rpm/openhab2'){
+          from('resources/etc/init.d/rpm/openhab'){
             fileMode 0775
             user 'root'
             permissionGroup 'root'
@@ -256,11 +260,11 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         }
         from ('resources/replacements/update'){
           fileMode 0755
-          into '/usr/share/openhab2/runtime/bin/'
+          into '/usr/share/openhab/runtime/bin/'
         }
         from ('resources/replacements/start.sh'){
           fileMode 0755
-          into '/usr/share/openhab2/'
+          into '/usr/share/openhab/'
         }
         from ('resources/etc/openhab-cli'){
           fileType CONFIG | NOREPLACE
@@ -270,7 +274,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           into '/etc/openhab-cli/'
         }
         from(tar){
-          into '/usr/share/openhab2'
+          into '/usr/share/openhab'
           exclude 'conf/**'
           exclude 'userdata/**'
           exclude '**/*.bat'
@@ -281,7 +285,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         }
         from(tar){
           fileType CONFIG | NOREPLACE
-          into '/etc/openhab2'
+          into '/etc/openhab'
           include 'conf/**'
           eachFile { details ->
             def pkgPath = details.path - 'conf'
@@ -291,7 +295,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
         }
         from(tar){
           fileType CONFIG | NOREPLACE
-          into '/var/lib/openhab2'
+          into '/var/lib/openhab'
           include 'userdata/**'
           exclude 'userdata/etc/all.policy'
           exclude 'userdata/etc/branding.properties'
@@ -323,7 +327,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           }
         }
         from(tar){
-          into '/var/lib/openhab2'
+          into '/var/lib/openhab'
           include 'userdata/etc/all.policy'
           include 'userdata/etc/branding.properties'
           include 'userdata/etc/branding-ssh.properties'
@@ -498,11 +502,11 @@ releaseTypes.each { releaseType ->
     def distributeRepo = 'openhab-linuxpkg-distribution'
     def distributeURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/distribute"
 
-    def aptPackagePath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2_${releaseVersion}-${OHReleaseNumber}_all.deb"
-    def aptAddonPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab2-addons_${releaseVersion}-${OHReleaseNumber}_all.deb"
+    def aptPackagePath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab_${releaseVersion}-${OHReleaseNumber}_all.deb"
+    def aptAddonPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab-addons_${releaseVersion}-${OHReleaseNumber}_all.deb"
 
-    def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
-    def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab2-addons-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
+    def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
+    def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab-addons-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
 
     def curlOptions = """{\
       "targetRepo" : "${distributeRepo}",

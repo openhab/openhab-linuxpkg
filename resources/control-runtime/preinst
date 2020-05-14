@@ -12,11 +12,11 @@
 
 set -e
 
-UD_CACHE=/var/lib/openhab2/cache
-UD_TMP=/var/lib/openhab2/tmp
-UD_KAR=/var/lib/openhab2/kar
-RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
-OLD_VERSION_FILE=/var/lib/openhab2/.previousVersion
+UD_CACHE=/var/lib/openhab/cache
+UD_TMP=/var/lib/openhab/tmp
+UD_KAR=/var/lib/openhab/kar
+RESTART_FLAG_FILE=/var/lib/openhab/.restartOnUpgrade
+OLD_VERSION_FILE=/var/lib/openhab/.previousVersion
 
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
@@ -27,16 +27,16 @@ removeCache(){
 
 flagRestart() {
   if [ -x /bin/systemctl ] ; then
-    if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
+    if /bin/systemctl status openhab.service > /dev/null 2>&1; then
       touch ${RESTART_FLAG_FILE}
     fi
-  elif [ -x "/etc/init.d/openhab2" ]; then
+  elif [ -x "/etc/init.d/openhab" ]; then
     if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
-      if invoke-rc.d openhab2 status > /dev/null 2>&1; then
+      if invoke-rc.d openhab status > /dev/null 2>&1; then
         touch ${RESTART_FLAG_FILE}
       fi
     else
-      if /etc/init.d/openhab2 status > /dev/null 2>&1; then
+      if /etc/init.d/openhab status > /dev/null 2>&1; then
         touch ${RESTART_FLAG_FILE}
       fi
     fi
@@ -45,7 +45,7 @@ flagRestart() {
 }
 
 flagVersion() {
-  versionFile="/var/lib/openhab2/etc/version.properties"
+  versionFile="/var/lib/openhab/etc/version.properties"
   if [ -f "${versionFile}" ]; then
     awk '/openhab-distro/{print $3}' "${versionFile}" > "${OLD_VERSION_FILE}"
   fi
@@ -69,7 +69,7 @@ case "$1" in
     if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
       adduser --quiet --system --ingroup "$OH_GROUP" --no-create-home \
       --disabled-password --shell /bin/false \
-      --gecos "openhab2 runtime user" --home /var/lib/openhab2 "$OH_USER"
+      --gecos "openhab runtime user" --home /var/lib/openhab "$OH_USER"
     fi
     ;;
   1|2)
@@ -77,12 +77,12 @@ case "$1" in
     flagRestart
     flagVersion
     if [ -x /bin/systemctl ] ; then
-      /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
-    elif [ -x "/etc/init.d/openhab2" ]; then
+      /bin/systemctl --no-reload stop openhab.service > /dev/null 2>&1 || true
+    elif [ -x "/etc/init.d/openhab" ]; then
       if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
-        invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
+        invoke-rc.d openhab stop > /dev/null 2>&1 || true
       else
-        /etc/init.d/openhab2 stop > /dev/null 2>&1 || true
+        /etc/init.d/openhab stop > /dev/null 2>&1 || true
       fi
       sleep 5
     fi
@@ -99,7 +99,7 @@ case "$1" in
     if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
       useradd --system -g "$OH_GROUP"  \
       --shell /bin/false \
-      --home /var/lib/openhab2 "$OH_USER"
+      --home /var/lib/openhab "$OH_USER"
     fi
     ;;
 esac

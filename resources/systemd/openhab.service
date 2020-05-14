@@ -1,0 +1,32 @@
+[Unit]
+Description=openHAB - empowering the smart home
+Documentation=https://www.openhab.org/docs/
+Documentation=https://community.openhab.org
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Environment=OPENHAB_HOME=/usr/share/openhab
+Environment=OPENHAB_CONF=/etc/openhab
+Environment=OPENHAB_RUNTIME=/usr/share/openhab/runtime
+Environment=OPENHAB_USERDATA=/var/lib/openhab
+Environment=OPENHAB_LOGDIR=/var/log/openhab
+Environment=OPENHAB_STARTMODE=daemon
+EnvironmentFile=-/etc/default/openhab
+
+User=openhab
+Group=openhab
+
+WorkingDirectory=/usr/share/openhab
+ExecStart=/usr/share/openhab/runtime/bin/karaf ${OPENHAB_STARTMODE}
+ExecStop=/usr/share/openhab/runtime/bin/karaf stop
+
+SuccessExitStatus=0 143
+RestartSec=5
+Restart=on-failure
+TimeoutStopSec=120
+
+LimitNOFILE=102642
+
+[Install]
+WantedBy=multi-user.target

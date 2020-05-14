@@ -16,15 +16,15 @@ OH_GROUP=openhab
 
 removeOpenHABInit() {
   if [ -x /bin/systemctl ] ; then
-    /bin/systemctl --no-reload disable openhab2.service > /dev/null 2>&1 || :
+    /bin/systemctl --no-reload disable openhab.service > /dev/null 2>&1 || :
   else
-    update-rc.d openhab2 remove > /dev/null 2>&1 || :
+    update-rc.d openhab remove > /dev/null 2>&1 || :
   fi
 }
 
 removeCache(){
-  rm -rf /var/lib/openhab2/cache || true
-  rm -rf /var/lib/openhab2/tmp || true
+  rm -rf /var/lib/openhab/cache || true
+  rm -rf /var/lib/openhab/tmp || true
 }
 
 case "$1" in
@@ -41,10 +41,10 @@ case "$1" in
     if getent group $OH_GROUP > /dev/null 2>&1; then
       delgroup --system --quiet $OH_GROUP || true
     fi
-    rm -rf /var/log/openhab2
-    rm -rf /var/lib/openhab2
-    rm -rf /usr/share/openhab2
-    rm -rf /etc/openhab2
+    rm -rf /var/log/openhab
+    rm -rf /var/lib/openhab
+    rm -rf /usr/share/openhab
+    rm -rf /etc/openhab
     exit 0
     ;;
   0)
@@ -56,10 +56,10 @@ case "$1" in
     if getent group $OH_GROUP > /dev/null 2>&1; then
       groupdel $OH_GROUP || true
     fi
-    rm -rf /var/log/openhab2
-    rm -rf /var/lib/openhab2
-    rm -rf /usr/share/openhab2
-    rm -rf /etc/openhab2
+    rm -rf /var/log/openhab
+    rm -rf /var/lib/openhab
+    rm -rf /usr/share/openhab
+    rm -rf /etc/openhab
     exit 0
     ;;
 
