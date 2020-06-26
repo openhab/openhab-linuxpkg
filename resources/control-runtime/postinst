@@ -40,6 +40,10 @@ resetEnv(){
   unset OPENHAB_USER
   unset OPENHAB_GROUP
 
+  if [ -f /etc/profile.d/openhab2.sh ]; then
+    rm -f /etc/profile.d/openhab2.sh
+  fi
+
   if [ -r /etc/profile.d/openhab.sh ]; then
     . /etc/profile.d/openhab.sh
   fi
