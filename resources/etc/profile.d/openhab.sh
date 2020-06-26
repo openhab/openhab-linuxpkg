@@ -1,7 +1,7 @@
 #!/bin/sh
 
 ## This file sets the environment variables for any user.
-## If you need to edit these, edit the file /etc/default/openhab2.
+## If you need to edit these, edit the file /etc/default/openhab.
 
 if [ -r /etc/default/openhab ]; then
   . /etc/default/openhab

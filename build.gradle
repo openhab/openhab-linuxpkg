@@ -97,7 +97,7 @@ def distributions = [
     "release":     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab-addons-release',
-    'description': 'Linux installation package for openHAB addons.',
+    'description': 'Linux installation package for openHAB Add-ons.',
     'debDist':     ['stable','testing','unstable'],
     'packageName': 'openhab-addons',
     'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab-addons/${OHVersion}/openhab-addons-${OHVersion}.kar",
@@ -115,7 +115,7 @@ def distributions = [
     "release":     "${OHReleaseNumber}"
   ],[
     'dist':        'openhab-addons-testing',
-    'description': 'Linux installation package for openHAB addons.',
+    'description': 'Linux installation package for openHAB Add-ons.',
     'debDist':     ['testing'],
     'packageName': 'openhab-addons',
     'url':         "https://openhab.jfrog.io/openhab/libs-milestone-local/org/openhab/distro/openhab-addons/${OHTestingVersion}/openhab-addons-${OHTestingVersion}.kar",
@@ -133,7 +133,7 @@ def distributions = [
     'release':     '1'
   ],[
     'dist':        'openhab-addons-snapshot',
-    'description': 'Linux installation package for openHAB addons.',
+    'description': 'Linux installation package for openHAB Add-ons.',
     'debDist':     ['unstable'],
     'packageName': 'openhab-addons',
     'url':         "https://ci.openhab.org/job/openHAB3-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",

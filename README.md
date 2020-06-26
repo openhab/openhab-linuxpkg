@@ -7,7 +7,7 @@ Anyone can use a fork of this repo to build their own openHAB .deb or .rpm files
 Upload tasks are specific to openHAB's distribution services, powered by [JFrog's Artifactory](https://openhab.jfrog.io/) and [Bintray](https://bintray.com/openhab).
 
 For information about the general openHAB package, please visit the [openhab-distro github repo](https://github.com/openhab/openhab-distro).
-For general information about openHAB, please visit the [openHAB homepage](http://www.openhab.org/).
+For general information about openHAB, please visit the [openHAB homepage](https://www.openhab.org/).
 
 ## Tasks
 
