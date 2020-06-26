@@ -35,11 +35,16 @@ case "$1" in
     ;;
   purge)
     removeOpenHABInit
-    if getent passwd $OH_USER > /dev/null 2>&1; then
-      deluser --system --quiet $OH_USER || true
-    fi
-    if getent group $OH_GROUP > /dev/null 2>&1; then
-      delgroup --system --quiet $OH_GROUP || true
+    if [ -z "$(ps -o pid= -u openhab)" ]; then
+      if getent passwd $OH_USER > /dev/null 2>&1; then
+        deluser --system --quiet $OH_USER || true
+      fi
+      if getent group $OH_GROUP > /dev/null 2>&1; then
+        delgroup --system --quiet $OH_GROUP || true
+      fi
+    else
+      echo "The 'openhab' user has other active processes and cannot be deleted."
+      echo "  You may want to delete the user and group manually."
     fi
     rm -rf /var/log/openhab2
     rm -rf /var/lib/openhab2
@@ -50,11 +55,16 @@ case "$1" in
   0)
     # Indicates removal on RPM. There is no purge, so assume remove get rid of all
     removeOpenHABInit
-    if getent passwd $OH_USER > /dev/null 2>&1; then
-      userdel --force $OH_USER || true
-    fi
-    if getent group $OH_GROUP > /dev/null 2>&1; then
-      groupdel $OH_GROUP || true
+    if [ -z "$(ps -o pid= -u openhab)" ]; then
+      if getent passwd $OH_USER > /dev/null 2>&1; then
+        userdel --force $OH_USER || true
+      fi
+      if getent group $OH_GROUP > /dev/null 2>&1; then
+        groupdel $OH_GROUP || true
+      fi
+    else
+      echo "The 'openhab' user has other active processes and cannot be deleted." 
+      echo "  You may want to delete the user and group manually."
     fi
     rm -rf /var/log/openhab2
     rm -rf /var/lib/openhab2
