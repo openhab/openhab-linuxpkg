@@ -51,7 +51,6 @@ flagVersion() {
   fi
 }
 
-
 case "$1" in
   install|upgrade)
     # APT Install or Upgrade

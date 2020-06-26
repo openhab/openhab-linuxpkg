@@ -12,8 +12,6 @@
 
 set -e
 
-[ -f /etc/default/openhab ] && . /etc/default/openhab
-
 RESTART_FLAG_FILE=/var/lib/openhab/.restartOnUpgrade
 
 stopOpenHAB() {

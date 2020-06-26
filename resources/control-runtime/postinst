@@ -28,6 +28,24 @@ elif [ -r /etc/default/openhab ]; then
   . /etc/default/openhab
 fi
 
+resetEnv(){
+  unset OPENHAB_HTTP_PORT
+  unset OPENHAB_HTTPS_PORT
+  unset OPENHAB_HOME
+  unset OPENHAB_CONF
+  unset OPENHAB_RUNTIME
+  unset OPENHAB_USERDATA
+  unset OPENHAB_BACKUPS
+  unset OPENHAB_LOGDIR
+  unset OPENHAB_USER
+  unset OPENHAB_GROUP
+
+  if [ -r /etc/profile.d/openhab.sh ]; then
+    . /etc/profile.d/openhab.sh
+  fi
+}
+
+
 startOpenHAB() {
   if [ -x /bin/systemctl ] ; then
     /bin/systemctl start openhab.service
@@ -207,6 +225,7 @@ case "$1" in
         fi
       fi
     done
+    resetEnv
     if [ -z "$2" ] && [ "$1" != 2 ] ; then
       # this is a fresh installation
       if [ -x /bin/systemctl ] ; then
