@@ -1,4 +1,4 @@
-# openHAB 2 service options
+# openHAB service options
 
 #########################
 ## PORTS
@@ -20,7 +20,7 @@
 ## Set the following variable to specify the backup location.
 ## runtime/bin/backup and runtime/bin/restore will use this path for the zip files.
 
-#OPENHAB_BACKUPS=/var/lib/openhab2/backups
+#OPENHAB_BACKUPS=/var/lib/openhab/backups
 
 #########################
 ## JAVA OPTIONS
@@ -28,9 +28,8 @@
 ## These will be appended to the execution of the openHAB Java runtime in front of all other options.
 ## 
 ## A couple of independent examples:
-##   EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyAMA0"
-##   EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"
-##   EXTRA_JAVA_OPTS="-Djna.library.path=/lib/arm-linux-gnueabihf/ -Duser.timezone=Europe/Berlin -Dgnu.io.rxtx.SerialPorts=/dev/ttyS0"
+##   EXTRA_JAVA_OPTS="-Dgnu.io.rxtx.SerialPorts=/dev/ttyZWAVE:/dev/ttyUSB0:/dev/ttyS0:/dev/ttyS2:/dev/ttyACM0:/dev/ttyAMA0"
+##   EXTRA_JAVA_OPTS="-Djna.library.path=/lib/arm-linux-gnueabihf/ -Duser.timezone=Europe/Berlin -Dgnu.io.rxtx.SerialPorts=/dev/ttyZWave"
 
 EXTRA_JAVA_OPTS=""
 
@@ -40,16 +39,16 @@ EXTRA_JAVA_OPTS=""
 ## openHAB will fail to update itself if you're using different paths. 
 ## Only set these if you are testing and are confident in debugging.
  
-#OPENHAB_HOME=/usr/share/openhab2
-#OPENHAB_CONF=/etc/openhab2
-#OPENHAB_RUNTIME=/usr/share/openhab2/runtime
-#OPENHAB_USERDATA=/var/lib/openhab2
-#OPENHAB_LOGDIR=/var/log/openhab2
+#OPENHAB_HOME=/usr/share/openhab
+#OPENHAB_CONF=/etc/openhab
+#OPENHAB_RUNTIME=/usr/share/openhab/runtime
+#OPENHAB_USERDATA=/var/lib/openhab
+#OPENHAB_LOGDIR=/var/log/openhab
 
 #########################
 ## OPENHAB USER AND GROUP
 ## The user and group that takes ownership of openHAB. Only available for init.d systems.
-## To edit user and group for systemd, see the service file at /usr/lib/systemd/system/openhab2.service.
+## To edit user and group for systemd, see the service file at /usr/lib/systemd/system/openhab.service.
 
 #OPENHAB_USER=openhab
 #OPENHAB_GROUP=openhab

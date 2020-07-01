@@ -12,37 +12,35 @@
 
 set -e
 
-[ -f /etc/default/openhab2 ] && . /etc/default/openhab2
-
-RESTART_FLAG_FILE=/var/lib/openhab2/.restartOnUpgrade
+RESTART_FLAG_FILE=/var/lib/openhab/.restartOnUpgrade
 
 stopOpenHAB() {
   if [ -x /bin/systemctl ] ; then
-    /bin/systemctl --no-reload stop openhab2.service > /dev/null 2>&1 || true
-  elif [ -x "/etc/init.d/openhab2" ]; then
+    /bin/systemctl --no-reload stop openhab.service > /dev/null 2>&1 || true
+  elif [ -x "/etc/init.d/openhab" ]; then
     if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
-      invoke-rc.d openhab2 stop > /dev/null 2>&1 || true
+      invoke-rc.d openhab stop > /dev/null 2>&1 || true
     else
-      /etc/init.d/openhab2 stop > /dev/null 2>&1 || true
+      /etc/init.d/openhab stop > /dev/null 2>&1 || true
     fi
-    # waiting for the openhab2 process stop, otherwise the removal of the user will fail.
-    # workaround /etc/init.d/openhab2 stop the service needs some time to stop
+    # Waiting for the openHAB process to stop, otherwise the removal of the user will fail.
+    # workaround for /etc/init.d/openhab: The service needs some time to stop
     sleep 5
   fi
 }
 
 flagRestart() {
   if [ -x /bin/systemctl ] ; then
-    if /bin/systemctl status openhab2.service > /dev/null 2>&1; then
+    if /bin/systemctl status openhab.service > /dev/null 2>&1; then
       touch ${RESTART_FLAG_FILE}
     fi
-  elif [ -x "/etc/init.d/openhab2" ]; then
+  elif [ -x "/etc/init.d/openhab" ]; then
     if [ -x "$(which invoke-rc.d 2>/dev/null)" ]; then
-      if invoke-rc.d openhab2 status > /dev/null 2>&1; then
+      if invoke-rc.d openhab status > /dev/null 2>&1; then
         touch ${RESTART_FLAG_FILE}
       fi
     else
-      if /etc/init.d/openhab2 status > /dev/null 2>&1; then
+      if /etc/init.d/openhab status > /dev/null 2>&1; then
         touch ${RESTART_FLAG_FILE}
       fi
     fi
