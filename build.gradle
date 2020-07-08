@@ -290,7 +290,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           eachFile { details ->
             def pkgPath = details.path - 'conf'
             details.path = pkgPath
-            configurationFile(details.path)
+            configurationFile('/' + details.path)
           }
         }
         from(tar){
@@ -323,7 +323,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           eachFile { details ->
             def pkgPath = details.path - 'userdata'
             details.path = pkgPath
-            configurationFile(details.path)
+            configurationFile('/' + details.path)
           }
         }
         from(tar){
