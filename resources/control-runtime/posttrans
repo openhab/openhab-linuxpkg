@@ -1,0 +1,50 @@
+#!/bin/sh
+#
+# Executed on RPM systems after all upgrading/removing is complete.
+#
+# Necessary for the special case of upgrading from OH2 to OH3
+#
+
+set -e
+
+unset OPENHAB_HTTP_PORT
+unset OPENHAB_HTTPS_PORT
+unset OPENHAB_HOME
+unset OPENHAB_CONF
+unset OPENHAB_RUNTIME
+unset OPENHAB_USERDATA
+unset OPENHAB_BACKUPS
+unset OPENHAB_LOGDIR
+unset OPENHAB_USER
+unset OPENHAB_GROUP
+
+if [ -r /etc/profile.d/openhab.sh ]; then
+  . /etc/profile.d/openhab.sh
+fi
+
+case "$1" in
+  1)
+    #On installation (of openhab package specifically)
+    OH_USER=openhab
+    OH_GROUP=openhab
+    if ! getent group "$OH_GROUP" > /dev/null 2>&1 ; then
+      groupadd --system "$OH_GROUP"
+    fi
+    if ! getent passwd "$OH_USER" > /dev/null 2>&1 ; then
+      useradd --system -g "$OH_GROUP"  \
+      --shell /bin/false \
+      --home /var/lib/openhab "$OH_USER"
+    fi
+    for pGroup in bluetooth tty dialout audio
+    do
+      if ! id -nG "$OH_USER" | grep -qw "$pGroup"; then
+        if getent group $pGroup > /dev/null 2>&1 ; then
+          usermod -a -G $pGroup $OH_USER
+        fi
+      fi
+    done
+    chown -R openhab:openhab "${OPENHAB_HOME:?}" "${OPENHAB_USERDATA:?}" "${OPENHAB_CONF:?}" "${OPENHAB_LOGDIR:?}"
+    ;;
+esac
+
+exit 0
