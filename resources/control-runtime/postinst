@@ -249,6 +249,8 @@ case "$1" in
         printf "${OPENHAB_TEXT} Previous 2.x install detected, making necessary changes"
         scanVersioningList "POST" "${OPENHAB_TEXT} Performing post-update tasks for version"
         scanVersioningList "MSG" "${OPENHAB_TEXT} Listing important changes for version"
+        find /var/lib/openhab/config/ -type f -name "*.config" -exec sed -i'.bak' 's|/var/lib/openhab2/|/var/lib/openhab/|g' {} \;
+        find /var/lib/openhab/config/ -type f -name "*.config" -exec sed -i'.bak' 's|/usr/share/openhab2/|/usr/share/openhab/|g' {} \;
         rm -f /var/lib/openhab/.copiedToOH3
       fi
 
