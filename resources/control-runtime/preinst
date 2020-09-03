@@ -51,9 +51,34 @@ flagVersion() {
   fi
 }
 
+copyOH2toOH3(){
+  if [ -d /var/lib/openhab2 ] && [ ! -f /var/lib/openhab2/.copiedToOH3 ]; then
+    touch /var/lib/openhab2/.copiedToOH3
+    if [ -d /var/lib/openhab ]; then
+      /bin/cp -Rp /var/lib/openhab2/. /var/lib/openhab/
+    else
+      /bin/cp -Rp /var/lib/openhab2 /var/lib/openhab
+    fi
+  fi
+
+  if [ -d /etc/openhab2 ] && [ ! -f /etc/openhab2/.copiedToOH3 ]; then
+    if [ -d /etc/openhab ]; then
+      /bin/cp -Rp /etc/openhab2/. /etc/openhab/
+    else
+      /bin/cp -Rp /etc/openhab2 /etc/openhab
+    fi
+  fi
+  touch /etc/openhab2/.copiedToOH3
+  return 0
+}
+
+
 case "$1" in
   install|upgrade)
     # APT Install or Upgrade
+    if [ "$1" = "install" ]; then
+      copyOH2toOH3
+    fi
     removeCache
     flagVersion
     OH_USER=openhab
@@ -73,6 +98,9 @@ case "$1" in
     ;;
   1|2)
     # RPM Install (1) or Upgrade (2)
+    if [ "$1" = 1 ]; then
+      copyOH2toOH3
+    fi
     flagRestart
     flagVersion
     if [ -x /bin/systemctl ] ; then

@@ -191,6 +191,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           postInstall file('resources/control-runtime/postinst')
           preUninstall file('resources/control-runtime/prerm')
           postUninstall file('resources/control-runtime/postrm')
+          postTrans file('resources/control-runtime/posttrans')
         } else {
           preInstallFile file('resources/control-runtime/preinst')
           postInstallFile file('resources/control-runtime/postinst')
@@ -206,7 +207,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           requires('adduser')
         }
 
-        suggests('zulu-8 | zulu-embedded-8 | oracle-java8-installer |  openjdk-8-jdk-headless')
+        suggests('openjdk-11-jdk | openjdk-11-jre')
         recommends('zip')
         recommends('unzip')
 
