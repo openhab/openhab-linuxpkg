@@ -67,8 +67,8 @@ copyOH2toOH3(){
     else
       /bin/cp -Rp /etc/openhab2 /etc/openhab
     fi
+    touch /etc/openhab2/.copiedToOH3
   fi
-  touch /etc/openhab2/.copiedToOH3
   return 0
 }
 
