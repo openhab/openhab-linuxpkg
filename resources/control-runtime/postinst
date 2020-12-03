@@ -162,6 +162,12 @@ runCommand() {
     'MOVE')
       if [ -f "$param1" ]; then
         echo "  Moving:   From $param1 to $param2"
+        fileDir=$(dirname "$param2")
+        if [ ! -d fileDir ]; then
+          mkdir -p "$fileDir"
+          prevUserGroup=$(ls -ld "$param1" | awk '{print $3 ":" $4}')
+          chown -R "$prevUserGroup" "$fileDir"
+        fi
         mv "$param1" "$param2"
       fi
     ;;
@@ -249,8 +255,10 @@ case "$1" in
         printf "${OPENHAB_TEXT} Previous 2.x install detected, making necessary changes"
         scanVersioningList "POST" "${OPENHAB_TEXT} Performing post-update tasks for version"
         scanVersioningList "MSG" "${OPENHAB_TEXT} Listing important changes for version"
-        find /var/lib/openhab/config/ -type f -name "*.config" -exec sed -i'.bak' 's|/var/lib/openhab2/|/var/lib/openhab/|g' {} \;
-        find /var/lib/openhab/config/ -type f -name "*.config" -exec sed -i'.bak' 's|/usr/share/openhab2/|/usr/share/openhab/|g' {} \;
+        if [ -d /var/lib/openhab/config ]; then
+          find /var/lib/openhab/config/ -type f -name "*.config" -exec sed -i'.bak' 's|/var/lib/openhab2/|/var/lib/openhab/|g' {} \;
+          find /var/lib/openhab/config/ -type f -name "*.config" -exec sed -i'.bak' 's|/usr/share/openhab2/|/usr/share/openhab/|g' {} \;
+        fi
         rm -f /var/lib/openhab/.copiedToOH3
       fi
 
