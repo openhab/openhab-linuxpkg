@@ -94,6 +94,11 @@ case "$1" in
       adduser --quiet --system --ingroup "$OH_GROUP" --no-create-home \
       --disabled-password --shell /bin/false \
       --gecos "openhab runtime user" --home /var/lib/openhab "$OH_USER"
+    else
+      homedir=$(getent passwd "$OH_USER" | cut -d: -f6)
+      if [ "$homedir" != "/var/lib/openhab" ]; then
+        usermod -d /var/lib/openhab "$OH_USER"
+      fi
     fi
     ;;
   1|2)
