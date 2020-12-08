@@ -63,19 +63,10 @@ startOpenHAB() {
   return 0
 }
 
-# Check to see if openHAB is currently running
-findpid() {
-  OH_USER=openhab
-  if [ x"${USER_AND_GROUP}" != x ]; then
-    OH_USER=$(echo "${USER_AND_GROUP}" | cut -d ":" -f 1)
-  fi
-  pgrep -f 'openhab.*java'
-}
-
 waitForStopFinished(){
   # this is a workaround for upgrading from deb installations prior to 2.0.0
   timeout=0
-  pid=$(findpid)
+  pid=$(pgrep -f 'openhab.*java') || true
   if [  x"$pid" != x ]; then
     printf "Waiting for the openHAB service to stop "
     while kill -0 "$pid" 2>/dev/null ; do
