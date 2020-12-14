@@ -97,7 +97,13 @@ case "$1" in
     else
       homedir=$(getent passwd "$OH_USER" | cut -d: -f6)
       if [ "$homedir" != "/var/lib/openhab" ]; then
-        usermod -d /var/lib/openhab "$OH_USER"
+        process=$(pgrep -u "$OH_USER") || true
+        if [ -z "$process" ]; then
+          usermod -d /var/lib/openhab "$OH_USER"
+        else 
+          echo "Warning: openHAB's home directory is incorrect ($homedir)"
+          echo "but can't be changed because another process ($process) is using it."
+        fi
       fi
     fi
     ;;
