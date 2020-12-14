@@ -485,6 +485,14 @@ def releaseTypes = [
   'stable'
 ]
 
+task delayDeploy {
+ doLast{
+   sleep(20000)
+ }
+}
+
+delayDeploy.mustRunAfter(buildRelease)
+
 releaseTypes.each { releaseType ->
   def releaseVersion = '0.0.0'
 
@@ -499,7 +507,7 @@ releaseTypes.each { releaseType ->
     }
   }
 
-  task "deployToBintray-${releaseType}"(type:Exec) {
+  task "deployToBintray-${releaseType}"(type:Exec, dependsOn: delayDeploy) {
     def distributeRepo = 'openhab-linuxpkg-distribution'
     def distributeURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/distribute"
 
