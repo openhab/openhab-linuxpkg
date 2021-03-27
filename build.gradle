@@ -431,7 +431,7 @@ distributions.each { dist -> generate_download_tasks(dist.dist, dist.url, dist.p
 task downloadDistros(dependsOn: tasks.findAll {t -> t.name.startsWith("download-")} << {})
 
 task removeOlderVersions(type:Exec) {
-  def expiryDays = 7
+  def expiryDays = 3
   def expiryEpoch = System.currentTimeMillis() - (86400000 * expiryDays)
 
   description = "Deletes packages older than ${expiryDays} days from the target repo."
