@@ -252,14 +252,12 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
             into '/etc/init.d/'
           }
           if (topDist == 'stable') {
-            from('resources/etc/apt/sources.list.d/openhab.list'){
-              fileType CONFIG | NOREPLACE
+            from('resources/etc/apt/sources.list.d/openhab-linuxpkg.list'){
               fileMode 0644
               user 'root'
               permissionGroup 'root'
               into '/etc/apt/sources.list.d/'
             }
-            configurationFile('/etc/apt/sources.list.d/openhab.list') 
           }
         } else {
           from('resources/etc/init.d/rpm/openhab'){
@@ -269,7 +267,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
             into '/etc/init.d/'
           }
           if (topDist == 'stable') {
-            from('resources/etc/yum.repos.d/openhab.repo'){
+            from('resources/etc/yum.repos.d/openhab-linuxpkg.repo'){
               fileMode 0644
               user 'root'
               permissionGroup 'root'
