@@ -91,7 +91,7 @@ def distributions = [
     "description": 'Linux installation package for openHAB.',
     "debDist":     ['stable','testing','unstable'],
     "packageName": 'openhab',
-    "url":         "https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab/${OHVersion}/openhab-${OHVersion}.tar.gz",
+    "url":         "https://openhab.jfrog.io/artifactory/libs-release-local/org/openhab/distro/openhab/${OHVersion}/openhab-${OHVersion}.tar.gz",
     "path":        buildDir.getAbsolutePath() + '/' + "openhab-${OHVersion}.tar.gz",
     "version":     "${OHVersion}",
     "release":     "${OHReleaseNumber}"
@@ -100,7 +100,7 @@ def distributions = [
     'description': 'Linux installation package for openHAB Add-ons.',
     'debDist':     ['stable','testing','unstable'],
     'packageName': 'openhab-addons',
-    'url':         "https://bintray.com/openhab/mvn/download_file?file_path=org/openhab/distro/openhab-addons/${OHVersion}/openhab-addons-${OHVersion}.kar",
+    'url':         "https://openhab.jfrog.io/artifactory/libs-release-local/org/openhab/distro/openhab-addons/${OHVersion}/openhab-addons-${OHVersion}.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHVersion}.kar",
     'version':     "${OHVersion}",
     'release':     "${OHReleaseNumber}"
