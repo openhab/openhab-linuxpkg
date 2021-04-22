@@ -28,9 +28,6 @@ ARTIFACTORY_ORG = ARTIFACTORY_ORG ?: 'artifactory'
 ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: 'openhab-linuxpkg'
 ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A'
 
-def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
-def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
-
 def OHVersion = project.hasProperty('openHABVersion') ? project.property('openHABVersion') : System.env.OPENHAB_VERSION
 def OHTestingVersion = project.hasProperty('openHABTestingVersion') ? project.property('openHABTestingVersion') : System.env.OPENHAB_TESTING_VERSION
 def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
