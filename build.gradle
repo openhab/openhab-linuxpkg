@@ -28,9 +28,6 @@ ARTIFACTORY_ORG = ARTIFACTORY_ORG ?: 'artifactory'
 ARTIFACTORY_REPO = ARTIFACTORY_REPO ?: 'openhab-linuxpkg'
 ARTIFACTORY_GPG_KEY_ID = ARTIFACTORY_GPG_KEY_ID ?: 'A224060A'
 
-def BINTRAY_USER    = project.hasProperty('bintrayUser') ? project.property('bintrayUser') : System.env.BINTRAY_USER
-def BINTRAY_KEY     = project.hasProperty('bintrayKey') ? project.property('bintrayKey') : System.env.BINTRAY_API_KEY
-
 def OHVersion = project.hasProperty('openHABVersion') ? project.property('openHABVersion') : System.env.OPENHAB_VERSION
 def OHTestingVersion = project.hasProperty('openHABTestingVersion') ? project.property('openHABTestingVersion') : System.env.OPENHAB_TESTING_VERSION
 def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.property('openHABSnapshotVersion') : System.env.OPENHAB_SNAPSHOT_VERSION
@@ -492,85 +489,6 @@ task removeOlderVersions(type:Exec) {
           println folderURL + " is older than ${expiryDays} days. Set for deletion..."
           commandLine 'curl', '-X', 'DELETE', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", "${folderURL}"
         }
-      }
-    }
-  }
-}
-
-def releaseTypes = [
-  'stable'
-]
-
-task delayDeploy {
- doLast{
-   sleep(20000)
- }
-}
-
-delayDeploy.mustRunAfter(buildRelease)
-
-releaseTypes.each { releaseType ->
-  def releaseVersion = '0.0.0'
-
-  if (releaseType == 'stable') {
-    releaseVersion = "${OHVersion}"
-  } else {
-    releaseVersion = "${OHTestingVersion}"
-    if (releaseVersion.count('.') > 2) {
-      def lastDotIndex = releaseVersion.lastIndexOf('.')
-      def newVersion = releaseVersion.substring(0,lastDotIndex)+'~'+releaseVersion.substring(lastDotIndex+1);
-      releaseVersion=newVersion
-    }
-  }
-
-  task "deployToBintray-${releaseType}"(type:Exec, dependsOn: delayDeploy) {
-    def distributeRepo = 'openhab-linuxpkg-distribution'
-    def distributeURL = "https://openhab.jfrog.io/${ARTIFACTORY_ORG}/api/distribute"
-
-    def aptPackagePath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab_${releaseVersion}-${OHReleaseNumber}_all.deb"
-    def aptAddonPath = "${ARTIFACTORY_REPO}/pool/main/${releaseVersion}/openhab-addons_${releaseVersion}-${OHReleaseNumber}_all.deb"
-
-    def rpmPackagePath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
-    def rpmAddonPath = "${ARTIFACTORY_REPO}-rpm/${releaseType}/${releaseVersion}/openhab-addons-${releaseVersion}-${OHReleaseNumber}.noarch.rpm"
-
-    def curlOptions = """{\
-      "targetRepo" : "${distributeRepo}",
-      "packagesRepoPaths" : ["${aptPackagePath}","${aptAddonPath}","${rpmPackagePath}","${rpmAddonPath}"],
-      "dryRun" : "false"}\
-    """
-
-    executable "curl"
-    args '-X', 'POST', '-H', "X-JFrog-Art-Api: ${ARTIFACTORY_KEY}", '-H', 'Content-Type: application/json', '-d', "${curlOptions}", "${distributeURL}"
-    standardOutput = new ByteArrayOutputStream()
-    errorOutput = new ByteArrayOutputStream()
-
-    doLast {
-      def jsonSluper = new JsonSlurper()
-      def jsonText = jsonSluper.parseText(standardOutput.toString())
-
-      if (jsonText.errors) {
-        def errortext=jsonText.errors.message.toString()
-        throw new GradleException('Distribution to Bintray failed: ' + errortext)
-      } else {
-        print standardOutput.toString()
-      }
-    }
-  }
-}
-
-task calculateMetadata() {
-  def apiURL = "https://api.bintray.com/calc_metadata/openhab/"
-  def repoPaths = [
-    "${apiURL}/apt-repo",
-    "${apiURL}/apt-repo2",
-    "${apiURL}/rpm-repo2/stable",
-    "${apiURL}/rpm-repo2/testing"
-  ]
-
-  doLast{
-    repoPaths.each { repoPath ->
-      exec {
-        commandLine 'curl', '-X', 'POST', '-H', "X-GPG-PASSPHRASE: ${ARTIFACTORY_GPG}", "-u${BINTRAY_USER}:${BINTRAY_KEY}", "${repoPath}"
       }
     }
   }
