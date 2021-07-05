@@ -35,7 +35,7 @@ case "$1" in
       --shell /bin/false \
       --home /var/lib/openhab "$OH_USER"
     fi
-    for pGroup in bluetooth tty dialout audio
+    for pGroup in bluetooth tty dialout audio lock
     do
       if ! id -nG "$OH_USER" | grep -qw "$pGroup"; then
         if getent group $pGroup > /dev/null 2>&1 ; then
