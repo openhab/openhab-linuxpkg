@@ -230,7 +230,7 @@ case "$1" in
   configure|1|2)
     OH_USER=openhab
     OH_GROUP=openhab
-    for pGroup in bluetooth tty dialout audio
+    for pGroup in bluetooth tty dialout audio lock
     do
       if ! id -nG "$OH_USER" | grep -qw "$pGroup"; then
         if getent group $pGroup > /dev/null 2>&1 ; then
