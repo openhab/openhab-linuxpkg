@@ -13,7 +13,8 @@ usage() {
   echo "  console                      -- Opens the openHAB console."
   echo "  info                         -- Displays distribution information."
   echo "  reset-ownership              -- Gives openHAB control of its own directories."
-  echo "  restore filename             -- Restores the openHAB configuration from a backup."
+  echo "  restore [--textconfig] [--uiconfig] filename"
+  echo "                               -- Restores openHAB configuration from a backup."
   echo "  showlogs                     -- Displays the log messages of openHAB."
   echo "  start [--debug]              -- Starts openHAB in the terminal."
   echo "  status                       -- Checks to see if openHAB is running."
@@ -213,11 +214,35 @@ case "$option" in
   "restore")
     # Run some basic checks before running the restore script
     checkRoot "$option"
-    checkRunning
-    filename="$1"
+    bText="0"
+    bUI="0"
+    args="$@"
+    while [ "$1" != "" ]; do
+      case $1 in
+        -h | --help)
+          usage
+          exit 0
+          ;;
+        --textconfig)
+          bText="1"
+          ;;
+        --uiconfig)
+          bUI="1"
+          ;;
+        *)
+          filename="$1"
+          ;;
+      esac
+      shift
+    done
+    # no need to stop OH for --[text|ui]config
+    if [ "$bText" = "0" -a "$bUI" = "0" -o "$bUI" = "1" ]; then
+      checkRunning
+    fi
     # The restore script asks the user to confirm so no need to do it here.
     if [ -f "$filename" ]; then
-      "$OPENHAB_RUNTIME/bin/restore" "$filename"
+      echo "Starte $OPENHAB_RUNTIME/bin/restore $args"
+      "$OPENHAB_RUNTIME/bin/restore" $args
     else
       echo "Restore needs a valid backup file to continue."
       echo "  e.g. 'sudo openhab-cli restore backup.zip'"
