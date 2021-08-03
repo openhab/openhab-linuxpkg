@@ -241,7 +241,7 @@ case "$option" in
     fi
     # The restore script asks the user to confirm so no need to do it here.
     if [ -f "$filename" ]; then
-      echo "Starte $OPENHAB_RUNTIME/bin/restore $args"
+      echo "Started $OPENHAB_RUNTIME/bin/restore $args"
       "$OPENHAB_RUNTIME/bin/restore" $args
     else
       echo "Restore needs a valid backup file to continue."
