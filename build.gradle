@@ -248,28 +248,12 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
             permissionGroup 'root'
             into '/etc/init.d/'
           }
-          if (topDist == 'stable') {
-            from('resources/etc/apt/sources.list.d/openhab-linuxpkg.list'){
-              fileMode 0644
-              user 'root'
-              permissionGroup 'root'
-              into '/etc/apt/sources.list.d/'
-            }
-          }
         } else {
           from('resources/etc/init.d/rpm/openhab'){
             fileMode 0775
             user 'root'
             permissionGroup 'root'
             into '/etc/init.d/'
-          }
-          if (topDist == 'stable') {
-            from('resources/etc/yum.repos.d/openhab-linuxpkg.repo'){
-              fileMode 0644
-              user 'root'
-              permissionGroup 'root'
-              into '/etc/yum.repos.d/'
-            }
           }
         }
         from ('resources/replacements/update'){
