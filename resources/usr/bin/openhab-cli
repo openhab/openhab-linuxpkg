@@ -235,7 +235,7 @@ case "$option" in
       esac
       shift
     done
-    # no need to stop OH for --[text|ui]config
+    # no need to stop OH if only --textconfig
     if [ "$bText" = "0" -a "$bUI" = "0" -o "$bUI" = "1" ]; then
       checkRunning
     fi
