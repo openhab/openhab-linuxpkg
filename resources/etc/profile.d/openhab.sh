@@ -23,6 +23,7 @@ if [ -r ${OPENHAB_CONF}/linux.parameters ]; then
   . ${OPENHAB_CONF}/linux.parameters
 fi
 
+# export these to make them available in the karaf start script
 export OPENHAB_HTTP_PORT
 export OPENHAB_HTTPS_PORT
 export OPENHAB_HOME
@@ -34,3 +35,5 @@ export OPENHAB_BACKUPS
 export OPENHAB_USER
 export OPENHAB_GROUP
 
+export OPENHAB_HTTP_ADDRESS
+export EXTRA_JAVA_OPTS
