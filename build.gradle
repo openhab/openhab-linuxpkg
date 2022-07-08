@@ -3,7 +3,7 @@ import groovy.json.JsonSlurper
 
 buildscript {
   dependencies{
-    classpath fileTree(dir: 'libs', include: '*jar')
+    classpath fileTree(dir: 'libs', include: ['*jar'])
     classpath 'org.apache.commons:commons-lang3:3.9'
     classpath 'org.vafer:jdeb:1.8'
     classpath 'com.bmuschko:gradle-docker-plugin:3.2.1'
@@ -11,7 +11,7 @@ buildscript {
 }
 
 plugins {
-  id "de.undercouch.download" version "4.0.4"
+  id "de.undercouch.download" version "5.1.0"
 }
 
 apply plugin: "nebula.ospackage"
@@ -34,9 +34,9 @@ def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.prop
 def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
 def OHDistroBuildNumber = project.hasProperty('openHABDistroBuildNumber') ? project.property('openHABDistroBuildNumber') : System.env.DISTRO_BUILD_NUMBER
 
-OHVersion = OHVersion ?: '3.0.0'
-OHTestingVersion = OHTestingVersion ?: '3.0.0.B1'
-OHSnapVersion = OHSnapVersion ?: '3.0.0'
+OHVersion = OHVersion ?: '3.3.0'
+OHTestingVersion = OHTestingVersion ?: '3.3.0.RC1'
+OHSnapVersion = OHSnapVersion ?: '3.4.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
