@@ -34,9 +34,9 @@ def OHSnapVersion = project.hasProperty('openHABSnapshotVersion') ? project.prop
 def OHReleaseNumber = project.hasProperty('openHABReleaseNumber') ? project.property('openHABReleaseNumber') : System.env.OPENHAB_RELEASE_NUMBER
 def OHDistroBuildNumber = project.hasProperty('openHABDistroBuildNumber') ? project.property('openHABDistroBuildNumber') : System.env.DISTRO_BUILD_NUMBER
 
-OHVersion = OHVersion ?: '3.3.0'
-OHTestingVersion = OHTestingVersion ?: '3.3.0.RC1'
-OHSnapVersion = OHSnapVersion ?: '3.4.0'
+OHVersion = OHVersion ?: '3.4.0'
+OHTestingVersion = OHTestingVersion ?: '3.4.0.RC1'
+OHSnapVersion = OHSnapVersion ?: '4.0.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
@@ -124,7 +124,7 @@ def distributions = [
     'description': 'Linux installation package for openHAB.',
     'debDist':     ['unstable'],
     'packageName': 'openhab',
-    'url':         "https://ci.openhab.org/job/openHAB3-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
+    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab/target/openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-${OHSnapVersion}-SNAPSHOT.tar.gz",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
@@ -133,7 +133,7 @@ def distributions = [
     'description': 'Linux installation package for openHAB Add-ons.',
     'debDist':     ['unstable'],
     'packageName': 'openhab-addons',
-    'url':         "https://ci.openhab.org/job/openHAB3-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
+    'url':         "https://ci.openhab.org/job/openHAB-Distribution/lastSuccessfulBuild/artifact/distributions/openhab-addons/target/openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'path':        buildDir.getAbsolutePath() + '/' + "openhab-addons-${OHSnapVersion}-SNAPSHOT.kar",
     'version':     "${OHPackageSnapVersion}",
     'release':     '1'
