@@ -204,7 +204,7 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           requires('adduser')
         }
 
-        suggests('default-jre | java11-runtime | java11-runtime-headless')
+        suggests('openjdk-17-jre |  java17-runtime  |  java17-runtime-headless')
         recommends('zip')
         recommends('unzip')
 
