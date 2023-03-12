@@ -110,9 +110,9 @@ restartIfFlagFileExists(){
 checkJava(){
   # Java must be at least version 8, check for this
   VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
-  if [ -z "$VERSION" ] || [ "${VERSION}" -lt "11" ]; then
-    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 11 on your system. This is needed before openHAB can be started.\n"
-    printf "${OPENHAB_TEXT} Please install the current version of Java 11 or check the openHAB documentation for details."
+  if [ -z "$VERSION" ] || [ "${VERSION}" -lt "17" ]; then
+    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 17 on your system. This is needed before openHAB can be started.\n"
+    printf "${OPENHAB_TEXT} Please install the current version of Java 17 or check the openHAB documentation for details."
     echo ""
   fi
 }
