@@ -108,7 +108,7 @@ restartIfFlagFileExists(){
 }
 
 checkJava(){
-  # Java must be at least version 8, check for this
+  # Java must be at least version 17, check for this
   VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
   if [ -z "$VERSION" ] || [ "${VERSION}" -lt "17" ]; then
     printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 17 on your system. This is needed before openHAB can be started.\n"
@@ -293,6 +293,16 @@ case "$1" in
       fi
       echo ""
       checkJava
+      
+      ## Start the internal upgrade tool
+      printf "${OPENHAB_TEXT} Running JSON Database upgrade tool (\${OPENHAB_RUNTIME}/bin/upgradetool.jar).\n"
+      export OPENHAB_USERDATA="${OPENHAB_USERDATA:?}"
+      java -jar "${OPENHAB_RUNTIME:?}/bin/upgradetool.jar" && printf "${OPENHAB_TEXT} JSON Database upgrade completed." || {
+        printf "${OPENHAB_TEXT} WARNING: internal database upgrade tool failed.\n"
+        printf "${OPENHAB_TEXT} please check the openHAB website (www.openhab.org) for upgrade requirements."
+      } 
+      echo ""
+      
       restartIfFlagFileExists
     fi
     ;;
