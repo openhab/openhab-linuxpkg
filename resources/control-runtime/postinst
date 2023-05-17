@@ -293,6 +293,15 @@ case "$1" in
       fi
       echo ""
       checkJava
+      
+      ## Start the internal upgrade tool
+      echo "Running \${OPENHAB_RUNTIME}/bin/upgradetool.jar"
+      export OPENHAB_USERDATA="${OPENHAB_USERDATA:?}"
+      java -jar "${OPENHAB_RUNTIME:?}/bin/upgradetool.jar" || {
+        printf "${OPENHAB_TEXT} internal update tool failed.\n" >&2
+        echo "${WHITESP_TEXT}   please check the openHAB website (www.openhab.org) for upgrade requirements.'."
+      }
+      
       restartIfFlagFileExists
     fi
     ;;
