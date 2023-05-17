@@ -295,13 +295,13 @@ case "$1" in
       checkJava
       
       ## Start the internal upgrade tool
-      echo "Running \${OPENHAB_RUNTIME}/bin/upgradetool.jar"
+      printf "${OPENHAB_TEXT} Running JSON Database update tool (\${OPENHAB_RUNTIME}/bin/upgradetool.jar).\n"
       export OPENHAB_USERDATA="${OPENHAB_USERDATA:?}"
-      java -jar "${OPENHAB_RUNTIME:?}/bin/upgradetool.jar" || {
-        printf "${OPENHAB_TEXT} internal update tool failed.\n"
+      java -jar "${OPENHAB_RUNTIME:?}/bin/upgradetool.jar" && printf "${OPENHAB_TEXT} JSON Database update completed." || {
+        printf "${OPENHAB_TEXT} WARNING: internal update tool failed.\n"
         printf "${OPENHAB_TEXT} please check the openHAB website (www.openhab.org) for upgrade requirements."
-        echo ""
-      }
+      } 
+      echo ""
       
       restartIfFlagFileExists
     fi
