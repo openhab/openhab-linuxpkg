@@ -4,7 +4,7 @@ This repository uses [Gradle](https://gradle.org/) to download the openHAB distr
 These packages follow the usual service or program directory conventions; therefore the directories are different to a manual openHAB install.
 
 Anyone can use a fork of this repo to build their own openHAB .deb or .rpm files.
-Upload tasks are specific to openHAB's distribution services, powered by [JFrog's Artifactory](https://openhab.jfrog.io/) and [Bintray](https://bintray.com/openhab).
+Upload tasks are specific to openHAB's distribution services, powered by [JFrog's Artifactory](https://openhab.jfrog.io/).
 
 For information about the general openHAB package, please visit the [openhab-distro github repo](https://github.com/openhab/openhab-distro).
 For general information about openHAB, please visit the [openHAB homepage](https://www.openhab.org/).
