@@ -98,6 +98,7 @@ case "$option" in
     confirmAction
     rm -rf "${OPENHAB_USERDATA:?}"/tmp
     rm -rf "${OPENHAB_USERDATA:?}"/cache
+    rm -rf "${OPENHAB_USERDATA:?}"/marketplace
     ;;
 
   "console"|"client")
