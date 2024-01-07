@@ -22,7 +22,7 @@ OLD_VERSION_FILE=/var/lib/openhab/.previousVersion
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
   [ -d ${UD_TMP} ] && rm -rf ${UD_TMP}
-  [ -d ${UD_MARKETPLACE} ] && rm -rf ${UD_TMP}
+  [ -d ${UD_MARKETPLACE} ] && rm -rf ${UD_MARKETPLACE}
   [ -d ${UD_KAR} ] && rm -rf ${UD_KAR}
   true
 }
