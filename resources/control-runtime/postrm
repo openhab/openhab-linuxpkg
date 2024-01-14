@@ -25,6 +25,7 @@ removeOpenHABInit() {
 removeCache(){
   rm -rf /var/lib/openhab/cache || true
   rm -rf /var/lib/openhab/tmp || true
+  rm -rf /var/lib/openhab/marketplace || true
 }
 
 case "$1" in
