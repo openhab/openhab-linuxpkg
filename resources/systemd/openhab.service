@@ -13,6 +13,7 @@ Environment=OPENHAB_USERDATA=/var/lib/openhab
 Environment=OPENHAB_LOGDIR=/var/log/openhab
 Environment=OPENHAB_STARTMODE=daemon
 EnvironmentFile=-/etc/default/openhab
+EnvironmentFile=-/etc/openhab/linux.parameters
 
 User=openhab
 Group=openhab
