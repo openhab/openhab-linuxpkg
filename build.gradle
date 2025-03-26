@@ -40,7 +40,7 @@ OHSnapVersion = OHSnapVersion ?: '4.0.0'
 OHReleaseNumber = OHReleaseNumber ?: '1'
 
 def timestamp = new Date().format('yyyyMMddHHmmss')
-def OHPackageSnapVersion = OHDistroBuildNumber ? "${OHSnapVersion}~S${OHDistroBuildNumber}" : "${OHSnapVersion}~" + timestamp
+def OHPackageSnapVersion = OHDistroBuildNumber ? "${OHSnapVersion}~S${OHDistroBuildNumber}" : "${OHSnapVersion}~~" + timestamp
 
 def OSPACKAGE_ARCH = "all"
 
