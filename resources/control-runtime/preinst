@@ -18,6 +18,89 @@ UD_MARKETPLACE=/var/lib/openhab/marketplace
 UD_KAR=/var/lib/openhab/kar
 RESTART_FLAG_FILE=/var/lib/openhab/.restartOnUpgrade
 OLD_VERSION_FILE=/var/lib/openhab/.previousVersion
+OPENHAB_TEXT='[\033[1;33mopenHAB\033[0m]'
+
+#
+#    The pathCanonical and locateJava functions have been adapted from the Apache Karaf start script.
+#    The repository license does not apply for those functions, they are licensed as follows:
+#
+#    Licensed to the Apache Software Foundation (ASF) under one or more
+#    contributor license agreements.  See the NOTICE file distributed with
+#    this work for additional information regarding copyright ownership.
+#    The ASF licenses this file to You under the Apache License, Version 2.0
+#    (the "License"); you may not use this file except in compliance with
+#    the License.  You may obtain a copy of the License at
+#
+#       http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+#
+pathCanonical() {
+    dst="${1}"
+    while [ -h "${dst}" ] ; do
+        ls=`ls -ld "${dst}"`
+        link=`expr "${ls}" : '.*-> \(.*\)$'`
+        if expr "${link}" : '/.*' > /dev/null; then
+            dst="${link}"
+        else
+            dst="`dirname "${dst}"`/${link}"
+        fi
+    done
+    bas=`basename "${dst}"`
+    dir=`dirname "${dst}"`
+    if [ "${bas}" != "${dir}" ]; then
+        dst="`pathCanonical "${dir}"`/${bas}"
+    fi
+    echo "${dst}" | sed -e 's#//#/#g' -e 's#/./#/#g' -e 's#/[^/]*/../#/#g'
+}
+
+locateJava() {
+    # OS specific support (must be 'true' or 'false').
+    cygwin=false;
+    case "`uname`" in
+        CYGWIN*)
+            cygwin=true
+            ;;
+    esac
+    # Setup the Java Virtual Machine
+    if ${cygwin} ; then
+        [ -n "${JAVA}" ] && JAVA=`cygpath --unix "${JAVA}"`
+        [ -n "${JAVA_HOME}" ] && JAVA_HOME=`cygpath --unix "${JAVA_HOME}"`
+    fi
+
+    if [ "x${JAVA_HOME}" = "x" ] && [ "${darwin}" = "true" ]; then
+        JAVA_HOME="`/usr/libexec/java_home -v 1.8`"
+    fi
+    if [ "x${JAVA_HOME}" = "x" ] && [ -r /etc/gentoo-release ] ; then
+        JAVA_HOME=`java-config --jre-home`
+    fi
+    if [ "x${JAVA}" = "x" ]; then
+        if [ "x${JAVA_HOME}" != "x" ]; then
+            if [ ! -d "${JAVA_HOME}" ]; then
+                printf "${OPENHAB_TEXT} JAVA_HOME is not valid: ${JAVA_HOME}"
+                echo ""
+                exit 1
+            fi
+            JAVA="${JAVA_HOME}/bin/java"
+        else
+            JAVA=`command -v java`
+            if [ "x${JAVA}" = "x" ]; then
+                printf "${OPENHAB_TEXT} java command not found.\n"
+                echo ""
+                exit 1
+            fi
+        fi
+    fi
+    if [ "x${JAVA_HOME}" = "x" ]; then
+        JAVA_BIN=`pathCanonical "${JAVA}"`
+        JAVA_BIN_DIR=`dirname "${JAVA_BIN}"`
+        JAVA_HOME="`dirname "${JAVA_BIN_DIR}"`"
+    fi
+}
 
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
@@ -53,6 +136,18 @@ flagVersion() {
   fi
 }
 
+checkJavaAndExitOnFailure(){
+  locateJava
+  # Java must be at least version 21, check for this
+  VERSION=$("${JAVA_HOME}"/bin/java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
+  if [ -z "$VERSION" ] || [ "${VERSION}" -lt "21" ]; then
+    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 21 on your system. This is needed before openHAB is unpacked.\n"
+    printf "${OPENHAB_TEXT} Java 21 may not be available on 32-bit platforms."
+    echo ""
+    exit 1
+  fi
+}
+
 copyOH2toOH3(){
   if [ -d /var/lib/openhab2 ] && [ ! -f /var/lib/openhab2/.copiedToOH3 ]; then
     touch /var/lib/openhab2/.copiedToOH3
@@ -74,6 +169,12 @@ copyOH2toOH3(){
   return 0
 }
 
+case "$1" in
+  upgrade|2)
+    # Valid options for upgrade both APT and RPM based systems
+    checkJavaAndExitOnFailure
+    ;;
+esac
 
 case "$1" in
   install|upgrade)
