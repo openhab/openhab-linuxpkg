@@ -18,6 +18,7 @@ UD_MARKETPLACE=/var/lib/openhab/marketplace
 UD_KAR=/var/lib/openhab/kar
 RESTART_FLAG_FILE=/var/lib/openhab/.restartOnUpgrade
 OLD_VERSION_FILE=/var/lib/openhab/.previousVersion
+OPENHAB_TEXT='[\033[1;33mopenHAB\033[0m]'
 
 removeCache(){
   [ -d ${UD_CACHE} ] && rm -rf ${UD_CACHE}
@@ -53,6 +54,17 @@ flagVersion() {
   fi
 }
 
+checkJavaAndExitOnFailure(){
+  # Java must be at least version 21, check for this
+  VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
+  if [ -z "$VERSION" ] || [ "${VERSION}" -lt "21" ]; then
+    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 21 on your system. This is needed before openHAB is unpacked.\n"
+    printf "${OPENHAB_TEXT} Java 21 may not be available on 32-bit platforms."
+    echo ""
+    exit 1
+  fi
+}
+
 copyOH2toOH3(){
   if [ -d /var/lib/openhab2 ] && [ ! -f /var/lib/openhab2/.copiedToOH3 ]; then
     touch /var/lib/openhab2/.copiedToOH3
@@ -74,6 +86,12 @@ copyOH2toOH3(){
   return 0
 }
 
+case "$1" in
+  upgrade|2)
+    # Valid options for upgrade both APT and RPM based systems
+    checkJavaAndExitOnFailure
+    ;;
+esac
 
 case "$1" in
   install|upgrade)
