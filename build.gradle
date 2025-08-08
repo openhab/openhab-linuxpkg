@@ -181,6 +181,11 @@ def generate_distro_tasks = { dist, gDescription, gPackageName, gInputFile, gVer
           if (pType == 'Rpm') {addParentDirs=false}
           into '/usr/share/openhab/addons'
         }
+        if (pType == 'Rpm') {
+          preInstall file('resources/control-runtime/addons/preinst')
+        } else {
+          preInstallFile file('resources/control-runtime/addons/preinst')
+        }
       } else {
 
         if (pType == 'Rpm') {
