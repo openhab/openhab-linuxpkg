@@ -1,0 +1,33 @@
+#!/bin/sh
+#
+# Executed before the installation of the new package
+#
+# On .deb based systems:
+#   $1=install              : On installation
+#   $1=upgrade              : On upgrade
+#
+# On .rpm based systems:
+#   $1=1                    : On installation
+#   $1=2                    : On upgrade
+
+set -e
+
+OPENHAB_TEXT='[\033[1;33mopenHAB\033[0m]'
+
+checkJavaAndExitOnFailure(){
+  # Java must be at least version 21, check for this
+  VERSION=$(java -version 2>&1 | awk -F '"' '/version/ {print $2}' | sed -e 's/_.*//g; s/^1\.//g; s/\..*//g; s/-.*//g;')
+  if [ -z "$VERSION" ] || [ "${VERSION}" -lt "21" ]; then
+    printf "${OPENHAB_TEXT} WARNING: We were unable to detect Java 21 on your system. This is needed before openHAB is unpacked.\n"
+    printf "${OPENHAB_TEXT} Java 21 may not be available on 32-bit platforms."
+    echo ""
+    exit 1
+  fi
+}
+
+case "$1" in
+  upgrade|2)
+    # Valid options for upgrade both APT and RPM based systems
+    checkJavaAndExitOnFailure
+    ;;
+esac
