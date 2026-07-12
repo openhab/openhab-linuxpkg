@@ -36,6 +36,11 @@ if [ -r ${OPENHAB_CONF}/linux.parameters ]; then
   . ${OPENHAB_CONF}/linux.parameters
 fi
 
+# Load environment variables, e.g., secrets, from .env file if it is present
+if [ -r ${OPENHAB_CONF}/.env ]; then
+  . ${OPENHAB_CONF}/.env
+fi
+
 export OPENHAB_HTTP_PORT
 export OPENHAB_HTTPS_PORT
 export OPENHAB_HOME
